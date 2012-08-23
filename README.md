@@ -9,7 +9,7 @@ Coming soon: Active Model style Ruby ORM for RDF data.
       include Tripod::Resource
 
       # literal values
-      field :label, :predicate_uri => 'http://blah', 'http://blah2', :type => String
+      field :label, :predicate_uri => ['http://blah', 'http://blah2'], :type => String
       field :value, :predicate_uri => 'http://observed-value.com', :type => Integer
 
       # relationships
