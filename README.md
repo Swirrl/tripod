@@ -1,8 +1,11 @@
 # Tripod
 
-Coming soon: Active Model style Ruby ORM for RDF data.
+Active Model style Ruby ORM for RDF data, inspired by http://github.com/mongoid/mongoid
+
+Warning: Work still in progress / experimental. Not production ready!
 
 ## proposed API
+### (Not all implemented yet: WIP!)
 
     class Person
 
