@@ -55,3 +55,11 @@ Coming soon: Active Model style Ruby ORM for RDF data.
     # have a special Predicate class, with a label field.
     # (possibly outside scope of this library).
 
+    p = Person.new('http://swirrl.com/bill.rdf#me')
+    p.label = 'Bill'
+    p.save # => creates a new record
+
+    p = Person.find('http://swirrl.com/ric.rdf#me')
+    p.label = 'Ric'
+    p.save # updates the existing record
+
