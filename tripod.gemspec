@@ -14,4 +14,15 @@ Gem::Specification.new do |gem|
   gem.name          = "tripod"
   gem.require_paths = ["lib"]
   gem.version       = Tripod::VERSION
+
+  gem.required_rubygems_version = ">= 1.3.6"
+  gem.rubyforge_project         = "tripod"
+
+  gem.add_dependency "rest-client"
+  gem.add_dependency "activemodel", "~> 3.1"
+  gem.add_dependency "equivalent-xml"
+  gem.add_dependency "rdf", "~> 0.3"
+  gem.add_dependency "rdf-rdfxml"
+  gem.add_dependency "rdf-n3"
+  gem.add_dependency "rdf-json"
 end

@@ -30,6 +30,12 @@ Warning: Work still in progress / experimental. Not production ready!
     Person.new(uri)
     # => just instantiates. No data set
 
+    person.hydrate()
+    # => hydrates attributes hash with data from the database.
+
+    person[predicate_uri]
+    # => returns instance of RDF::Term (RDF::URI, RDF::Literal etc), or nil
+
     Person.new(uri, RDF::Graph)
     #=> instantiates. Populates data using statements in a graph. Possibly allow to just pass a hash as 2nd param instead?
 
@@ -52,6 +58,7 @@ Warning: Work still in progress / experimental. Not production ready!
     Person.includes(:all).each do |person|
       person['http://foo'].label
     end
+
 
     Person.predicates
     # => returns a collection of resources, which are the resources for the uris of the predicates, if they exist.
