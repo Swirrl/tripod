@@ -15,6 +15,10 @@ describe Tripod::Repository do
       end
     end
 
+    context 'graph passed' do
+      it 'should use the graph data'
+    end
+
     context 'uri set' do
 
       before do

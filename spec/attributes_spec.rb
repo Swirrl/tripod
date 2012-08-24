@@ -4,39 +4,36 @@ describe Tripod::Attributes do
 
   before do
     @uri = 'http://foobar'
-    graph = RDF::Graph.new
+    @graph = RDF::Graph.new
 
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)
     stmt.predicate = RDF::URI.new('http://pred')
     stmt.object = RDF::URI.new('http://obj')
-    graph << stmt
+    @graph << stmt
 
     stmt2 = RDF::Statement.new
     stmt2.subject = RDF::URI.new(@uri)
     stmt2.predicate = RDF::URI.new('http://pred')
     stmt2.object = RDF::URI.new('http://obj2')
-    graph << stmt2
+    @graph << stmt2
 
     stmt3 = RDF::Statement.new
     stmt3.subject = RDF::URI.new(@uri)
     stmt3.predicate = RDF::URI.new('http://pred')
     stmt3.object = 3
-    graph << stmt3
+    @graph << stmt3
 
     stmt4 = RDF::Statement.new
     stmt4.subject = RDF::URI.new(@uri)
     stmt4.predicate = RDF::URI.new('http://pred2')
     stmt4.object = "hello"
-    graph << stmt4
-
-    @graph_nt = graph.dump(:ntriples)
+    @graph << stmt4
   end
 
   let(:person) do
-    Tripod::SparqlClient::Query.should_receive(:describe).with("DESCRIBE <#{@uri}>").and_return(@graph_nt)
-    p =Person.new(@uri)
-    p.hydrate!
+    p = Person.new(@uri)
+    p.hydrate!(@graph)
     p
   end
 

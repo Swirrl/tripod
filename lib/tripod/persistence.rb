@@ -13,13 +13,11 @@ module Tripod::Persistence
   # @return [ true, false ] True is success, false if not.
   def save()
 
+    # TODO: is this transactional?
     query = "
-      DELETE {<#{@uri.to_s}> ?p ?o}
-      INSERT {
+      DELETE {<#{@uri.to_s}> ?p ?o} WHERE {<#{@uri.to_s}> ?p ?o};
+      INSERT DATA {
         #{ @repository.dump(:ntriples) }
-      }
-      WHERE {
-        <#{@uri.to_s}> ?p ?o
       }
     "
 
@@ -29,7 +27,16 @@ module Tripod::Persistence
   end
 
   def destroy()
+    query = "
+      DELETE {<#{@uri.to_s}> ?p ?o}
+      WHERE {
+        <#{@uri.to_s}> ?p ?o
+      }
+    "
 
+    success = Tripod::SparqlClient::Update::update(query)
+    @destroyed = true if success
+    success
   end
 
 end

@@ -45,7 +45,9 @@ describe Tripod::State do
         person.destroy
       end
 
-      it "returns false"
+      it "returns false" do
+        person.should_not be_persisted
+      end
     end
   end
 
@@ -61,7 +63,9 @@ describe Tripod::State do
         person.destroyed = true
       end
 
-      it "returns true"
+      it "returns true" do
+        person.should be_destroyed
+      end
     end
 
     context "when destroyed is false" do
@@ -70,8 +74,9 @@ describe Tripod::State do
         person.destroyed = false
       end
 
-      it "returns true"
-
+      it "returns true" do
+        person.should_not be_destroyed
+      end
     end
 
     context "when destroyed is nil" do
@@ -80,7 +85,9 @@ describe Tripod::State do
         person.destroyed = nil
       end
 
-      it "returns false"
+      it "returns false" do
+        person.should_not be_destroyed
+      end
     end
   end
 end

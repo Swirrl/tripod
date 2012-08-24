@@ -27,8 +27,10 @@ module Tripod::SparqlClient
         body = e.http_body
         if body.start_with?('Error 400: Parse error:')
           # TODO: this is a SPARQL parsing exception. Do something different.
+          puts body.inspect
           raise e
         else
+          puts body.inspect
           raise e
         end
       end
@@ -73,14 +75,13 @@ module Tripod::SparqlClient
 
     ENDPOINT = 'http://127.0.0.1:3030/testoid/update' # TODO: allow to be configured.
 
-    def self.update(sparql, headers = {})
+    def self.update(sparql)
       begin
         RestClient::Request.execute(
           :method => :post,
           :url => ENDPOINT,
-          :headers => headers,
           :timeout => 30, #TODO: allow this to be configured.
-          :body => sparql
+          :payload => {:update => sparql}
         )
         return true
       rescue RestClient::BadRequest => e
