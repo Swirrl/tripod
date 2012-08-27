@@ -29,6 +29,16 @@ module Tripod::Persistence
     end
   end
 
+  # Save the resource, and raise an exception if it fails.
+  # Note: As with save(), regardless of whether it's a new_record or not, we always make the
+  # db match the contents of this resource's statements.
+  #
+  # @example Save the resource.
+  #   resource.save
+  #
+  # @raise [Tripod::Errors::Validations] if invalid
+  #
+  # @return [ true ] True is success.
   def save!()
     # try to save
     unless self.save()
