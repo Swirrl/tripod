@@ -18,7 +18,7 @@ describe Tripod::State do
     context "when the object has been saved" do
 
       let(:person) do
-        p = Person.new('http://uri')
+        p = Person.new('http://uri', 'http://graph')
         p.save
         p
       end
@@ -32,7 +32,7 @@ describe Tripod::State do
   describe "#persisted?" do
 
     let(:person) do
-      Person.new
+      Person.new('http://uri', 'http://graph')
     end
 
     it "delegates to new_record?" do
@@ -41,7 +41,7 @@ describe Tripod::State do
 
     context "when the object has been destroyed" do
       before do
-        person.save
+        person.save.should == true # check it worked
         person.destroy
       end
 

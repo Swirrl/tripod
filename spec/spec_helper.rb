@@ -11,7 +11,13 @@ RSpec.configure do |config|
   config.mock_with :rspec
 
   config.before(:each) do
-    # clean test database?
+    # delete from all named graphs.
+    Tripod::SparqlClient::Update.update('
+      # delete from default graph:
+      DELETE {?s ?p ?o} WHERE {?s ?p ?o};
+      # delete from named graphs:
+      DELETE {graph ?g {?s ?p ?o}} WHERE {graph ?g {?s ?p ?o}};
+    ')
   end
 
 end

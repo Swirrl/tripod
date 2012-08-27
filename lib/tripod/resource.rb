@@ -8,8 +8,14 @@ module Tripod::Resource
 
   include Tripod::Components
 
+  included do
+    # every resource needs a graph and a uri set.
+    validates_presence_of :uri, :graph_uri
+  end
+
   attr_reader :new_record
-  attr_accessor :uri
+  attr_reader :graph_uri
+  attr_reader :uri
 
   # Instantiate a +Resource+.
   # Optionsally pass a uri
@@ -20,10 +26,29 @@ module Tripod::Resource
   # @param [ String, RDF::URI ] uri The uri of the resource.
   #
   # @return [ Resource ] A new +Resource+
-  def initialize(uri=nil)
+  def initialize(uri=nil, graph_uri=nil)
     @new_record = true
     @uri = RDF::URI(uri.to_s) if uri
+    @graph_uri = RDF::URI(graph_uri.to_s) if graph_uri
     @repository = RDF::Repository.new
+  end
+
+  # Set the uri for this resource
+  def uri=(new_uri)
+    if new_uri
+      @uri = RDF::URI(new_uri.to_s)
+    else
+      @uri = nil
+    end
+  end
+
+  # Set the uri for this resource
+  def graph_uri=(new_graph_uri)
+    if new_graph_uri
+      @graph_uri = RDF::URI(new_graph_uri.to_s)
+    else
+      @graph_uri = nil
+    end
   end
 
   # default comparison is via the uri

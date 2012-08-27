@@ -8,32 +8,34 @@ module Tripod::Persistence
   # db match the contents of this resource's statements.
   #
   # @example Save the resource.
-  #   document.save
+  #   resource.save
   #
   # @return [ true, false ] True is success, false if not.
   def save()
-
-    # TODO: is this transactional?
-    query = "
-      DELETE {<#{@uri.to_s}> ?p ?o} WHERE {<#{@uri.to_s}> ?p ?o};
-      INSERT DATA {
-        #{ @repository.dump(:ntriples) }
-      }
-    "
-
-    success = Tripod::SparqlClient::Update::update(query)
-    @new_record = false if success
-    success
+    if self.valid?
+      query = "
+        DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
+        INSERT DATA {
+          GRAPH <#{@graph_uri}> {
+            #{ @repository.dump(:ntriples) }
+          }
+        }
+      "
+      success = Tripod::SparqlClient::Update::update(query)
+      @new_record = false if success
+      success
+    else
+      false
+    end
   end
 
   def destroy()
     query = "
-      DELETE {<#{@uri.to_s}> ?p ?o}
-      WHERE {
-        <#{@uri.to_s}> ?p ?o
-      }
+      # delete from default graph:
+      DELETE {<#{@uri.to_s}> ?p ?o} WHERE {<#{@uri.to_s}> ?p ?o};
+      # delete from named graphs:
+      DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
     "
-
     success = Tripod::SparqlClient::Update::update(query)
     @destroyed = true if success
     success
