@@ -40,7 +40,9 @@ module Tripod; end
 require "tripod/sparql_client"
 
 require "tripod/attributes"
+require "tripod/errors"
 require "tripod/fields"
+require "tripod/finders"
 require "tripod/persistence"
 require "tripod/repository"
 require "tripod/state"

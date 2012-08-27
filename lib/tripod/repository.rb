@@ -6,17 +6,29 @@ module Tripod::Repository
 
   attr_reader :repository
 
-  # hydrates the resource's repo with statements from the db,
+  # hydrates the resource's repo with statements from the db or passed in graph of statements.
   # where the subject is the uri of this resource.
   #
-  # @example Hydrage the resource
+  # @example Hydrate the resource from the db
   #   person.hydrate!
+  #
+  # @example Hydrate the resource from a passed in graph
+  #   person.hydrate!(my_graph)
+  #
+  # @return [ RDF::Repository ] A reference to the repository for this instance.
   def hydrate!(graph = nil)
+
+    # we require that the uri is set.
+    raise Tripod::Errors::UriNotSet.new() unless @uri
+
     if graph
       graph.each_statement do |statement|
-        @repository << statement
+        # only use statements about this resource!
+        if statement.subject.to_s == @uri.to_s
+          @repository << statement
+        end
       end
-    elsif @uri # don't do anything if no uri set on the obj
+    else
       triples = Tripod::SparqlClient::Query::describe("DESCRIBE <#{uri}>")
       @repository = RDF::Repository.new
       RDF::Reader.for(:ntriples).new(triples) do |reader|
@@ -24,8 +36,8 @@ module Tripod::Repository
           @repository << statement
         end
       end
-
     end
+
   end
 
 end

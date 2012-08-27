@@ -16,6 +16,7 @@ module Tripod::Components
   include Tripod::Attributes
   include Tripod::Persistence
   include Tripod::Fields
+  include Tripod::Finders
   include Tripod::Repository
   include Tripod::State
 
