@@ -5,14 +5,12 @@ module Tripod::SparqlClient
 
   module Query
 
-
     # Runs a +sparql+ query against the endpoint. Returns a RestClient response object.
     #
     # @example Run a query
-    #   Tripload::Sparql.query('SELECT * WHERE {?s ?p ?o}')
+    #   Tripod::SparqlClient::Query.query('SELECT * WHERE {?s ?p ?o}')
     #
     # @return [ RestClient::Response ]
-
     def self.query(sparql, format='json', headers = {})
 
       begin
@@ -44,7 +42,7 @@ module Tripod::SparqlClient
     # @param [ String ] raw_format valid formats are: 'json', 'text', 'csv', 'xml'
     #
     # @example Run a SELECT query
-    #   Triploid::Sparql.select('SELECT * WHERE {?s ?p ?o}')
+    #   Tripod::SparqlClient::Query.select('SELECT * WHERE {?s ?p ?o}')
     #
     # @return [ Hash, String ]
     def self.select(query, raw_format=nil)
@@ -60,7 +58,7 @@ module Tripod::SparqlClient
     # Executes the +query+ and returns ntriples by default
     #
     # @example Run a DESCRIBE query
-    #  Triploid::Sparql.select('DESCRIBE <http://foo>')
+    #   Tripod::SparqlClient::Query.select('DESCRIBE <http://foo>')
     #
     # @param [ String ] query The query to run
     # @param [ String ] accept_header The header to pass to the database.
@@ -74,6 +72,12 @@ module Tripod::SparqlClient
 
   module Update
 
+    # Runs a +sparql+ update against the endpoint. Returns a RestClient response object.
+    #
+    # @example Run a query
+    #   Tripod::SparqlClient::Update.update('DELETE {?s ?p ?o} WHERE {?s ?p ?o};')
+    #
+    # @return [ RestClient::Response ]
     def self.update(sparql)
 
       begin
@@ -83,7 +87,6 @@ module Tripod::SparqlClient
           :timeout => Tripod.timeout_seconds,
           :payload => {:update => sparql}
         )
-        return true
       rescue RestClient::BadRequest => e
         body = e.http_body
         if body.start_with?('Error 400: Parse error:')

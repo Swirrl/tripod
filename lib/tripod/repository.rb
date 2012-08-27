@@ -13,7 +13,7 @@ module Tripod::Repository
   #   person.hydrate!
   #
   # @example Hydrate the resource from a passed in graph
-  #   person.hydrate!(my_graph)
+  #   person.hydrate!(my_graph)
   #
   # @return [ RDF::Repository ] A reference to the repository for this instance.
   def hydrate!(graph = nil)
