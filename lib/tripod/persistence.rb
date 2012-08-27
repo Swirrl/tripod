@@ -29,6 +29,16 @@ module Tripod::Persistence
     end
   end
 
+  def save!()
+    # try to save
+    unless self.save()
+      # if we get in here, save failed.
+      self.class.fail_validate!(self)
+      # TODO: similar stuff for callbacks?
+    end
+    return true
+  end
+
   def destroy()
     query = "
       # delete from default graph:
@@ -39,6 +49,20 @@ module Tripod::Persistence
     success = Tripod::SparqlClient::Update::update(query)
     @destroyed = true if success
     success
+  end
+
+  module ClassMethods #:nodoc:
+
+    # Raise an error if validation failed.
+    #
+    # @example Raise the validation error.
+    #   Person.fail_validate!(person)
+    #
+    # @param [ Resource ] resource The resource to fail.
+    def fail_validate!(resource)
+      raise Tripod::Errors::Validations.new(resource)
+    end
+
   end
 
 end

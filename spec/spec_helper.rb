@@ -23,19 +23,13 @@ RSpec.configure do |config|
 end
 
 # configure any settings for testing...
+Tripod.configure do |config|
+  config.update_endpoint = 'http://127.0.0.1:3030/tripod-test/update'
+  config.query_endpoint = 'http://127.0.0.1:3030/tripod-test/sparql'
+end
 
 # Autoload every model for the test suite that sits in spec/app/models.
 Dir[ File.join(MODELS, "*.rb") ].sort.each do |file|
   name = File.basename(file, ".rb")
   autoload name.camelize.to_sym, name
-end
-
-module Rails
-  class Application
-  end
-end
-
-module MyApp
-  class Application < Rails::Application
-  end
 end

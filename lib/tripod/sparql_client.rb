@@ -5,7 +5,6 @@ module Tripod::SparqlClient
 
   module Query
 
-    ENDPOINT = 'http://127.0.0.1:3030/testoid/sparql' # TODO: allow to be configured.
 
     # Runs a +sparql+ query against the endpoint. Returns a RestClient response object.
     #
@@ -13,13 +12,15 @@ module Tripod::SparqlClient
     #   Tripload::Sparql.query('SELECT * WHERE {?s ?p ?o}')
     #
     # @return [ RestClient::Response ]
+
     def self.query(sparql, format='json', headers = {})
+
       begin
         params = { :params => {:query => sparql, :output => format } }
         hdrs = headers.merge(params)
         RestClient::Request.execute(
           :method => :get,
-          :url => ENDPOINT,
+          :url => Tripod.query_endpoint,
           :headers => hdrs,
           :timeout => 30 #TODO: allow this to be configured.
         )
@@ -73,13 +74,12 @@ module Tripod::SparqlClient
 
   module Update
 
-    ENDPOINT = 'http://127.0.0.1:3030/testoid/update' # TODO: allow to be configured.
-
     def self.update(sparql)
+
       begin
         RestClient::Request.execute(
           :method => :post,
-          :url => ENDPOINT,
+          :url => Tripod.update_endpoint,
           :timeout => 30, #TODO: allow this to be configured.
           :payload => {:update => sparql}
         )

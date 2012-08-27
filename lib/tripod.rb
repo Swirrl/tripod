@@ -35,7 +35,26 @@ require 'rdf/json'
 
 require 'rest_client'
 
-module Tripod; end
+module Tripod
+
+  mattr_accessor :update_endpoint
+  @@update_endpoint = 'http://127.0.0.1:3030/tripod/update'
+
+  mattr_accessor :query_endpoint
+  @@query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
+
+  # Use +configure+ to override configuration in an app, e.g.:
+  #
+  #   Tripod.configure do |config|
+  #     config.update_endpoint = 'http://address-of-update-endpoint'
+  #     config.query_endpoint = 'http://address-of-query-endpoint'
+  #   end
+  #
+  def self.configure
+    yield self
+  end
+
+end
 
 require "tripod/sparql_client"
 

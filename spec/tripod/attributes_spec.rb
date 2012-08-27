@@ -78,7 +78,7 @@ describe Tripod::Attributes do
     context 'multiple terms passed' do
       it 'replaces the values where the predicate matches' do
         person.write_attribute('http://name', ['richard', 'ric', 'ricardo'])
-         person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
+        person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
       end
     end
 
@@ -89,6 +89,15 @@ describe Tripod::Attributes do
       person.remove_attribute('http://blog')
       person['http://blog'].should be_empty
     end
+  end
+
+  describe "append_to_attribute" do
+
+    it 'appends values to the existing values for the predicate' do
+      person.append_to_attribute('http://name', 'rico')
+      person['http://name'].should == [RDF::Literal.new('ric'), RDF::Literal.new('rico')]
+    end
+
   end
 
 end

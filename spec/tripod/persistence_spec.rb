@@ -93,4 +93,11 @@ describe Tripod::Persistence do
     end
 
   end
+
+  describe "#save!" do
+    it 'throws an exception if save fails' do
+      unsaved_person.uri = nil
+      lambda {unsaved_person.save!}.should raise_error(Tripod::Errors::Validations)
+    end
+  end
 end
