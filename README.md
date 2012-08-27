@@ -1,9 +1,11 @@
 # Tripod
 
-Active Model style Ruby ORM for RDF data, inspired by http://github.com/mongoid/mongoid
+ActiveModel-style Ruby ORM for RDF data.
 
-Warning: Work still in progress / experimental. Not production ready!
+[Documentation](http://rubydoc.info/github/Swirrl/tripod/master/frames)
 
-Docs: http://rubydoc.info/github/Swirrl/tripod/master/frames
+__Warning: Work still in progress / experimental. Not production ready!__
 
-Copyright (c) 2012 Swirrl IT Limited. http://swirrl.com. Released under MIT License
+Heavily inspired by [Durran Jordan's](https://github.com/durran) excellent [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/).
+
+Copyright (c) 2012 [Swirrl IT Limited](http://swirrl.com). Released under MIT License
