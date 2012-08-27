@@ -3,32 +3,26 @@ require "spec_helper"
 describe Tripod::Attributes do
 
   before do
-    @uri = 'http://foobar'
+    @uri = 'http://ric'
     @graph = RDF::Graph.new
 
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)
-    stmt.predicate = RDF::URI.new('http://pred')
-    stmt.object = RDF::URI.new('http://obj')
+    stmt.predicate = RDF::URI.new('http://blog')
+    stmt.object = RDF::URI.new('http://blog1')
     @graph << stmt
 
     stmt2 = RDF::Statement.new
     stmt2.subject = RDF::URI.new(@uri)
-    stmt2.predicate = RDF::URI.new('http://pred')
-    stmt2.object = RDF::URI.new('http://obj2')
+    stmt2.predicate = RDF::URI.new('http://blog')
+    stmt2.object = RDF::URI.new('http://blog2')
     @graph << stmt2
 
     stmt3 = RDF::Statement.new
     stmt3.subject = RDF::URI.new(@uri)
-    stmt3.predicate = RDF::URI.new('http://pred')
-    stmt3.object = 3
+    stmt3.predicate = RDF::URI.new('http://name')
+    stmt3.object = "ric"
     @graph << stmt3
-
-    stmt4 = RDF::Statement.new
-    stmt4.subject = RDF::URI.new(@uri)
-    stmt4.predicate = RDF::URI.new('http://pred2')
-    stmt4.object = "hello"
-    @graph << stmt4
   end
 
   let(:person) do
@@ -39,11 +33,19 @@ describe Tripod::Attributes do
 
   describe "#[]" do
     it 'returns the values where the predicate matches' do
-      values = person['http://pred']
-      values.length.should == 3
-      values.first.should == RDF::URI('http://obj')
-      values[1].should == RDF::URI('http://obj2')
-      values[2].should == RDF::Literal.new(3)
+      values = person['http://blog']
+      values.length.should == 2
+      values.first.should == RDF::URI('http://blog1')
+      values[1].should == RDF::URI('http://blog2')
+    end
+  end
+
+  describe "#read_attribute" do
+    it 'returns the values where the predicate matches' do
+      values = person.read_attribute('http://blog')
+      values.length.should == 2
+      values.first.should == RDF::URI('http://blog1')
+      values[1].should == RDF::URI('http://blog2')
     end
   end
 
@@ -51,15 +53,15 @@ describe Tripod::Attributes do
 
     context 'single term passed' do
       it 'replaces the values where the predicate matches' do
-        person['http://pred2'] = 'goodbye'
-        person['http://pred2'].should == [RDF::Literal.new('goodbye')]
+        person['http://name'] = 'richard'
+        person['http://name'].should == [RDF::Literal.new('richard')]
       end
     end
 
     context 'multiple terms passed' do
       it 'replaces the values where the predicate matches' do
-        person['http://pred2'] = ['goodbye', 31, RDF::URI('http://objectio')]
-        person['http://pred2'].should == [RDF::Literal.new('goodbye'), RDF::Literal.new(31), RDF::URI('http://objectio')]
+        person['http://name'] = ['richard', 'ric', 'ricardo']
+        person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
       end
     end
   end
@@ -68,15 +70,15 @@ describe Tripod::Attributes do
 
     context 'single term passed' do
       it 'replaces the values where the predicate matches' do
-        person.write_attribute('http://pred2', 'goodbye')
-        person['http://pred2'].should == [RDF::Literal.new('goodbye')]
+        person.write_attribute('http://name', 'richard')
+        person['http://name'].should == [RDF::Literal.new('richard')]
       end
     end
 
     context 'multiple terms passed' do
       it 'replaces the values where the predicate matches' do
-        person.write_attribute('http://pred2', ['goodbye', 31, RDF::URI('http://objectio')])
-        person['http://pred2'].should == [RDF::Literal.new('goodbye'), RDF::Literal.new(31), RDF::URI('http://objectio')]
+        person.write_attribute('http://name', ['richard', 'ric', 'ricardo'])
+         person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
       end
     end
 
@@ -84,8 +86,8 @@ describe Tripod::Attributes do
 
   describe '#remove_attribute' do
     it 'remnoves the values where the predicate matches' do
-      person.remove_attribute('http://pred2')
-      person['http://pred2'].should be_empty
+      person.remove_attribute('http://blog')
+      person['http://blog'].should be_empty
     end
   end
 
