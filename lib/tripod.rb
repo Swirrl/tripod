@@ -43,11 +43,15 @@ module Tripod
   mattr_accessor :query_endpoint
   @@query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
 
+  mattr_accessor :timeout_seconds
+  @@timeout_seconds = 30
+
   # Use +configure+ to override configuration in an app, e.g.:
   #
   #   Tripod.configure do |config|
-  #     config.update_endpoint = 'http://address-of-update-endpoint'
-  #     config.query_endpoint = 'http://address-of-query-endpoint'
+  #     config.update_endpoint = 'http://127.0.0.1:3030/tripod/update'
+  #     config.query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
+  #     config.timeout_seconds = 30
   #   end
   #
   def self.configure

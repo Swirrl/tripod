@@ -22,7 +22,7 @@ module Tripod::SparqlClient
           :method => :get,
           :url => Tripod.query_endpoint,
           :headers => hdrs,
-          :timeout => 30 #TODO: allow this to be configured.
+          :timeout => Tripod.timeout_seconds,
         )
       rescue RestClient::BadRequest => e
         body = e.http_body
@@ -80,7 +80,7 @@ module Tripod::SparqlClient
         RestClient::Request.execute(
           :method => :post,
           :url => Tripod.update_endpoint,
-          :timeout => 30, #TODO: allow this to be configured.
+          :timeout => Tripod.timeout_seconds,
           :payload => {:update => sparql}
         )
         return true
