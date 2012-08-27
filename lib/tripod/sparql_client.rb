@@ -72,12 +72,12 @@ module Tripod::SparqlClient
 
   module Update
 
-    # Runs a +sparql+ update against the endpoint. Returns a RestClient response object.
+    # Runs a +sparql+ update against the endpoint. Returns true if success.
     #
     # @example Run a query
     #   Tripod::SparqlClient::Update.update('DELETE {?s ?p ?o} WHERE {?s ?p ?o};')
     #
-    # @return [ RestClient::Response ]
+    # @return [ true ]
     def self.update(sparql)
 
       begin
@@ -87,6 +87,7 @@ module Tripod::SparqlClient
           :timeout => Tripod.timeout_seconds,
           :payload => {:update => sparql}
         )
+        true
       rescue RestClient::BadRequest => e
         body = e.http_body
         if body.start_with?('Error 400: Parse error:')
