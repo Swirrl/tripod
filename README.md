@@ -2,6 +2,8 @@
 
 ActiveModel-style Ruby ORM for RDF data.
 
+    gem install tripod
+
 [Documentation](http://rubydoc.info/github/Swirrl/tripod/master/frames)
 
 __Warning: Work still in progress / experimental. Not production ready!__
