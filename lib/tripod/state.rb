@@ -21,7 +21,7 @@ module Tripod::State
   end
 
   # Checks if the resource has been saved to the database. Returns false
-  # if the document has been destroyed.
+  # if the resource has been destroyed.
   #
   # @example Is the resource persisted?
   #   person.persisted?

@@ -14,7 +14,7 @@ module Tripod::Finders
     #
     # @param [ String, RDF::URI ] uri The uri of the resource to find
     #
-    # @raise [ Errors::DocumentNotFound ] If no document found.
+    # @raise [ Tripod::Errors::ResourceNotFound ] If no resource found.
     #
     # @return [ Resource ] A single resource
     def find(uri)
