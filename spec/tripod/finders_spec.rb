@@ -68,4 +68,29 @@ describe Tripod::Finders do
 
   end
 
+  describe '.where' do
+
+    before do
+      # save these into the db
+      bill
+      ric
+    end
+
+    it 'returns an array of resources which match those in the db' do
+      res = Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
+      res.length.should == 2
+      res.first.should == ric
+      res.last.should == bill
+
+      res.first.name.should == "ric"
+      res.first['http://knows'].should == [RDF::URI.new("http://bill")]
+    end
+
+    it 'uses the uri and graph variables if supplied' do
+      res = Person.where('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
+      res.length.should == 2
+    end
+
+  end
+
 end
