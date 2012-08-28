@@ -71,6 +71,17 @@ describe Tripod::Fields do
 
     end
 
+    context 'with no data type specified' do
+
+      it "creates the right kind of literals when setting values." do
+        barry.name == 100 # set an integer
+        barry['http://name'] = [ RDF::Literal.new(100) ]
+        barry['http://name'].first.datatype = RDF::XSD.integer
+      end
+
+
+    end
+
   end
 
 end
