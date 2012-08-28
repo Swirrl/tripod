@@ -60,6 +60,7 @@ module Tripod
 
 end
 
+require "tripod/extensions"
 require "tripod/sparql_client"
 
 require "tripod/attributes"
