@@ -41,8 +41,22 @@ ActiveModel-style Ruby ORM for RDF data. Works with SPARQL 1.1 HTTP endpoints.
         p.age = 31
         p.aliases = ['Rich', 'Richard']
         p.important_dates = [Date.new(2011,1,1)]
+        p[RDF::type] = RDF::URI('http://person')
         p.save!
 
+        people = Person.where("
+          SELECT ?person ?graph
+          WHERE {
+            GRAPH ?graph {
+              ?person ?p ?o .
+              ?person a <http://person> .
+            }
+          }",
+        :uri_variable => 'person' )
+        # => returns an array of Person objects, containing all data we know about them.
+
+        ric = Person.find('http://ric')
+        # => returns a single Person object.
 
 [Full Documentation](http://rubydoc.info/github/Swirrl/tripod/master/frames)
 
