@@ -48,8 +48,8 @@ describe Tripod::Fields do
 
         it "creates a setter for the field, which sets data for the predicate, using the right data type" do
           barry.important_dates = [Date.new(2010,01,02),Date.new(2010,01,03)]
-          barry['http://importantdates'] = [ RDF::Literal.new(Date.new(2010,01,02)), RDF::Literal.new(Date.new(2010,01,03)) ]
-          barry['http://importantdates'].first.datatype = RDF::XSD.date
+          barry['http://importantdates'].should == [ RDF::Literal.new(Date.new(2010,01,02)), RDF::Literal.new(Date.new(2010,01,03)) ]
+          barry['http://importantdates'].map(&:datatype).should == [RDF::XSD.date,RDF::XSD.date]
         end
 
       end

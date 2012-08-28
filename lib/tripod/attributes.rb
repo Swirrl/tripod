@@ -58,15 +58,14 @@ module Tripod::Attributes
   # Append the statement-values for a single predicate in this resource's in-memory repository. Basically just adds a new statement for this ((resource's uri)+predicate)
   #
   # @example Write the attribute.
-  #   person.append_attribute('http://title', "Mrs.")
-  #   person.append_attribute('http://title', "Ms.")
+  #   person.append_to_attribute('http://title', "Mrs.")
+  #   person.append_to_attribute('http://title', "Ms.")
   #
   # @param [ String, RDF::URI ] predicate_uri The uri of the attribute to update.
   # @param [ Object ] value The values to append for the attribute. Should compatible with RDF::Terms
   def append_to_attribute(predicate_uri, object )
     @repository << RDF::Statement.new(@uri, RDF::URI.new(predicate_uri.to_s), object)
   end
-  alias :push :append_to_attribute
 
   def remove_attribute(predicate_uri)
     @repository.query( [:subject, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|

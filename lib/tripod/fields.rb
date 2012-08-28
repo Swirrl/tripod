@@ -33,6 +33,15 @@ module Tripod::Fields
       add_field(named, predicate, options)
     end
 
+
+    def new_value_for_field(value, field)
+      if field.datatype
+        RDF::Literal.new(value, :datatype => field.datatype)
+      else
+        value
+      end
+    end
+
     protected
 
     # Define a field attribute for the +Resource+.
@@ -109,12 +118,19 @@ module Tripod::Fields
     def create_field_setter(name, meth, field)
       generated_methods.module_eval do
         re_define_method("#{meth}=") do |value|
-          literal_opts = {}
-          if field.datatype
-            new_val = RDF::Literal.new(value, :datatype => field.datatype)
+          if value.kind_of?(Array)
+            if field.multivalued
+              new_val = []
+              value.each do |v|
+                new_val << self.class.new_value_for_field(v, field)
+              end
+            else
+              new_val = self.class.new_value_for_field(value.first, field)
+            end
           else
-            new_val = value
+            new_val = self.class.new_value_for_field(value, field)
           end
+
           write_attribute(field.predicate, new_val)
         end
       end
@@ -149,6 +165,7 @@ module Tripod::Fields
         mod
       end
     end
+
 
     # instantiates and returns a new standard field
     def field_for(name, predicate, options)
