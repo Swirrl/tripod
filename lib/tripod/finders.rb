@@ -66,29 +66,32 @@ module Tripod::Finders
         data[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
       end
 
-      uris_sparql_str = data.keys.map{ |u| "<#{u}>" }.join(" ")
-
-      # 2. Do a big describe statement, and read the results into an in-memory repo
-      triples = Tripod::SparqlClient::Query::describe("DESCRIBE #{uris_sparql_str}")
-      triples_repository = RDF::Repository.new()
-      RDF::Reader.for(:ntriples).new(triples) do |reader|
-        reader.each_statement do |statement|
-          triples_repository << statement
-        end
-      end
-
       resources = []
-      # 3. for each of our uris, make a resource, with a graph of triples for that uri from the in-mem repo
-      data.each_pair do |u,g|
-        r = self.new(u,g)
-        data_graph = RDF::Graph.new
-        triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
-          data_graph << statement
-        end
-        r.hydrate!(data_graph)
-        resources << r
-      end
 
+      if data.keys.length > 0
+
+        uris_sparql_str = data.keys.map{ |u| "<#{u}>" }.join(" ")
+
+        # 2. Do a big describe statement, and read the results into an in-memory repo
+        triples = Tripod::SparqlClient::Query::describe("DESCRIBE #{uris_sparql_str}")
+        triples_repository = RDF::Repository.new()
+        RDF::Reader.for(:ntriples).new(triples) do |reader|
+          reader.each_statement do |statement|
+            triples_repository << statement
+          end
+        end
+
+        # 3. for each of our uris, make a resource, with a graph of triples for that uri from the in-mem repo
+        data.each_pair do |u,g|
+          r = self.new(u,g)
+          data_graph = RDF::Graph.new
+          triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
+            data_graph << statement
+          end
+          r.hydrate!(data_graph)
+          resources << r
+        end
+      end
       resources
 
     end
