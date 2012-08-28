@@ -64,6 +64,8 @@ ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpo
 
 __Warning: Work still in progress / experimental. Not production ready!__
 
-Inspired by [Durran Jordan's](https://github.com/durran) [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/), and [Ben Lavender's](https://github.com/bhuga) RDF ORM, [Spira](https://github.com/ruby-rdf/spira).
+* [ActiveModel](https://github.com/rails/rails/tree/master/activemodel)-compliant interface.
+* Inspired by [Durran Jordan's](https://github.com/durran) [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/), and [Ben Lavender's](https://github.com/bhuga) RDF ORM, [Spira](https://github.com/ruby-rdf/spira).
+* Uses [Ruby-RDF](https://github.com/ruby-rdf/rdf) to manage the data internally.
 
 Copyright (c) 2012 [Swirrl IT Limited](http://swirrl.com). Released under MIT License
