@@ -1,6 +1,6 @@
 # Tripod
 
-ActiveModel-style Ruby ORM for RDF data. Works with SPARQL 1.1 HTTP endpoints.
+ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpoints.
 
 ## Quick start, for using in a rails app.
 
@@ -32,6 +32,8 @@ ActiveModel-style Ruby ORM for RDF data. Works with SPARQL 1.1 HTTP endpoints.
           field :important_dates, 'http://importantdates', :datatype => RDF::XSD.date, :multivalued => true
         end
 
+        # Note: Active Model validations are supported
+
 5. Use it
 
         uri = 'http://ric'
@@ -62,6 +64,6 @@ ActiveModel-style Ruby ORM for RDF data. Works with SPARQL 1.1 HTTP endpoints.
 
 __Warning: Work still in progress / experimental. Not production ready!__
 
-Heavily inspired by [Durran Jordan's](https://github.com/durran) excellent [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/).
+Inspired by [Durran Jordan's](https://github.com/durran) [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/), and [Ben Lavender's](https://github.com/bhuga) RDF ORM, [Spira](https://github.com/ruby-rdf/spira).
 
 Copyright (c) 2012 [Swirrl IT Limited](http://swirrl.com). Released under MIT License
