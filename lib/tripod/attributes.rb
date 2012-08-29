@@ -41,6 +41,8 @@ module Tripod::Attributes
   # @param [ String, RDF::URI ] predicate_uri The name of the attribute to update.
   # @param [ Object, Array ] value The values to set for the attribute. Can be an array, or single item. They should compatible with RDF::Terms
   def write_attribute(predicate_uri, objects)
+    raise Tripod::Errors::UriNotSet.new() unless @uri
+
     # remove existing
     remove_attribute(predicate_uri)
 
@@ -64,6 +66,8 @@ module Tripod::Attributes
   # @param [ String, RDF::URI ] predicate_uri The uri of the attribute to update.
   # @param [ Object ] value The values to append for the attribute. Should compatible with RDF::Terms
   def append_to_attribute(predicate_uri, object )
+    raise Tripod::Errors::UriNotSet.new() unless @uri
+
     @repository << RDF::Statement.new(@uri, RDF::URI.new(predicate_uri.to_s), object)
   end
 
