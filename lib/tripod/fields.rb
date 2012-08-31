@@ -99,9 +99,12 @@ module Tripod::Fields
           # If the field is multivalued, return an array of the results
           # If it's not multivalued, return the first (should be only) result.
           if field.multivalued
-            attr_values.map(&:to_s)
+            attr_values.map do |v|
+              v.nil? ? nil : v.to_s
+            end
           else
-            attr_values.first.to_s
+            first_val = attr_values.first
+            first_val.nil? ? nil : first_val.to_s
           end
         end
       end
