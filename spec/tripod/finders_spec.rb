@@ -58,6 +58,11 @@ describe Tripod::Finders do
         r.graph_uri.should == RDF::URI("http://people")
       end
 
+      it "returns a non-new record" do
+        r = Person.find(ric.uri)
+        r.new_record?.should be_false
+      end
+
     end
 
     context 'when record does not exist' do
@@ -65,6 +70,8 @@ describe Tripod::Finders do
         lambda { Person.find('http://nonexistant') }.should raise_error(Tripod::Errors::ResourceNotFound)
       end
     end
+
+
 
   end
 
@@ -89,6 +96,11 @@ describe Tripod::Finders do
     it 'uses the uri and graph variables if supplied' do
       res = Person.where('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
       res.length.should == 2
+    end
+
+    it "returns non-new records" do
+      res = Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
+      res.first.new_record?.should be_false
     end
 
   end
