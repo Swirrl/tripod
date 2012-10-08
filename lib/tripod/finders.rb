@@ -31,6 +31,7 @@ module Tripod::Finders
       # instantiate and hydrate the resource
       resource = self.new(uri, graph_uri_str)
       resource.hydrate!
+      resource.new_record = false
 
       # check that there are triples for the resource (catches case when someone has deleted data
       # between our original check for the graph and hydrating the object.
