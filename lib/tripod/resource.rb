@@ -68,7 +68,7 @@ module Tripod::Resource
   end
 
   # delegates to ==
-  def eql?()
+  def eql?(other)
     self == (other)
   end
 

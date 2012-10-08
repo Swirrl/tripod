@@ -90,6 +90,7 @@ module Tripod::Finders
             data_graph << statement
           end
           r.hydrate!(data_graph)
+          r.new_record = false
           resources << r
         end
       end
