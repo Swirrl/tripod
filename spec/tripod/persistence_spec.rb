@@ -135,6 +135,9 @@ describe Tripod::Persistence do
 
       transaction.commit
 
+      # transaction should be gone
+      Tripod::Persistence.transactions[transaction.transaction_id].should be_nil
+
       # unsaved person still not there
       lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
 
@@ -144,14 +147,26 @@ describe Tripod::Persistence do
 
     it "can be aborted" do
       transaction = Tripod::Persistence::Transaction.new
-
       unsaved_person.save(transaction: transaction)
-
       transaction.abort()
 
+      # unsaved person still not there
+      lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
+
+      #transaction gone.
       transaction.query.should be_blank
+      Tripod::Persistence.transactions[transaction.transaction_id].should be_nil
     end
 
+    it "should be removed once committed" do
+      transaction = Tripod::Persistence::Transaction.new
+      unsaved_person.save(transaction: transaction)
+      transaction.commit()
+
+      #transaction gone.
+      transaction.query.should be_blank
+      Tripod::Persistence.transactions[transaction.transaction_id].should be_nil
+    end
 
   end
 

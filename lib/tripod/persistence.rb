@@ -15,13 +15,17 @@ module Tripod::Persistence
 
     def commit
       Tripod::SparqlClient::Update::update(self.query)
-      self.query = ""
-      self.transaction_id = nil
+      clear_transaction
     end
 
     def abort
-      self.query = ""
+      clear_transaction
+    end
+
+    def clear_transaction
       self.transaction_id = nil
+      self.query = ""
+      Tripod::Persistence.transactions.delete(self.transaction_id)
     end
 
     def self.valid_transaction(transaction)
