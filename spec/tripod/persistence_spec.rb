@@ -29,6 +29,7 @@ describe Tripod::Persistence do
     p
   end
 
+
   describe "#save" do
 
     context 'graph not set' do
@@ -100,4 +101,58 @@ describe Tripod::Persistence do
       lambda {unsaved_person.save!}.should raise_error(Tripod::Errors::Validations)
     end
   end
+
+  describe "transactions" do
+
+    it "only save on commit" do
+
+      transaction = Tripod::Persistence::Transaction.new
+
+      unsaved_person.save(transaction: transaction)
+      saved_person['http://pred2'] = 'blah'
+      saved_person.save(transaction: transaction)
+
+      # nothing should have changed yet.
+      lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
+      Person.find(saved_person.uri)['http://pred2'].first.to_s.should == RDF::URI.new('http://obj2').to_s
+
+      transaction.commit
+
+      # things should have changed now.
+      lambda {Person.find(unsaved_person.uri)}.should_not raise_error()
+      Person.find(saved_person.uri)['http://pred2'].first.should == 'blah'
+
+    end
+
+    it "silently ignore invalid saves" do
+      transaction = Tripod::Persistence::Transaction.new
+
+      unsaved_person.uri = nil
+      unsaved_person.save(transaction: transaction).should be_false
+
+      saved_person['http://pred2'] = 'blah'
+      saved_person.save(transaction: transaction).should be_true
+
+      transaction.commit
+
+      # unsaved person still not there
+      lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
+
+      # saved person SHOULD be updated
+      Person.find(saved_person.uri)['http://pred2'].first.should == 'blah'
+    end
+
+    it "can be aborted" do
+      transaction = Tripod::Persistence::Transaction.new
+
+      unsaved_person.save(transaction: transaction)
+
+      transaction.abort()
+
+      transaction.query.should be_blank
+    end
+
+
+  end
+
 end

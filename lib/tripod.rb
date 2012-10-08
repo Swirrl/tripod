@@ -27,6 +27,7 @@ require "active_support/core_ext"
 require 'active_support/json'
 require "active_support/inflector"
 require "active_model"
+require "guid"
 
 require 'rdf'
 require 'rdf/rdfxml'

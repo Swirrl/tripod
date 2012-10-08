@@ -25,4 +25,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rdf-rdfxml"
   gem.add_dependency "rdf-n3"
   gem.add_dependency "rdf-json"
+  gem.add_dependency "guid"
 end
