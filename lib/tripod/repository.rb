@@ -21,6 +21,8 @@ module Tripod::Repository
     # we require that the uri is set.
     raise Tripod::Errors::UriNotSet.new() unless @uri
 
+    @repository = RDF::Repository.new # make sure that the repo is empty before we begin
+
     if graph
       graph.each_statement do |statement|
         # only use statements about this resource!

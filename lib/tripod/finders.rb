@@ -59,6 +59,7 @@ module Tripod::Finders
       # 1. Run the select.
       select_results = Tripod::SparqlClient::Query.select(criteria)
 
+      # data will contain a map of uris against graphs.
       data = {}
 
       select_results.each do |r|
