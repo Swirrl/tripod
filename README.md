@@ -6,7 +6,7 @@ ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpo
 * Inspired by [Durran Jordan's](https://github.com/durran) [Mongoid](http://mongoid.org/en/mongoid/) ORM for [MongoDB](http://www.mongodb.org/), and [Ben Lavender's](https://github.com/bhuga) RDF ORM, [Spira](https://github.com/ruby-rdf/spira).
 * Uses [Ruby-RDF](https://github.com/ruby-rdf/rdf) to manage the data internally.
 
-__Warning: Work still in progress / experimental. Not production ready!__
+__Warning: Some features are still experimental. __
 
 ## Quick start, for using in a rails app.
 
@@ -52,6 +52,8 @@ __Warning: Work still in progress / experimental. Not production ready!__
         p[RDF::type] = RDF::URI('http://person')
         p.save!
 
+        # Note: queries supplied to the where method should return the uris of the resource,
+        # and what graph they're in.
         people = Person.where("
           SELECT ?person ?graph
           WHERE {
@@ -60,7 +62,7 @@ __Warning: Work still in progress / experimental. Not production ready!__
               ?person a <http://person> .
             }
           }",
-        :uri_variable => 'person' )
+        :uri_variable => 'person' ) # optionally, set a different name for the uri parameter (default: uri)
         # => returns an array of Person objects, containing all data we know about them.
 
         ric = Person.find('http://ric')
