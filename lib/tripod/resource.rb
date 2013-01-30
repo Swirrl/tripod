@@ -9,8 +9,13 @@ module Tripod::Resource
   include Tripod::Components
 
   included do
-    # every resource needs a graph and a uri set.
-    validates_presence_of :uri, :graph_uri
+    # every resource needs a graph set.
+    validates_presence_of :graph_uri
+    # every instance of a resource has an rdf type field, which is set at the class level
+    class_attribute :_RDF_TYPE
+    field :rdf_type, RDF.type
+    # the Graph URI is set at the class level by default also, although this can be overridden in the constructor
+    class_attribute :_GRAPH_URI
   end
 
   attr_reader :new_record
@@ -18,7 +23,6 @@ module Tripod::Resource
   attr_reader :uri
 
   # Instantiate a +Resource+.
-  # Optionsally pass a uri
   #
   # @example Instantiate a new Resource
   #   Person.new('http://swirrl.com/ric.rdf#me')
@@ -26,29 +30,17 @@ module Tripod::Resource
   # @param [ String, RDF::URI ] uri The uri of the resource.
   #
   # @return [ Resource ] A new +Resource+
-  def initialize(uri=nil, graph_uri=nil)
-    @new_record = true
-    @uri = RDF::URI(uri.to_s) if uri
-    @graph_uri = RDF::URI(graph_uri.to_s) if graph_uri
+  def initialize(uri, graph_uri=nil)
+    raise Tripod::Errors::UriNotSet.new('uri missing') unless uri
+    @uri = RDF::URI(uri.to_s)
+
+    graph_uri ||= self.class._GRAPH_URI if self.class._GRAPH_URI
+    raise Tripod::Errors::UriNotSet.new('graph_uri missing') unless graph_uri
+    @graph_uri = RDF::URI(graph_uri)
+
     @repository = RDF::Repository.new
-  end
-
-  # Set the uri for this resource
-  def uri=(new_uri)
-    if new_uri
-      @uri = RDF::URI(new_uri.to_s)
-    else
-      @uri = nil
-    end
-  end
-
-  # Set the uri for this resource
-  def graph_uri=(new_graph_uri)
-    if new_graph_uri
-      @graph_uri = RDF::URI(new_graph_uri.to_s)
-    else
-      @graph_uri = nil
-    end
+    @new_record = true
+    self.rdf_type = self.class._RDF_TYPE
   end
 
   # default comparison is via the uri
@@ -102,6 +94,13 @@ module Tripod::Resource
       other.class == Class ? self <= other : other.is_a?(self)
     end
 
+    def rdf_type(new_rdf_type)
+      self._RDF_TYPE = new_rdf_type
+    end
+
+    def graph_uri(new_graph_uri)
+      self._GRAPH_URI = new_graph_uri
+    end
   end
 
 end

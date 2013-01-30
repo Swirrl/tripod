@@ -4,7 +4,7 @@ describe Tripod::Attributes do
 
   before do
     @uri = 'http://ric'
-    @graph = RDF::Graph.new
+    @graph = RDF::Graph.new('http://graph')
 
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)

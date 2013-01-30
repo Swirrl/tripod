@@ -4,21 +4,12 @@ describe Tripod::Repository do
 
   describe "#hydrate" do
 
-    context 'no uri set' do
-      let(:person) do
-        Person.new
-      end
-
-      it 'rasies a UriNotSet error' do
-        lambda { person.hydrate! }.should raise_error(Tripod::Errors::UriNotSet)
-      end
-    end
-
     context 'uri set' do
 
       before do
         @uri = 'http://foobar'
-        @graph = RDF::Graph.new
+        @graph_uri = 'http://graph'
+        @graph = RDF::Graph.new(@graph_uri)
         @stmt = RDF::Statement.new
         @stmt.subject = RDF::URI.new(@uri)
         @stmt.predicate = RDF::URI.new('http://pred')
@@ -28,7 +19,7 @@ describe Tripod::Repository do
       end
 
       let(:person) do
-        Person.new(@uri)
+        Person.new(@uri, @graph_uri)
       end
 
       context 'no graph passed' do

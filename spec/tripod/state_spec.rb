@@ -7,7 +7,7 @@ describe Tripod::State do
     context "when calling new on the resource" do
 
       let(:person) do
-        Person.new
+        Person.new('http://uri', 'http://graph')
       end
 
       it "returns true" do
@@ -54,7 +54,7 @@ describe Tripod::State do
   describe "destroyed?" do
 
     let(:person) do
-      Person.new
+      Person.new('http://uri', 'http://graph')
     end
 
     context "when destroyed is true" do

@@ -18,7 +18,7 @@ describe Tripod::Finders do
     stmt.object = RDF::URI.new('http://bill')
     stmts << stmt
 
-    r = Person.new(@ric_uri, 'http://people')
+    r = Person.new(@ric_uri)
     r.hydrate!(stmts)
     r.save
     r
@@ -32,7 +32,7 @@ describe Tripod::Finders do
     stmt.predicate = RDF::URI.new('http://name')
     stmt.object = "bill"
     stmts << stmt
-    b = Person.new(@bill_uri, 'http://people')
+    b = Person.new(@bill_uri)
     b.hydrate!(stmts)
     b.save
     b
@@ -41,38 +41,33 @@ describe Tripod::Finders do
   describe '.find' do
 
     context 'when record exists' do
-
-      it 'does not error' do
-        r = Person.find(ric.uri)
-      end
+      let(:person) { Person.find(ric.uri) }
 
       it 'hydrates and return an object' do
-        r = Person.find(ric.uri)
-        r['http://name'].should == [RDF::Literal.new("ric")]
-        r['http://knows'].should == [RDF::URI.new('http://bill')]
+        person['http://name'].should == [RDF::Literal.new("ric")]
+        person['http://knows'].should == [RDF::URI.new('http://bill')]
       end
 
       it 'sets the graph on the instantiated object' do
-        r = Person.find(ric.uri)
-        r.graph_uri.should_not be_nil
-        r.graph_uri.should == RDF::URI("http://people")
+        person.graph_uri.should_not be_nil
+        person.graph_uri.should == RDF::URI("http://graph")
       end
 
       it "returns a non-new record" do
-        r = Person.find(ric.uri)
-        r.new_record?.should be_false
+        person.new_record?.should be_false
       end
 
     end
 
     context 'when record does not exist' do
       it 'raises not found' do
-        lambda { Person.find('http://nonexistant') }.should raise_error(Tripod::Errors::ResourceNotFound)
+        lambda { Person.find('http://nonexistent') }.should raise_error(Tripod::Errors::ResourceNotFound)
       end
     end
 
+    context 'with a given graph URI' do
 
-
+    end
   end
 
   describe '.where' do

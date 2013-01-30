@@ -6,30 +6,37 @@ module Tripod::Finders
 
   module ClassMethods
 
-    # Find a +Resource+ by its uri.
+    # Find a +Resource+ by its uri (and, optionally, by its graph if there are more than one).
     #
     # @example Find a single resource by a uri.
     #   Person.find('http://ric')
     #   Person.find(RDF::URI('http://ric'))
+    # @example Find a single resource by uri and graph
+    #   Person.find('http://ric', 'http://example.com/people')
+    #   Person.find(RDF::URI('http://ric'), Person.find(RDF::URI('http://example.com/people')))
     #
     # @param [ String, RDF::URI ] uri The uri of the resource to find
+    # @param [ String, RDF::URI ] graph_uri The uri of the graph from which to get the resource
     #
     # @raise [ Tripod::Errors::ResourceNotFound ] If no resource found.
     #
     # @return [ Resource ] A single resource
-    def find(uri)
+    def find(uri, graph_uri=nil)
 
-      # do a quick select to see what graph to use.
-      select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
-      result = Tripod::SparqlClient::Query.select(select_query)
-      if result.length > 0
-        graph_uri_str = result[0]["g"]["value"]
-      else
-        raise Tripod::Errors::ResourceNotFound.new
+      unless graph_uri
+        # do a quick select to see what graph to use.
+        select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
+        result = Tripod::SparqlClient::Query.select(select_query)
+        if result.length > 0
+          graph_uri = result[0]["g"]["value"]
+        else
+          raise Tripod::Errors::ResourceNotFound.new
+        end
       end
 
       # instantiate and hydrate the resource
-      resource = self.new(uri, graph_uri_str)
+      resource = self.new(uri, graph_uri.to_s)
+
       resource.hydrate!
       resource.new_record = false
 
