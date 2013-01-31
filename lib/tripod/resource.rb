@@ -13,7 +13,6 @@ module Tripod::Resource
     validates_presence_of :graph_uri
     # every instance of a resource has an rdf type field, which is set at the class level
     class_attribute :_RDF_TYPE
-    field :rdf_type, RDF.type
     # the Graph URI is set at the class level by default also, although this can be overridden in the constructor
     class_attribute :_GRAPH_URI
   end
@@ -95,6 +94,7 @@ module Tripod::Resource
     end
 
     def rdf_type(new_rdf_type)
+      field :rdf_type, RDF.type
       self._RDF_TYPE = new_rdf_type
     end
 
