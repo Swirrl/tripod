@@ -144,6 +144,16 @@ module Tripod::Persistence
     true
   end
 
+  def update_attribute(name, value)
+    write_attribute(name, value)
+    save
+  end
+
+  def update_attributes(attributes={})
+    write_attributes(attributes)
+    save
+  end
+
   module ClassMethods #:nodoc:
 
     # Raise an error if validation failed.

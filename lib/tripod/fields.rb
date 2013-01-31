@@ -28,9 +28,8 @@ module Tripod::Fields
     #
     # @return [ Field ] The generated field
     def field(name, predicate, options = {})
-      named = name.to_s
       # TODO: validate the field params/options here..
-      add_field(named, predicate, options)
+      add_field(name, predicate, options)
     end
 
 
@@ -92,20 +91,7 @@ module Tripod::Fields
     def create_field_getter(name, meth, field)
       generated_methods.module_eval do
         re_define_method(meth) do
-
-          attr_values = read_attribute(field.predicate)
-
-          # We always return strings on way out.
-          # If the field is multivalued, return an array of the results
-          # If it's not multivalued, return the first (should be only) result.
-          if field.multivalued
-            attr_values.map do |v|
-              v.nil? ? nil : v.to_s
-            end
-          else
-            first_val = attr_values.first
-            first_val.nil? ? nil : first_val.to_s
-          end
+          read_attribute(name, field)
         end
       end
     end
@@ -121,20 +107,7 @@ module Tripod::Fields
     def create_field_setter(name, meth, field)
       generated_methods.module_eval do
         re_define_method("#{meth}=") do |value|
-          if value.kind_of?(Array)
-            if field.multivalued
-              new_val = []
-              value.each do |v|
-                new_val << self.class.new_value_for_field(v, field)
-              end
-            else
-              new_val = self.class.new_value_for_field(value.first, field)
-            end
-          else
-            new_val = self.class.new_value_for_field(value, field)
-          end
-
-          write_attribute(field.predicate, new_val)
+          write_attribute(name, value, field)
         end
       end
     end
@@ -149,7 +122,7 @@ module Tripod::Fields
     def create_field_check(name, meth, field)
       generated_methods.module_eval do
         re_define_method("#{meth}?") do
-          attr = read_attribute(field.predicate)
+          attr = read_attribute(name, field)
           attr == true || attr.present?
         end
       end

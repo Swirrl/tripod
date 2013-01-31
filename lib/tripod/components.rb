@@ -13,6 +13,7 @@ module Tripod::Components
   include ActiveModel::Naming
   include ActiveModel::Validations
 
+  include Tripod::Predicates
   include Tripod::Attributes
   include Tripod::Persistence
   include Tripod::Fields

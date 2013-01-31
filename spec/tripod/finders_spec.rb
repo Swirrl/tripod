@@ -44,8 +44,8 @@ describe Tripod::Finders do
       let(:person) { Person.find(ric.uri) }
 
       it 'hydrates and return an object' do
-        person['http://name'].should == [RDF::Literal.new("ric")]
-        person['http://knows'].should == [RDF::URI.new('http://bill')]
+        person.name.should == "ric"
+        person.knows.should == [RDF::URI('http://bill')]
       end
 
       it 'sets the graph on the instantiated object' do
@@ -85,7 +85,7 @@ describe Tripod::Finders do
       res.last.should == bill
 
       res.first.name.should == "ric"
-      res.first['http://knows'].should == [RDF::URI.new("http://bill")]
+      res.first.knows.should == [RDF::URI.new("http://bill")]
     end
 
     it 'uses the uri and graph variables if supplied' do

@@ -6,82 +6,31 @@ describe Tripod::Fields do
 
     let(:barry) do
       b = Person.new('http://barry')
-      b['http://name'] = 'Barry'
-      b['http://alias'] = ['Basildon', 'Baz']
-      b['http://age'] = 54
-      b['http://importantdates'] = [Date.new(2010,01,01), Date.new(2012,01,01)]
+      b.name = 'Barry'
       b
     end
 
-    context "with no options" do
-
-      it "creates a getter for the field, which accesses data for the predicate, returning a single String" do
-        barry.name.should == "Barry"
-      end
-
-      it "creates a setter for the field, which sets data for the predicate" do
-        barry.name = "Basildon"
-        barry.name.should == "Basildon"
-        barry['http://name'].should == [RDF::Literal.new("Basildon")]
-      end
-
+    it "creates a getter for the field, which accesses data for the predicate, returning a single String" do
+      barry.name.should == "Barry"
     end
 
-    context "with multivalued option" do
-
-      it "creates a getter for the field, which accesses data for the predicate, returning an array of Strings" do
-        barry.aliases.should == ['Basildon', 'Baz']
-      end
-
-      it "creates a setter for the field, which sets data for the predicate" do
-        barry.aliases = ['Basildon', 'Baz', 'B-man']
-        barry.aliases.should == ['Basildon', 'Baz', 'B-man']
-        barry['http://alias'].should == [RDF::Literal.new("Basildon"),RDF::Literal.new("Baz"),RDF::Literal.new("B-man")]
-      end
-
-      context 'with data type' do
-
-        it "creates a getter for the field, which accesses data for the predicate, returning an array of Strings" do
-          barry.important_dates.class.should == Array
-          barry.important_dates.should == ["2010-01-01Z", "2012-01-01Z"]
-        end
-
-        it "creates a setter for the field, which sets data for the predicate, using the right data type" do
-          barry.important_dates = [Date.new(2010,01,02),Date.new(2010,01,03)]
-          barry['http://importantdates'].should == [ RDF::Literal.new(Date.new(2010,01,02)), RDF::Literal.new(Date.new(2010,01,03)) ]
-          barry['http://importantdates'].map(&:datatype).should == [RDF::XSD.date,RDF::XSD.date]
-        end
-
-      end
-
+    it "creates a setter for the field, which sets data for the predicate" do
+      barry.name = "Basildon"
+      barry.name.should == "Basildon"
     end
 
-    context 'with data type' do
-
-      it "creates a getter for the field, which accesses data for the predicate, returning a single String" do
-        barry.age.should == "54"
-      end
-
-      it "creates a setter for the field, which sets data for the predicate, using the right data type" do
-        barry.age = 57
-        barry.age.should == '57'
-        barry['http://age'] = [ RDF::Literal.new(57) ]
-        barry['http://age'].first.datatype = RDF::XSD.integer
-      end
-
+    it "creates a check? method, which returns true when the value is present" do
+      barry.name?.should == true
     end
 
-    context 'with no data type specified' do
-
-      it "creates the right kind of literals when setting values." do
-        barry.name == 100 # set an integer
-        barry['http://name'] = [ RDF::Literal.new(100) ]
-        barry['http://name'].first.datatype = RDF::XSD.integer
+    context "when the value is not set" do
+      before do
+        barry.name = nil
       end
 
-
+      it "should have a check? method which returns false" do
+        barry.name?.should == false
+      end
     end
-
   end
-
 end

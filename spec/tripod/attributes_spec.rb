@@ -1,103 +1,121 @@
 require "spec_helper"
 
 describe Tripod::Attributes do
-
-  before do
-    @uri = 'http://ric'
-    @graph = RDF::Graph.new('http://graph')
-
-    stmt = RDF::Statement.new
-    stmt.subject = RDF::URI.new(@uri)
-    stmt.predicate = RDF::URI.new('http://blog')
-    stmt.object = RDF::URI.new('http://blog1')
-    @graph << stmt
-
-    stmt2 = RDF::Statement.new
-    stmt2.subject = RDF::URI.new(@uri)
-    stmt2.predicate = RDF::URI.new('http://blog')
-    stmt2.object = RDF::URI.new('http://blog2')
-    @graph << stmt2
-
-    stmt3 = RDF::Statement.new
-    stmt3.subject = RDF::URI.new(@uri)
-    stmt3.predicate = RDF::URI.new('http://name')
-    stmt3.object = "ric"
-    @graph << stmt3
-  end
-
-  let(:person) do
-    p = Person.new(@uri)
-    p.hydrate!(@graph)
-    p
-  end
-
-  describe "#[]" do
-    it 'returns the values where the predicate matches' do
-      values = person['http://blog']
-      values.length.should == 2
-      values.first.should == RDF::URI('http://blog1')
-      values[1].should == RDF::URI('http://blog2')
+  describe ".read_attribute" do
+    let(:person) do
+      p = Person.new('http://barry')
+      p.name = 'Barry'
+      p
     end
-  end
 
-  describe "#read_attribute" do
-    it 'returns the values where the predicate matches' do
-      values = person.read_attribute('http://blog')
-      values.length.should == 2
-      values.first.should == RDF::URI('http://blog1')
-      values[1].should == RDF::URI('http://blog2')
+    it "should read the given attribute" do
+      person[:name].should == 'Barry'
     end
-  end
 
-  describe '#[]=' do
+    context "where the attribute is multi-valued" do
+      before do
+        person.aliases = ['Boz', 'Baz', 'Bez']
+      end
 
-    context 'single term passed' do
-      it 'replaces the values where the predicate matches' do
-        person['http://name'] = 'richard'
-        person['http://name'].should == [RDF::Literal.new('richard')]
+      it "should return an array" do
+        person[:aliases].should == ['Boz', 'Baz', 'Bez']
       end
     end
 
-    context 'multiple terms passed' do
-      it 'replaces the values where the predicate matches' do
-        person['http://name'] = ['richard', 'ric', 'ricardo']
-        person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
+    context "where field is given and single-valued" do
+      let(:field) { Person.send(:field_for, :hat_type, 'http://hat', {}) }
+      before do
+        person.stub(:read_predicate).with('http://hat').and_return(['fez'])
+      end
+
+      it "should use the predicate name from the given field" do
+        person.should_receive(:read_predicate).with('http://hat').and_return(['fez'])
+        person.read_attribute(:hat_type, field)
+      end
+
+      it "should return a single value" do
+        person.read_attribute(:hat_type, field).should == 'fez'
+      end
+    end
+
+    context "where field is given and is multi-valued" do
+      let(:field) { Person.send(:field_for, :hat_types, 'http://hat', {multivalued: true}) }
+      before do
+        person.stub(:read_predicate).with('http://hat').and_return(['fez', 'bowler'])
+      end
+
+      it "should return an array of values" do
+        person.read_attribute(:hat_types, field).should == ['fez', 'bowler']
+      end
+    end
+
+    context "where there is no field with the given name" do
+      it "should raise a 'field not present' error" do
+        lambda { person.read_attribute(:hoof_size) }.should raise_error(Tripod::Errors::FieldNotPresent)
       end
     end
   end
 
-  describe '#write_attribute' do
+  describe ".write_attribute" do
+    let(:person) { Person.new('http://barry') }
 
-    context 'single term passed' do
-      it 'replaces the values where the predicate matches' do
-        person.write_attribute('http://name', 'richard')
-        person['http://name'].should == [RDF::Literal.new('richard')]
+    it "should write the given attribute" do
+      person[:name] = 'Barry'
+      person.name.should == 'Barry'
+    end
+
+    it "should co-erce the value given to the correct datatype" do
+      person[:age] = 34
+      person.read_predicate('http://age').first.datatype.should == RDF::XSD.integer
+    end
+
+    context "where the attribute is multi-valued" do
+      it "should co-erce all the values to the correct datatype" do
+        person[:important_dates] = [Date.today]
+        person.read_predicate('http://importantdates').first.datatype.should == RDF::XSD.date
       end
     end
 
-    context 'multiple terms passed' do
-      it 'replaces the values where the predicate matches' do
-        person.write_attribute('http://name', ['richard', 'ric', 'ricardo'])
-        person['http://name'].should == [RDF::Literal.new('richard'), RDF::Literal.new('ric'), RDF::Literal.new('ricardo')]
+    context "where field is given" do
+      let(:field) { Person.send(:field_for, :hat_type, 'http://hat', {}) }
+
+      it "should derive the predicate name from the given field" do
+        person.write_attribute(:hat_type, 'http://bowlerhat', field)
+        person.read_predicate('http://hat').first.to_s.should == 'http://bowlerhat'
       end
     end
 
-  end
+    context "where a field of a particular datatype is given" do
+      let(:field) { Person.send(:field_for, :hat_size, 'http://hatsize', {datatype: RDF::XSD.integer}) }
 
-  describe '#remove_attribute' do
-    it 'remnoves the values where the predicate matches' do
-      person.remove_attribute('http://blog')
-      person['http://blog'].should be_empty
+      it "should derive the datatype from the given field" do
+        person.write_attribute(:hat_size, 10, field)
+        person.read_predicate('http://hatsize').first.datatype.should == RDF::XSD.integer
+      end
+    end
+
+    context "where a multi-valued field of a given datatype is given" do
+      let(:field) { Person.send(:field_for, :hat_heights, 'http://hatheight', {datatype: RDF::XSD.integer, multivalued: true}) }
+
+      it "should co-erce the values passed" do
+        person.write_attribute(:hat_heights, [5, 10, 15], field)
+        person.read_predicate('http://hatheight').first.datatype.should == RDF::XSD.integer
+      end
+    end
+
+    context "where there is no field with the given name" do
+      it "should raise a 'field not present' error" do
+        lambda { person.write_attribute(:hoof_size, 'A1') }.should raise_error(Tripod::Errors::FieldNotPresent)
+      end
     end
   end
 
-  describe "append_to_attribute" do
+  describe '.write_attributes' do
+    let(:person) { Person.new('http://barry') }
 
-    it 'appends values to the existing values for the predicate' do
-      person.append_to_attribute('http://name', 'rico')
-      person['http://name'].should == [RDF::Literal.new('ric'), RDF::Literal.new('rico')]
+    it 'should write the given attribute hash' do
+      person.write_attributes(:name => 'Bob')
+      person.name.should == 'Bob'
     end
-
   end
-
 end

@@ -5,77 +5,49 @@ module Tripod::Attributes
 
   extend ActiveSupport::Concern
 
-  # Reads values from this respource's in-memory statement repository, where the predicate matches that of the uri passed in.
-  # Returns an Array of RDF::Terms object.
-  #
-  # @example Read an attribute.
-  #   person.read_attribute('http://foo')
-  #   person.read_attribute(RDF::URI.new('http://foo'))
-  #
-  # @example Read an attribute (alternate syntax.)
-  #   person['http://foo']
-  #   person[RDF::URI.new('http://foo')]
-  #
-  # @param [ String, RDF::URI ] uri The uri of the attribute to get.
-  #
-  # @return [ Array ] An array of RDF::Terms.
-  def read_attribute(predicate_uri)
-    values = []
-    @repository.query( [:subject, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
-      values << statement.object
+  def read_attribute(name, field=nil)
+    field ||= self.fields[name]
+    raise Tripod::Errors::FieldNotPresent.new unless field
+
+    attr_values = read_predicate(field.predicate)
+    # We always return strings on way out.
+    # If the field is multivalued, return an array of the results
+    # If it's not multivalued, return the first (should be only) result.
+    if field.multivalued
+      attr_values.map do |v|
+        v.nil? ? nil : v.to_s
+      end
+    else
+      first_val = attr_values.first
+      first_val.nil? ? nil : first_val.to_s
     end
-    values
   end
   alias :[] :read_attribute
 
-  # Replace the statement-values for a single predicate in this resource's in-memory repository.
-  #
-  # @example Write the attribute.
-  #   person.write_attribute('http://title', "Mr.")
-  #   person.write_attribute('http://title', ["Mrs.", "Ms."])
-  #
-  # @example Write the attribute (alternate syntax.)
-  #   person['http://title'] = "Mr."
-  #   person['http://title'] = ["Mrs.", "Ms."]
-  #
-  # @param [ String, RDF::URI ] predicate_uri The name of the attribute to update.
-  # @param [ Object, Array ] value The values to set for the attribute. Can be an array, or single item. They should compatible with RDF::Terms
-  def write_attribute(predicate_uri, objects)
-    raise Tripod::Errors::UriNotSet.new() unless @uri
+  def write_attribute(name, value, field=nil)
+    field ||= self.fields[name]
+    raise Tripod::Errors::FieldNotPresent.new unless field
 
-    # remove existing
-    remove_attribute(predicate_uri)
-
-    # ... and replace
-    objects = [objects] unless objects.kind_of?(Array)
-    objects.each do |object|
-      @repository << RDF::Statement.new( @uri, RDF::URI.new(predicate_uri.to_s), object )
+    if value.kind_of?(Array)
+      if field.multivalued
+        new_val = []
+        value.each do |v|
+          new_val << self.class.new_value_for_field(v, field)
+        end
+      else
+        new_val = self.class.new_value_for_field(value.first, field)
+      end
+    else
+      new_val = self.class.new_value_for_field(value, field)
     end
 
-    # returns the new values
-    read_attribute(predicate_uri)
+    write_predicate(field.predicate, new_val)
   end
   alias :[]= :write_attribute
 
-  # Append the statement-values for a single predicate in this resource's in-memory repository. Basically just adds a new statement for this ((resource's uri)+predicate)
-  #
-  # @example Write the attribute.
-  #   person.append_to_attribute('http://title', "Mrs.")
-  #   person.append_to_attribute('http://title', "Ms.")
-  #
-  # @param [ String, RDF::URI ] predicate_uri The uri of the attribute to update.
-  # @param [ Object ] value The values to append for the attribute. Should compatible with RDF::Terms
-  def append_to_attribute(predicate_uri, object )
-    raise Tripod::Errors::UriNotSet.new() unless @uri
-
-    @repository << RDF::Statement.new(@uri, RDF::URI.new(predicate_uri.to_s), object)
-  end
-
-  def remove_attribute(predicate_uri)
-    @repository.query( [:subject, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
-      @repository.delete( statement )
+  def write_attributes(attrs={})
+    attrs.each_pair do |name, value|
+      write_attribute(name, value)
     end
   end
-  alias :delete :remove_attribute
-
 end
