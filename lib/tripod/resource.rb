@@ -39,7 +39,7 @@ module Tripod::Resource
 
     @repository = RDF::Repository.new
     @new_record = true
-    self.rdf_type = self.class._RDF_TYPE if defined?(:rdf_type)
+    self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=)
   end
 
   # default comparison is via the uri
