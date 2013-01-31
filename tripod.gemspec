@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["ric@swirrl.com"]
   gem.description   = %q{RDF ruby ORM}
   gem.summary       = %q{Active Model style RDF ORM}
-  gem.homepage      = ""
+  gem.homepage      = "http://github.com/Swirrl/tripod"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rest-client"
   gem.add_dependency "activemodel", "~> 3.1"
   gem.add_dependency "equivalent-xml"
-  gem.add_dependency "rdf", "~> 0.3"
+  gem.add_dependency "rdf", "~> 1.0"
   gem.add_dependency "rdf-rdfxml"
   gem.add_dependency "rdf-n3"
   gem.add_dependency "rdf-json"
