@@ -5,6 +5,20 @@ module Tripod::Attributes
 
   extend ActiveSupport::Concern
 
+  # Reads an attribute from this resource, based on a defined field
+  # Returns the value(s) for the named (or given) field
+  #
+  # @example Read the value associated with a predicate.
+  #   class Person
+  #     field :name, 'http://name'
+  #   end
+  #
+  #   person.read_attribute(:name)
+  #
+  # @param [ String ] name The name of the field for which to get the value.
+  # @param [ Field ] field An optional Field object
+  #
+  # @return Either a string or an Array of strings, depending on whether the field is multivalued or not
   def read_attribute(name, field=nil)
     field ||= self.fields[name]
     raise Tripod::Errors::FieldNotPresent.new unless field
@@ -24,6 +38,18 @@ module Tripod::Attributes
   end
   alias :[] :read_attribute
 
+  # Writes an attribute to the resource, based on a defined field
+  #
+  # @example Write the value associated with a predicate.
+  #   class Person
+  #     field :name, 'http://name'
+  #   end
+  #
+  #   person.write_attribute(:name, 'Bob')
+  #
+  # @param [ String ] name The name of the field for which to set the value.
+  # @param [ String ] value The value to set it to
+  # @param [ Field ] field An optional Field object
   def write_attribute(name, value, field=nil)
     field ||= self.fields[name]
     raise Tripod::Errors::FieldNotPresent.new unless field
@@ -44,10 +70,4 @@ module Tripod::Attributes
     write_predicate(field.predicate, new_val)
   end
   alias :[]= :write_attribute
-
-  def write_attributes(attrs={})
-    attrs.each_pair do |name, value|
-      write_attribute(name, value)
-    end
-  end
 end

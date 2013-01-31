@@ -95,7 +95,7 @@ describe Tripod::Persistence do
     let (:person) { Person.new('http://newperson') }
     before { person.stub(:save) }
 
-    it 'should write the attributes' do
+    it 'should assign the attributes' do
       person.update_attributes(:name => 'Bob')
       person.name.should == 'Bob'
     end

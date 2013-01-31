@@ -150,7 +150,9 @@ module Tripod::Persistence
   end
 
   def update_attributes(attributes={})
-    write_attributes(attributes)
+    attributes.each_pair do |name, value|
+      send "#{name}=", value
+    end
     save
   end
 

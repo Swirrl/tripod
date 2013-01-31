@@ -5,7 +5,7 @@ module Tripod::Predicates
 
   extend ActiveSupport::Concern
 
-  # Reads values from this respource's in-memory statement repository, where the predicate matches that of the uri passed in.
+  # Reads values from this resource's in-memory statement repository, where the predicate matches that of the uri passed in.
   # Returns an Array of RDF::Terms object.
   #
   # @example Read the value associated with a predicate.
@@ -30,7 +30,7 @@ module Tripod::Predicates
   #   person.write_predicate('http://title', ["Mrs.", "Ms."])
   #
   # @param [ String, RDF::URI ] predicate_uri The name of the attribute to update.
-  # @param [ Object, Array ] value The values to set for the attribute. Can be an array, or single item. They should compatible with RDF::Terms
+  # @param [ Object, Array ] value The values to set for the attribute. Can be an array, or single item. They should be compatible with RDF::Terms
   def write_predicate(predicate_uri, objects)
     # remove existing
     remove_predicate(predicate_uri)

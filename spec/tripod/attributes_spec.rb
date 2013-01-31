@@ -109,13 +109,4 @@ describe Tripod::Attributes do
       end
     end
   end
-
-  describe '.write_attributes' do
-    let(:person) { Person.new('http://barry') }
-
-    it 'should write the given attribute hash' do
-      person.write_attributes(:name => 'Bob')
-      person.name.should == 'Bob'
-    end
-  end
 end
