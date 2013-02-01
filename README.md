@@ -36,6 +36,8 @@ __Warning: Some features are still experimental.__
           field :aliases, 'http://alias', :multivalued => true
           field :age, 'http://age', :datatype => RDF::XSD.integer
           field :important_dates, 'http://importantdates', :datatype => RDF::XSD.date, :multivalued => true
+
+          rdf_type 'http://person'
         end
 
         # Note: Active Model validations are supported
@@ -49,7 +51,6 @@ __Warning: Some features are still experimental.__
         p.age = 31
         p.aliases = ['Rich', 'Richard']
         p.important_dates = [Date.new(2011,1,1)]
-        p[RDF::type] = RDF::URI('http://person')
         p.save!
 
         # Note: queries supplied to the where method should return the uris of the resource,
