@@ -71,6 +71,7 @@ require "tripod/fields"
 require "tripod/finders"
 require "tripod/persistence"
 require "tripod/repository"
+require "tripod/serialization"
 require "tripod/state"
 require "tripod/version"
 

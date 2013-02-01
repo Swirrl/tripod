@@ -8,6 +8,7 @@ describe Tripod::Fields do
       b = Person.new('http://barry')
       b.name = 'Barry'
       b
+      b
     end
 
     it "creates a getter for the field, which accesses data for the predicate, returning a single String" do
