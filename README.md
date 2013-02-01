@@ -34,12 +34,14 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         class Person
           include Tripod::Resource
 
+          rdf_type 'http://person'
+          graph_uri 'http://people'
+
           field :name, 'http://name'
+          field :knows, 'http://knows', :multivalued => true
           field :aliases, 'http://alias', :multivalued => true
           field :age, 'http://age', :datatype => RDF::XSD.integer
           field :important_dates, 'http://importantdates', :datatype => RDF::XSD.date, :multivalued => true
-
-          rdf_type 'http://person'
         end
 
         # Note: Active Model validations are supported
@@ -47,8 +49,7 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 5. Use it
 
         uri = 'http://ric'
-        graph = 'http://people'
-        p = Person.new(uri, graph)
+        p = Person.new(uri)
         p.name = 'Ric'
         p.age = 31
         p.aliases = ['Rich', 'Richard']
