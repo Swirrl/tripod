@@ -33,6 +33,7 @@ require 'rdf'
 require 'rdf/rdfxml'
 require 'rdf/n3'
 require 'rdf/json'
+require 'json/ld'
 
 require 'rest_client'
 

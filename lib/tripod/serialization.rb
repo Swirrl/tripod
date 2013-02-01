@@ -4,18 +4,24 @@
 module Tripod::Serialization
   extend ActiveSupport::Concern
 
+  # Serialises this resource's triples to rdf/xml
   def to_rdf
     @repository.dump(:rdfxml)
   end
 
+  # Serialises this resource's triples to turtle
   def to_ttl
     @repository.dump(:n3)
   end
 
+  # Serialises this resource's triples to n-triples
   def to_nt
     @repository.dump(:ntriples)
   end
 
-  # how to do json?.
+  # Serialises this resource's triples to JSON-LD
+  def to_json
+    @repository.dump(:jsonld)
+  end
 
 end

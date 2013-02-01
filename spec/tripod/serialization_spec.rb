@@ -27,4 +27,10 @@ describe Tripod::Serialization do
     end
   end
 
+   describe "#to_json" do
+    it "should dump the contents of the repository as ntriples" do
+      person.to_json.should == person.repository.dump(:jsonld)
+    end
+  end
+
 end
