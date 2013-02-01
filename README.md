@@ -10,6 +10,8 @@ __Warning: Some features are still experimental.__
 
 ## Quick start, for using in a rails app.
 
+Note: Tripod doesn't supply a database. You need to install one. I recommend [Fuseki](http://jena.apache.org/documentation/serving_data/index.html), which runs on port 3030 by default.
+
 1. Install the gem:
 
         gem install tripod
