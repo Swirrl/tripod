@@ -20,7 +20,7 @@ module Tripod::Serialization
   end
 
   # Serialises this resource's triples to JSON-LD
-  def to_json
+  def to_json(opts={})
     @repository.dump(:jsonld)
   end
 

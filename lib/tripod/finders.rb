@@ -97,7 +97,7 @@ module Tripod::Finders
           triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
             data_graph << statement
           end
-          r.hydrate!(data_graph)
+          r.hydrate!(:graph => data_graph)
           r.new_record = false
           resources << r
         end

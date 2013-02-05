@@ -66,6 +66,21 @@ module Tripod::SparqlClient
       response = self.query(query, nil, {:accept=>accept_header})
       return response.body
     end
+
+    # Executes a CONSTRUCT +query+ against the SPARQL endpoint.
+    # Executes the +query+ and returns ntriples by default
+    #
+    # @example Run a CONSTRUCT query
+    #   Tripod::SparqlClient::Query.select('CONSTRUCT <http://foo>')
+    #
+    # @param [ String ] query The query to run
+    # @param [ String ] accept_header The header to pass to the database.
+    # 
+    # @return [ String ] the raw response from the endpoint
+    def self.construct(query, accept_header='application/n-triples')
+      response = self.query(query, nil, {:accept=>accept_header})
+      return response.body
+    end
   end
 
   module Update

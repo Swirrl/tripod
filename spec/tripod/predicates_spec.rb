@@ -27,7 +27,7 @@ describe Tripod::Predicates do
 
   let(:person) do
     p = Person.new(@uri)
-    p.hydrate!(@graph)
+    p.hydrate!(:graph => @graph)
     p
   end
 

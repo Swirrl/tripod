@@ -12,7 +12,7 @@ describe Tripod::Persistence do
     stmt.object = RDF::URI.new('http://obj')
     @graph1 << stmt
     p = Person.new(@uri, 'http://graph')
-    p.hydrate!(@graph1)
+    p.hydrate!(:graph => @graph1)
     p
   end
 
@@ -25,7 +25,7 @@ describe Tripod::Persistence do
     stmt.object = RDF::URI.new('http://obj2')
     @graph2 << stmt
     p = Person.new(@uri2, 'http://graph')
-    p.hydrate!(@graph2)
+    p.hydrate!(:graph => @graph2)
     p.save
     p
   end

@@ -19,7 +19,7 @@ describe Tripod::Finders do
     stmts << stmt
 
     r = Person.new(@ric_uri)
-    r.hydrate!(stmts)
+    r.hydrate!(:graph => stmts)
     r.save
     r
   end
@@ -33,7 +33,7 @@ describe Tripod::Finders do
     stmt.object = "bill"
     stmts << stmt
     b = Person.new(@bill_uri)
-    b.hydrate!(stmts)
+    b.hydrate!(:graph => stmts)
     b.save
     b
   end

@@ -7,11 +7,11 @@ module Tripod::Predicates
 
   # returns a list of predicates (as RDF::URIs) for this resource
   def predicates
-    preds = []
+    pred_uris = []
     @repository.statements.each do |s|
-      preds << s.predicate unless preds.include?(s.predicate)
+      pred_uris << s.predicate unless pred_uris.include?(s.predicate)
     end
-    preds
+    pred_uris
   end
 
   # Reads values from this resource's in-memory statement repository, where the predicate matches that of the uri passed in.
