@@ -59,11 +59,18 @@ module Tripod::Finders
     #
     # @option options [ String ] uri_variable The name of the uri variable in thh query, if not 'uri'
     # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
+    # @option options [ String, RDF:URI, Array] only_hydate a single predicate or list of predicates to hydrate the returned objects with. If ommited, does a full hydrate
     #
     # @return [ Array ] An array of hydrated resources of this class's type.
     def where(criteria, opts={})
 
-      # 1. Run the select.
+      uris_and_graphs = select_uris_and_graphs(criteria, opts)
+
+      create_and_hydrate_resources(uris_and_graphs, opts)
+
+    end
+
+    def select_uris_and_graphs(criteria, opts)
       select_results = Tripod::SparqlClient::Query.select(criteria)
 
       # data will contain a map of uris against graphs.
@@ -75,35 +82,51 @@ module Tripod::Finders
         data[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
       end
 
-      resources = []
+      data
+    end
 
-      if data.keys.length > 0
+    def create_and_hydrate_resources(uris_and_graphs, opts={})
 
-        uris_sparql_str = data.keys.map{ |u| "<#{u}>" }.join(" ")
+      triples_repository = create_resources(uris_and_graphs)
+      resources = hydrate_resources(uris_and_graphs, triples_repository, opts)
 
-        # 2. Do a big describe statement, and read the results into an in-memory repo
+    end
+
+    def create_resources(uris_and_graphs)
+
+      triples_repository = RDF::Repository.new()
+
+      if uris_and_graphs.keys.length > 0
+        uris_sparql_str = uris_and_graphs.keys.map{ |u| "<#{u}>" }.join(" ")
+
+        # Do a big describe statement, and read the results into an in-memory repo
         triples = Tripod::SparqlClient::Query::describe("DESCRIBE #{uris_sparql_str}")
-        triples_repository = RDF::Repository.new()
         RDF::Reader.for(:ntriples).new(triples) do |reader|
           reader.each_statement do |statement|
             triples_repository << statement
           end
         end
-
-        # 3. for each of our uris, make a resource, with a graph of triples for that uri from the in-mem repo
-        data.each_pair do |u,g|
-          r = self.new(u,g)
-          data_graph = RDF::Graph.new
-          triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
-            data_graph << statement
-          end
-          r.hydrate!(:graph => data_graph)
-          r.new_record = false
-          resources << r
-        end
       end
-      resources
 
+      triples_repository
     end
+
+    def hydrate_resources(uris_and_graphs, triples_repository, opts={})
+      resources =[]
+
+      uris_and_graphs.each_pair do |u,g|
+        r = self.new(u,g)
+        data_graph = RDF::Graph.new
+        triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
+          data_graph << statement
+        end
+        r.hydrate!(:graph => data_graph)
+        r.new_record = false
+        resources << r
+      end
+
+      resources
+    end
+
   end
 end
