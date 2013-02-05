@@ -5,6 +5,15 @@ module Tripod::Predicates
 
   extend ActiveSupport::Concern
 
+  # returns a list of predicates (as RDF::URIs) for this resource
+  def predicates
+    preds = []
+    @repository.statements.each do |s|
+      preds << s.predicate unless preds.include?(s.predicate)
+    end
+    preds
+  end
+
   # Reads values from this resource's in-memory statement repository, where the predicate matches that of the uri passed in.
   # Returns an Array of RDF::Terms object.
   #

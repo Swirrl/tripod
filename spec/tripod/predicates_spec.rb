@@ -65,10 +65,17 @@ describe Tripod::Predicates do
     end
   end
 
-  describe "append_to_predicate" do
+  describe "#append_to_predicate" do
     it 'appends values to the existing values for the predicate' do
       person.append_to_predicate('http://name', 'rico')
       person.read_predicate('http://name').should == [RDF::Literal.new('ric'), RDF::Literal.new('rico')]
+    end
+  end
+
+  describe "#predicates" do
+    it "returns a list of unique RDF::URIs for the predicates set on this resource" do
+      person.predicates.length.should == 2
+      person.predicates.should == [RDF::URI('http://blog'), RDF::URI('http://name')]
     end
   end
 
