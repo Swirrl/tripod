@@ -2,7 +2,7 @@
 require File.expand_path('../lib/tripod/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["RicSwirrl"]
+  gem.authors       = ["Ric Roberts", "Bill Roberts", "Asa Calow"]
   gem.email         = ["ric@swirrl.com"]
   gem.description   = %q{RDF ruby ORM}
   gem.summary       = %q{Active Model style RDF ORM}
