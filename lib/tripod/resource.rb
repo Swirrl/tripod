@@ -27,6 +27,7 @@ module Tripod::Resource
   #   Person.new('http://swirrl.com/ric.rdf#me')
   #
   # @param [ String, RDF::URI ] uri The uri of the resource.
+  # @param [ String, RDF::URI ] graph_uri The graph_uri where this resource will be saved to. If ommitted, this resource cannot be persisted.
   #
   # @return [ Resource ] A new +Resource+
   def initialize(uri, graph_uri=nil)
@@ -34,9 +35,7 @@ module Tripod::Resource
     @uri = RDF::URI(uri.to_s)
 
     graph_uri ||= self.class._GRAPH_URI if self.class._GRAPH_URI
-    raise Tripod::Errors::UriNotSet.new('graph_uri missing') unless graph_uri
-    @graph_uri = RDF::URI(graph_uri)
-
+    @graph_uri = RDF::URI(graph_uri) if graph_uri
     @repository = RDF::Repository.new
     @new_record = true
     self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=)

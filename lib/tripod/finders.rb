@@ -64,7 +64,35 @@ module Tripod::Finders
     # @return [ Array ] An array of hydrated resources of this class's type.
     def where(criteria, opts={})
       uris_and_graphs = select_uris_and_graphs(criteria, opts)
-      create_and_hydrate_resources(uris_and_graphs, opts)
+      create_and_hydrate_resources(uris_and_graphs)
+    end
+
+    # create and hydrate the resources identified in uris_and_graphs.
+    # Note: if any of the  graphs are not set, those resources can still be constructed, but not persisted back to DB.
+    def create_and_hydrate_resources(uris_and_graphs)
+
+      repository = describe_uris(uris_and_graphs.keys)
+
+      resources = []
+
+      uris_and_graphs.each_pair do |u,g|
+
+        # instantiate a new resource
+        r = self.new(u,g)
+
+        # make a graph of data for this resource's uri
+        data_graph = RDF::Graph.new
+        repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
+          data_graph << statement
+        end
+
+        # use it to hydrate this resource
+        r.hydrate!(:graph => data_graph)
+        r.new_record = false
+        resources << r
+      end
+
+      resources
     end
 
   end
@@ -76,68 +104,41 @@ module Tripod::Finders
 
       private
 
-      def select_uris_and_graphs(criteria, opts)
-        select_results = Tripod::SparqlClient::Query.select(criteria)
+      # for an array of uris, return a RDF::Repository object with all their data.
+      def describe_uris(uris)
 
-        # data will contain a map of uris against graphs.
-        data = {}
+        repo = RDF::Repository.new()
 
-        select_results.each do |r|
-          uri_variable = opts[:uri_variable] || 'uri'
-          graph_variable = opts[:graph_variable] || 'graph'
-          data[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
-        end
-
-        data
-      end
-
-      def create_and_hydrate_resources(uris_and_graphs, opts={})
-
-        triples_repository = create_resources(uris_and_graphs)
-        resources = hydrate_resources(uris_and_graphs, triples_repository, opts)
-
-      end
-
-      def create_resources(uris_and_graphs)
-
-        triples_repository = RDF::Repository.new()
-
-        if uris_and_graphs.keys.length > 0
-          uris_sparql_str = uris_and_graphs.keys.map{ |u| "<#{u}>" }.join(" ")
+        if uris.length > 0
+          uris_sparql_str = uris.map{ |u| "<#{u.to_s}>" }.join(" ")
 
           # Do a big describe statement, and read the results into an in-memory repo
           triples = Tripod::SparqlClient::Query::describe("DESCRIBE #{uris_sparql_str}")
           RDF::Reader.for(:ntriples).new(triples) do |reader|
             reader.each_statement do |statement|
-              triples_repository << statement
+              repo << statement
             end
           end
         end
 
-        triples_repository
+        repo
       end
 
-      def hydrate_resources(uris_and_graphs, triples_repository, opts={})
+      # based on the query passed in, build a hash of uris->graphs
+      def select_uris_and_graphs(criteria, opts)
+        select_results = Tripod::SparqlClient::Query.select(criteria)
 
-        resources =[]
+        uris_and_graphs = {}
 
-        uris_and_graphs.each_pair do |u,g|
-          r = self.new(u,g)
-          data_graph = RDF::Graph.new
-          triples_repository.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
-            data_graph << statement
-          end
-
-          hydrate_opts = {:graph => data_graph}
-          hydrate_opts[:only] = opts[:only_hydrate]
-
-          r.hydrate!(:graph => data_graph)
-          r.new_record = false
-          resources << r
+        select_results.each do |r|
+          uri_variable = opts[:uri_variable] || 'uri'
+          graph_variable = opts[:graph_variable] || 'graph'
+          uris_and_graphs[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
         end
 
-        resources
+        uris_and_graphs
       end
+
 
     end
 

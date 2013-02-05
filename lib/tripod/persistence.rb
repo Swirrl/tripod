@@ -68,6 +68,8 @@ module Tripod::Persistence
   # @return [ true, false ] True is success, false if not.
   def save(opts={})
 
+    raise Tripod::Errors::GraphUriNotSet.new() unless @graph_uri
+
     transaction = Tripod::Persistence::Transaction.get_transcation(opts[:transaction])
 
     if self.valid?

@@ -32,6 +32,14 @@ describe Tripod::Persistence do
 
 
   describe ".save" do
+
+    context "with no graph_uri set" do
+      it 'should raise a GraphUriNotSet error' do
+        p = Resource.new('http://arbitrary/resource')
+        lambda { p.save }.should raise_error(Tripod::Errors::GraphUriNotSet)
+      end
+    end
+
     it 'saves the contents to the db' do
       unsaved_person.save.should be_true
 
@@ -44,6 +52,7 @@ describe Tripod::Persistence do
       repo_statements.first.predicate.should == RDF::URI.new('http://pred')
       repo_statements.first.object.should == RDF::URI.new('http://obj')
     end
+
 
     it 'should leave other people untouched' do
       # save the unsaved person
