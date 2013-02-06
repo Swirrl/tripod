@@ -35,13 +35,30 @@ module Tripod::Repository
       end
     else
 
-     triples = Tripod::SparqlClient::Query::describe("DESCRIBE <#{uri}>")
+    triples = Tripod::SparqlClient::Query::describe("DESCRIBE <#{uri}>")
       @repository = RDF::Repository.new
       RDF::Reader.for(:ntriples).new(triples) do |reader|
         reader.each_statement do |statement|
           @repository << statement
         end
       end
+    end
+
+  end
+
+  module ClassMethods
+
+    # for triples in the graph passed in, add them to the passed in repository obj, and return the repository objects
+    # if no repository passed, make a new one.
+    def add_data_to_repository(graph, repo=nil)
+
+      repo ||= RDF::Repository.new()
+
+      graph.each_statement do |statement|
+        repo << statement
+      end
+
+      repo
     end
 
   end

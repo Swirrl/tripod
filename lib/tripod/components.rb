@@ -19,6 +19,7 @@ module Tripod::Components
   include Tripod::Fields
   include Tripod::Finders
   include Tripod::Repository
+  include Tripod::EagerLoading
   include Tripod::Serialization
   include Tripod::State
 
