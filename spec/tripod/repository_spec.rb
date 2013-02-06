@@ -33,32 +33,6 @@ describe Tripod::Repository do
           end
 
         end
-
-        context 'single predicate restriction passed' do
-          it 'calls the right CONSTRUCT query' do
-            Tripod::SparqlClient::Query.should_receive(:construct).with("CONSTRUCT { <http://foobar> ?p ?o } WHERE { <http://foobar> ?p ?o . FILTER (?p = <http://pred>)}").and_call_original
-            person.hydrate!(:only => 'http://pred')
-          end
-
-          it 'only populates the right predicates' do
-            person.hydrate!(:only => 'http://pred')
-            person.predicates.length.should ==1
-            person.predicates.should == [RDF::URI('http://pred')]
-          end
-        end
-
-        context 'multiple predicate restrictions passed' do
-          it 'calls the right CONSTRUCT query' do
-            Tripod::SparqlClient::Query.should_receive(:construct).with("CONSTRUCT { <http://foobar> ?p ?o } WHERE { <http://foobar> ?p ?o . FILTER (?p = <http://pred> || ?p = <http://anotherpred>)}").and_call_original
-            person.hydrate!(:only => ['http://pred', 'http://anotherpred'])
-          end
-
-          it 'only populates the right predicates' do
-            person.hydrate!(:only => ['http://pred2', 'http://pred'])
-            person.predicates.length.should == 2
-            person.predicates.should == [RDF::URI('http://pred'), RDF::URI('http://pred2')]
-          end
-        end
       end
 
       context 'graph passed' do
