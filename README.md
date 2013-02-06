@@ -105,6 +105,6 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 
 
 
-[Full Documentation](http://rubydoc.info/github/Swirrl/tripod/master/frames)
+[Full Documentation](http://rubydoc.info/gems/tripod/frames)
 
 Copyright (c) 2012 [Swirrl IT Limited](http://swirrl.com). Released under MIT License
