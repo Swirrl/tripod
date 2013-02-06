@@ -23,6 +23,13 @@ describe Tripod::Predicates do
     stmt3.predicate = RDF::URI.new('http://name')
     stmt3.object = "ric"
     @graph << stmt3
+
+    # throw a random other statement (about name) in the mix!
+    stmt4 = RDF::Statement.new
+    stmt4.subject = RDF::URI.new('http://name')
+    stmt4.predicate = RDF::RDFS.label
+    stmt4.object = "name"
+    @graph << stmt4
   end
 
   let(:person) do
@@ -77,6 +84,8 @@ describe Tripod::Predicates do
       person.predicates.length.should == 2
       person.predicates.should == [RDF::URI('http://blog'), RDF::URI('http://name')]
     end
+
+
   end
 
 end
