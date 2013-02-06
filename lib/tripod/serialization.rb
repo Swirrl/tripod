@@ -6,22 +6,22 @@ module Tripod::Serialization
 
   # Serialises this resource's triples to rdf/xml
   def to_rdf
-    @repository.dump(:rdfxml)
+    get_triples_for_this_resource.dump(:rdfxml)
   end
 
   # Serialises this resource's triples to turtle
   def to_ttl
-    @repository.dump(:n3)
+    get_triples_for_this_resource.dump(:n3)
   end
 
   # Serialises this resource's triples to n-triples
   def to_nt
-    @repository.dump(:ntriples)
+    get_triples_for_this_resource.dump(:ntriples)
   end
 
   # Serialises this resource's triples to JSON-LD
   def to_json(opts={})
-    @repository.dump(:jsonld)
+    get_triples_for_this_resource.dump(:jsonld)
   end
 
 end

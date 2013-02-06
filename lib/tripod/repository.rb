@@ -28,7 +28,7 @@ module Tripod::Repository
 
     if graph
       graph.each_statement do |statement|
-        # only use statements about this resource!
+        # only use statements about this resource for hydrating
         if statement.subject.to_s == @uri.to_s
           @repository << statement
         end
@@ -44,6 +44,15 @@ module Tripod::Repository
       end
     end
 
+  end
+
+  # returns a graph of triples from the underlying repository where this resource's uri is the subject.
+  def get_triples_for_this_resource
+    triples_graph = RDF::Graph.new
+    @repository.query([RDF::URI.new(self.uri), :predicate, :object]) do |stmt|
+      triples_graph << stmt
+    end
+    triples_graph
   end
 
   module ClassMethods

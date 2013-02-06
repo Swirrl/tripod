@@ -20,7 +20,7 @@ module Tripod::EagerLoading
   def eager_load_object_triples!
     object_uris = []
 
-    self.repository.query( [RDF::URI.new(self.uri), :predicate, :object] ) do |statement|
+    self.get_triples_for_this_resource.each_statement do |statement|
       object_uris << statement.object if statement.object.uri?
     end
 
