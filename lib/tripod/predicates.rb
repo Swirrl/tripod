@@ -8,9 +8,11 @@ module Tripod::Predicates
   # returns a list of predicates (as RDF::URIs) for this resource
   def predicates
     pred_uris = []
-    @repository.statements.each do |s|
-      pred_uris << s.predicate unless pred_uris.include?(s.predicate)
+
+    @repository.query( [@uri, :predicate, :object] ) do |statement|
+      pred_uris << statement.predicate unless pred_uris.include?(statement.predicate)
     end
+
     pred_uris
   end
 
@@ -26,7 +28,7 @@ module Tripod::Predicates
   # @return [ Array ] An array of RDF::Terms.
   def read_predicate(predicate_uri)
     values = []
-    @repository.query( [:subject, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
+    @repository.query( [@uri, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
       values << statement.object
     end
     values
