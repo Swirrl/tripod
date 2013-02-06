@@ -60,6 +60,14 @@ describe Tripod::EagerLoading do
         res = @john.get_related_resource(@peter.uri, Person)
         res.should == @peter
       end
+
+      context "and related resource doesn't exist" do
+
+        it "should return nil" do
+          res = @john.get_related_resource(RDF::URI.new('http://nonexistent/person'), Person)
+          res.should be_nil
+        end
+      end
     end
 
     context "when eager_load_object_triples has been called" do
@@ -97,6 +105,7 @@ describe Tripod::EagerLoading do
         @john.get_related_resource(RDF::URI.new('http://name'), Resource).label.should == @name.label
       end
     end
+
 
   end
 
