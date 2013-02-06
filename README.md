@@ -77,7 +77,7 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 
         asa = Person.find('http://asa')
         ric = Person.find('http://ric')
-        ric.knows = asa
+        ric.knows = asa.uri
 
         ric.eager_load_predicate_triples! #does a big DESCRIBE statement behind the scenes
         knows = ric.get_related_resource('http://knows', Resource)
