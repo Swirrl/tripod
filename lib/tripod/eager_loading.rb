@@ -39,8 +39,7 @@ module Tripod::EagerLoading
     end
 
     if data_graph.empty?
-      # this means that we've not already looked it up
-      r = class_of_resource_to_create.find(resource_uri) rescue nil # if not in db, just return nil
+      r = nil
     else
       # it's in our eager loaded repo
       r = class_of_resource_to_create.new(resource_uri)

@@ -55,10 +55,12 @@ describe Tripod::EagerLoading do
   describe "#get_related_resource" do
 
     context "when eager load not called" do
-      it "should do a find on the right class to get the right instance of the resource class passed in" do
-        Person.should_receive(:find).with( @peter.uri ).and_call_original
-        res = @john.get_related_resource(@peter.uri, Person)
-        res.should == @peter
+
+      context "and related resource exists" do
+        it "should return nil" do
+          res = @john.get_related_resource(@peter.uri, Person)
+          res.should == nil
+        end
       end
 
       context "and related resource doesn't exist" do
