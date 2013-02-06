@@ -91,10 +91,12 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         class Resource
           field :label RDF::RDFS.label
 
-          # notice also that you don't need to supply an rdf type here!
+          # notice also that you don't need to supply an rdf type or graph here!
         end
 
         r = Resource.new('http://foo', 'http://mygraph')
+
+        # if you don't supply a graph at any point, you will get an error when you try to persist the resource.
 
 ## Reading and writing arbitrary predicates
 
