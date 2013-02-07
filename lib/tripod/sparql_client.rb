@@ -67,6 +67,21 @@ module Tripod::SparqlClient
       return response.body
     end
 
+    # Executes an ASK +query+ against the SPARQL endpoint.
+    # Executes the +query+ and returns text by default
+    #
+    # @example Run a ASK query
+    #   Tripod::SparqlClient::Query.select('ASK <http://foo>')
+    #
+    # @param [ String ] query The query to run
+    # @param [ String ] accept_header The format parameter to send to the database. Valud valid formats are text, xml, json
+    # 
+    # @return [ String ] the raw response from the endpoint
+    def self.ask(query, format='text')
+      response = self.query(query, format)
+      return response.body
+    end
+
     # Executes a CONSTRUCT +query+ against the SPARQL endpoint.
     # Executes the +query+ and returns ntriples by default
     #
