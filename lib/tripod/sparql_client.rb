@@ -25,8 +25,7 @@ module Tripod::SparqlClient
       rescue RestClient::BadRequest => e
         body = e.http_body
         if body.start_with?('Error 400: Parse error:')
-          # TODO: this is a SPARQL parsing exception. Do something different.
-          raise e
+          raise Tripod::Errors::SparqlParseFailed.new, body
         else
           raise e
         end
@@ -119,8 +118,7 @@ module Tripod::SparqlClient
       rescue RestClient::BadRequest => e
         body = e.http_body
         if body.start_with?('Error 400: Parse error:')
-          # TODO: this is a SPARQL parsing exception. Do something different.
-          raise e
+          raise Tripod::Errors::SparqlParseFailed.new, body
         else
           raise e
         end

@@ -1,7 +1,7 @@
 # encoding: utf-8
 module Tripod::Errors
 
-  class RdfParseFailed < StandardError
+  class SparqlParseFailed < StandardError
   end
 
 end
