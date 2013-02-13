@@ -32,7 +32,7 @@ module Tripod::Persistence
       transaction && transaction.class == Tripod::Persistence::Transaction
     end
 
-    def self.get_transcation(trans)
+    def self.get_transaction(trans)
       transaction = nil
 
       if Tripod::Persistence::Transaction.valid_transaction(trans)
@@ -70,7 +70,7 @@ module Tripod::Persistence
 
     raise Tripod::Errors::GraphUriNotSet.new() unless @graph_uri
 
-    transaction = Tripod::Persistence::Transaction.get_transcation(opts[:transaction])
+    transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
 
     if self.valid?
 
@@ -114,7 +114,7 @@ module Tripod::Persistence
       # if we get in here, save failed.
 
       # abort the transaction
-      transaction = Tripod::Persistence::Transaction.get_transcation(opts[:transaction])
+      transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
       transaction.abort() if transaction
 
       self.class.fail_validate!(self) # throw an exception
@@ -126,7 +126,7 @@ module Tripod::Persistence
 
   def destroy(opts={})
 
-    transaction = Tripod::Persistence::Transaction.get_transcation(opts[:transaction])
+    transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
 
     query = "
       # delete from default graph:
