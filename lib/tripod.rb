@@ -45,6 +45,9 @@ module Tripod
   mattr_accessor :query_endpoint
   @@query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
 
+  mattr_accessor :data_endpoint
+  @@data_endpoint = 'http://127.0.0.1:3030/tripod/data'
+
   mattr_accessor :timeout_seconds
   @@timeout_seconds = 30
 

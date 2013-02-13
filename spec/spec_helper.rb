@@ -6,11 +6,13 @@ $LOAD_PATH.unshift(MODELS)
 
 require 'tripod'
 require 'rspec'
+require 'webmock/rspec'
 
 RSpec.configure do |config|
   config.mock_with :rspec
 
   config.before(:each) do
+    WebMock.disable!
     # delete from all graphs.
     Tripod::SparqlClient::Update.update('
       # delete from default graph:
@@ -26,6 +28,7 @@ end
 Tripod.configure do |config|
   config.update_endpoint = 'http://127.0.0.1:3030/tripod-test/update'
   config.query_endpoint = 'http://127.0.0.1:3030/tripod-test/sparql'
+  config.data_endpoint = 'http://127.0.0.1:3030/tripod-test/data'
 end
 
 # Autoload every model for the test suite that sits in spec/app/models.

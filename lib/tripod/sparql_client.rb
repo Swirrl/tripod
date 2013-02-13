@@ -128,4 +128,36 @@ module Tripod::SparqlClient
     end
 
   end
+
+  module Data
+    class DataClient
+      def self.submit(graph_uri, data, method)
+        url = "#{Tripod.data_endpoint}?graph=#{graph_uri}"
+        begin
+          RestClient::Request.execute(
+            :method => method,
+            :url => url,
+            :timeout => Tripod.timeout_seconds,
+            :payload => data
+          )
+          true
+        rescue RestClient::BadRequest => e
+          body = e.http_body
+          if body.start_with?('Error 400: Parse error:')
+            raise Tripod::Errors::RdfParseFailed.new, body
+          else
+            raise e
+          end
+        end
+      end
+    end
+
+    def self.append(graph_uri, data)
+      DataClient.submit(graph_uri, data, :post)
+    end
+
+    def self.replace(graph_uri, data)
+      DataClient.submit(graph_uri, data, :put)
+    end
+  end
 end
