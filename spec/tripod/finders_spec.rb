@@ -3,37 +3,16 @@ require "spec_helper"
 describe Tripod::Finders do
 
   let(:ric) do
-    @ric_uri = 'http://ric'
-    stmts = RDF::Graph.new
-
-    stmt = RDF::Statement.new
-    stmt.subject = RDF::URI.new(@ric_uri)
-    stmt.predicate = RDF::URI.new('http://name')
-    stmt.object = "ric"
-    stmts << stmt
-
-    stmt = RDF::Statement.new
-    stmt.subject = RDF::URI.new(@ric_uri)
-    stmt.predicate = RDF::URI.new('http://knows')
-    stmt.object = RDF::URI.new('http://bill')
-    stmts << stmt
-
-    r = Person.new(@ric_uri)
-    r.hydrate!(:graph => stmts)
+    r = Person.new('http://example.com/people/id/ric')
+    r.name = "ric"
+    r.knows = RDF::URI.new("http://bill")
     r.save
     r
   end
 
   let(:bill) do
-    @bill_uri = 'http://bill'
-    stmts = RDF::Graph.new
-    stmt = RDF::Statement.new
-    stmt.subject = RDF::URI.new(@bill_uri)
-    stmt.predicate = RDF::URI.new('http://name')
-    stmt.object = "bill"
-    stmts << stmt
-    b = Person.new(@bill_uri)
-    b.hydrate!(:graph => stmts)
+    b = Person.new('http://example.com/people/id/bill')
+    b.name = "bill"
     b.save
     b
   end
@@ -97,7 +76,59 @@ describe Tripod::Finders do
       res = Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
       res.first.new_record?.should be_false
     end
+  end
+
+  describe '.find_by_type' do
+
+    let(:rdf_type) { RDF::URI(Person._RDF_TYPE) }
+
+    context "passing a string" do
+      it "should call .where with a query which restricts to the rdf_type passed in" do
+        Resource.should_receive(:where).with("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
+        Resource.find_by_type(rdf_type.to_s)
+      end
+    end
+
+    context "passing an RDF::URI" do
+      it "should call .where with a query which restricts to the rdf_type passed in (to_string'd)" do
+        Resource.should_receive(:where).with("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
+        Resource.find_by_type(rdf_type)
+      end
+    end
+
+    context "with data in the database" do
+
+      before do
+        # save these into the db
+        bill
+        ric
+      end
+
+      it "should return all resources of the type in the database" do
+        resources = Resource.find_by_type(rdf_type)
+        resources.length.should == 2
+      end
+    end
+  end
+
+  describe '.all' do
+    context "with a class level rdf type specified" do
+      it "should call .find_by_type, passing the class level rdf_type" do
+        Person.should_receive(:find_by_type).with(Person._RDF_TYPE)
+        Person.all
+      end
+
+      context "with an rdf_type passed in" do
+        let(:type_param) { 'http://anothertype' }
+        it "should call .where, with a query which restricts to the passed in rdf type" do
+          Person.should_receive(:find_by_type).with(type_param)
+          Person.all(type_param)
+        end
+      end
+    end
+
 
   end
+
 
 end

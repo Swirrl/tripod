@@ -67,6 +67,26 @@ module Tripod::Finders
       create_and_hydrate_resources(uris_and_graphs)
     end
 
+    # Finds all the +Resource+s of the rdf_type of this model.
+    # rdf_type can optionally be passed in if you want to override the type
+    # if neither a class-level rdf_type is specified, nor one passed in, then an exception will be raised.
+    #
+    # @param [ String, RDF::URI] rdf_type The uri, as a string or RDF::URI of the rdf_type to which to restrict the find. Optional.
+    #
+    # @return [ Array ] An array of hydrated resources of this class's type.
+    def all(rdf_type = nil)
+      rdf_type_to_use =  rdf_type || _RDF_TYPE
+      raise Tripod::Errors::RdfTypeNotSet unless rdf_type_to_use
+      find_by_type(rdf_type_to_use)
+    end
+
+    # Finds all +Resource+s with the rdf_type passed in.
+    # @param [String, RDF::URI] rdf_type The uri, as a string or RDF::URI of the rdf_type to which to restrict the find.
+    # @return [ Array ] An array of hydrated resources of this class's type.
+    def find_by_type(rdf_type)
+      where("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
+    end
+
     # returns a graph of triples which describe the uris passed in.
     def describe_uris(uris)
       graph = RDF::Graph.new

@@ -21,8 +21,10 @@ describe Tripod::Resource do
         person.graph_uri.should == RDF::URI.new('http://graph')
       end
 
-      it "sets the rdf type from the class" do
-        person.rdf_type.should == 'http://person'
+      context "with rdf_type specified at class level" do
+        it "sets the rdf type from the class" do
+          person.rdf_type.to_s.should == 'http://person'
+        end
       end
 
       it "initialises a repo" do

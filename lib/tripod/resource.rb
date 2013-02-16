@@ -92,9 +92,11 @@ module Tripod::Resource
       other.class == Class ? self <= other : other.is_a?(self)
     end
 
+    # makes a "field" on this model called rdf_type
+    # and sets a class level _RDF_TYPE variable with the rdf_type passed in.
     def rdf_type(new_rdf_type)
       field :rdf_type, RDF.type
-      self._RDF_TYPE = new_rdf_type
+      self._RDF_TYPE = RDF::URI.new(new_rdf_type.to_s)
     end
 
     def graph_uri(new_graph_uri)
