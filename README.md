@@ -88,7 +88,9 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         r.label = "example"
         r.save
 
-        # Note: if you don't supply a graph at any point (i.e. class or instance level), you will get an error when you try to persist the resource.
+        # Note: Tripod assumes you want to store all resources in named graphs.
+        # So if you don't supply a graph at any point (i.e. class or instance level),
+        # you will get an error when you try to persist the resource.
 
 ## Reading and writing arbitrary predicates
 
