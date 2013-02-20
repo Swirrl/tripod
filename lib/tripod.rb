@@ -67,12 +67,14 @@ end
 
 require "tripod/extensions"
 require "tripod/sparql_client"
+require "tripod/sparql_query"
 
 require "tripod/predicates"
 require "tripod/attributes"
 require "tripod/errors"
 require "tripod/repository"
 require "tripod/fields"
+require "tripod/criteria"
 require "tripod/finders"
 require "tripod/persistence"
 require "tripod/eager_loading"

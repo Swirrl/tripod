@@ -23,12 +23,8 @@ module Tripod::SparqlClient
           :timeout => Tripod.timeout_seconds,
         )
       rescue RestClient::BadRequest => e
-        body = e.http_body
-        if body.start_with?('Error 400: Parse error:')
-          raise Tripod::Errors::SparqlParseFailed.new, body
-        else
-          raise e
-        end
+        # just re-raise as a BadSparqlRequest Exception
+        raise Tripod::Errors::BadSparqlRequest.new(e.http_body, e)
       end
     end
 
@@ -116,12 +112,8 @@ module Tripod::SparqlClient
         )
         true
       rescue RestClient::BadRequest => e
-        body = e.http_body
-        if body.start_with?('Error 400: Parse error:')
-          raise Tripod::Errors::SparqlParseFailed.new, body
-        else
-          raise e
-        end
+        # just re-raise as a BadSparqlRequest Exception
+        raise Tripod::Errors::BadSparqlRequest.new(e.http_body, e)
       end
     end
 
@@ -140,12 +132,7 @@ module Tripod::SparqlClient
           )
           true
         rescue RestClient::BadRequest => e
-          body = e.http_body
-          if body.start_with?('Error 400: Parse error:')
-            raise Tripod::Errors::RdfParseFailed.new, body
-          else
-            raise e
-          end
+          raise Tripod::Errors::BadDataRequest.new(e.http_body, e)
         end
       end
     end

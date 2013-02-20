@@ -20,14 +20,14 @@ describe Tripod::SparqlClient do
         Tripod::SparqlClient::Data.append('http://foo', data)
       end
 
-      context "which fails with a parse error" do
+      context "which fails with a 400 error" do
         before do
           WebMock.enable!
-          stub_http_request(:post, 'http://127.0.0.1:3030/tripod-test/data?graph=http://foo').to_return(body: 'Error 400: Parse error: Trousers missing', status: 400)
+          stub_http_request(:post, 'http://127.0.0.1:3030/tripod-test/data?graph=http://foo').to_return(body: 'Error 400: Trousers missing', status: 400)
         end
 
         it "should raise a 'parse failed' exception" do
-          lambda { Tripod::SparqlClient::Data.append('http://foo', data) }.should raise_error(Tripod::Errors::RdfParseFailed)
+          lambda { Tripod::SparqlClient::Data.append('http://foo', data) }.should raise_error(Tripod::Errors::BadDataRequest)
         end
 
         after do

@@ -6,18 +6,21 @@ describe Tripod::Finders do
     r = Person.new('http://example.com/people/id/ric')
     r.name = "ric"
     r.knows = RDF::URI.new("http://bill")
-    r.save
     r
   end
 
   let(:bill) do
     b = Person.new('http://example.com/people/id/bill')
     b.name = "bill"
-    b.save
     b
   end
 
   describe '.find' do
+
+    before do
+      ric.save!
+      bill.save!
+    end
 
     context 'when record exists' do
       let(:person) { Person.find(ric.uri) }
@@ -44,91 +47,77 @@ describe Tripod::Finders do
       end
     end
 
-    context 'with a given graph URI' do
+    context 'with graph_uri supplied' do
+      it 'should use that graph to call new' do
+        ric # trigger the lazy load
+        Person.should_receive(:new).with(ric.uri, 'http://graphx').and_call_original
+        Person.find(ric.uri, "http://graphx")
+      end
+    end
 
+    context 'with no graph_uri supplied' do
+       it 'should look up the graph to call new' do
+        ric # trigger the lazy load
+        Person.should_receive(:new).with(ric.uri, Person._GRAPH_URI).and_call_original
+        Person.find(ric.uri, Person._GRAPH_URI)
+      end
     end
   end
 
-  describe '.where' do
+  describe ".all" do
+    it "should make and return a new criteria for the current class" do
+      Person.all.should == Tripod::Criteria.new(Person)
+    end
+  end
 
+  describe ".where" do
+
+    let(:criteria) { Person.where("[pattern]") }
+
+    it "should make and return a criteria for the current class" do
+      criteria.class.should == Tripod::Criteria
+    end
+
+    it "should apply the where clause" do
+      criteria.where_clauses.should include("[pattern]")
+    end
+
+  end
+
+  describe "count" do
     before do
-      # save these into the db
-      bill
-      ric
+      ric.save!
+      bill.save!
     end
 
-    it 'returns an array of resources which match those in the db' do
-      res = Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
-      res.length.should == 2
-      res.first.should == ric
-      res.last.should == bill
-
-      res.first.name.should == "ric"
-      res.first.knows.should == [RDF::URI.new("http://bill")]
+    it "should just call count on the all criteria" do
+      all_crit = Tripod::Criteria.new(Person)
+      Person.should_receive(:all).and_return(all_crit)
+      all_crit.should_receive(:count).and_call_original
+      Person.count
     end
 
-    it 'uses the uri and graph variables if supplied' do
-      res = Person.where('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
-      res.length.should == 2
-    end
-
-    it "returns non-new records" do
-      res = Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
-      res.first.new_record?.should be_false
+    it 'should return the count of all resources of this type' do
+      Person.count.should == 2
     end
   end
 
-  describe '.find_by_type' do
-
-    let(:rdf_type) { RDF::URI(Person._RDF_TYPE) }
-
-    context "passing a string" do
-      it "should call .where with a query which restricts to the rdf_type passed in" do
-        Resource.should_receive(:where).with("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
-        Resource.find_by_type(rdf_type.to_s)
-      end
+  describe "first" do
+    before do
+      ric.save!
+      bill.save!
     end
 
-    context "passing an RDF::URI" do
-      it "should call .where with a query which restricts to the rdf_type passed in (to_string'd)" do
-        Resource.should_receive(:where).with("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
-        Resource.find_by_type(rdf_type)
-      end
+    it "should just call count on the all criteria" do
+      all_crit = Tripod::Criteria.new(Person)
+      Person.should_receive(:all).and_return(all_crit)
+      all_crit.should_receive(:first).and_call_original
+      Person.first
     end
 
-    context "with data in the database" do
-
-      before do
-        # save these into the db
-        bill
-        ric
-      end
-
-      it "should return all resources of the type in the database" do
-        resources = Resource.find_by_type(rdf_type)
-        resources.length.should == 2
-      end
+    it 'should return the first resources of this type' do
+      Person.first.should == ric
     end
   end
-
-  describe '.all' do
-    context "with a class level rdf type specified" do
-      it "should call .find_by_type, passing the class level rdf_type" do
-        Person.should_receive(:find_by_type).with(Person._RDF_TYPE)
-        Person.all
-      end
-
-      context "with an rdf_type passed in" do
-        let(:type_param) { 'http://anothertype' }
-        it "should call .where, with a query which restricts to the passed in rdf type" do
-          Person.should_receive(:find_by_type).with(type_param)
-          Person.all(type_param)
-        end
-      end
-    end
-
-
-  end
-
 
 end

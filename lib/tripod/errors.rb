@@ -6,4 +6,6 @@ require 'tripod/errors/graph_uri_not_set'
 require 'tripod/errors/rdf_type_not_set'
 require 'tripod/errors/validations'
 require 'tripod/errors/rdf_parse_failed'
-require 'tripod/errors/sparql_parse_failed'
+
+require 'tripod/errors/bad_sparql_request'
+require 'tripod/errors/bad_data_request'

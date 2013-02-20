@@ -55,21 +55,10 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         p.important_dates = [Date.new(2011,1,1)]
         p.save!
 
-        # Note: queries supplied to the where method should return the uris of the resource,
-        # and what graph they're in.
-        people = Person.where("
-          SELECT ?person ?graph
-          WHERE {
-            GRAPH ?graph {
-              ?person ?p ?o .
-              ?person a <http://person> .
-            }
-          }",
-        :uri_variable => 'person' ) # optionally, set a different name for the uri parameter (default: uri)
-        # => returns an array of Person objects, containing all data we know about them.
+        people = Person.all.resources #=> returns all people as an array
 
-        ric = Person.find('http://ric')
-        # => returns a single Person object.
+        ric = Person.find('http://ric') #=> returns a single Person object.
+
 
 ## Some Other interesting features
 
@@ -89,19 +78,41 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 ## Defining a graph at instantiation-time
 
         class Resource
-          field :label RDF::RDFS.label
+          include Tripod::Resource
+          field :label, RDF::RDFS.label
 
           # notice also that you don't need to supply an rdf type or graph here!
         end
 
         r = Resource.new('http://foo', 'http://mygraph')
+        r.label = "example"
+        r.save
 
-        # if you don't supply a graph at any point, you will get an error when you try to persist the resource.
+        # Note: if you don't supply a graph at any point (i.e. class or instance level), you will get an error when you try to persist the resource.
 
 ## Reading and writing arbitrary predicates
 
         r.write_predicate(RDF.type, 'http://myresource/type')
         r.read_predicate(RDF.type) # => RDF::URI.new("http://myresource/type")
+
+## Finders and criteria
+
+        Person.all #=> returns a Tripod::Criteria which selets all resources of rdf_type http://person
+
+        Resource.all #=> returns all resources in the database (as no rdf_type specified at class level)
+
+        Person.all.resources #=> returns all the actual resources for the criteria, as an array
+
+        Person.first #=> returns the first person
+
+        Person.count  #=> returns the count of all people
+
+        # note that you need to use ?uri as the variable for the subject.
+        Person.where("?uri <http://name> 'Joe'") #=> returns a Tripod::Criteria
+
+## Chainable criteria
+
+        Person.all.where("?uri <http://name> 'Ric'").where("?uri <http://knows> <http://asa>).first
 
 
 

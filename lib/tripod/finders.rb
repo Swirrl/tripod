@@ -48,43 +48,26 @@ module Tripod::Finders
       resource
     end
 
-    # Find a collection of +Resource+s by a SPARQL select statement which returns their uris.
-    # Under the hood, this only executes two queries: a select, then a describe.
-    #
-    # @example
-    #   Person.where('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } } LIMIT 3')
-    #
-    # @param [ String ] criteria. A sparql query which returns a list of uris of the objects.
-    # @param [ Hash ] opts. A hash of options.
-    #
-    # @option options [ String ] uri_variable The name of the uri variable in thh query, if not 'uri'
-    # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
-    # @option options [ String, RDF:URI, Array] only_hydrate a single predicate or list of predicates to hydrate the returned objects with. If ommited, does a full hydrate
-    #
-    # @return [ Array ] An array of hydrated resources of this class's type.
-    def where(criteria, opts={})
-      uris_and_graphs = select_uris_and_graphs(criteria, opts)
-      create_and_hydrate_resources(uris_and_graphs)
+    # execute a where clause on this resource.
+    # returns a criteria object
+    def where(sparql_snippet)
+      criteria = Tripod::Criteria.new(self)
+      criteria.where(sparql_snippet)
     end
 
-    # Finds all the +Resource+s of the rdf_type of this model.
-    # rdf_type can optionally be passed in if you want to override the type
-    # if neither a class-level rdf_type is specified, nor one passed in, then an exception will be raised.
-    #
-    # @param [ String, RDF::URI] rdf_type The uri, as a string or RDF::URI of the rdf_type to which to restrict the find. Optional.
-    #
-    # @return [ Array ] An array of hydrated resources of this class's type.
-    def all(rdf_type = nil)
-      rdf_type_to_use =  rdf_type || _RDF_TYPE
-      raise Tripod::Errors::RdfTypeNotSet unless rdf_type_to_use
-      find_by_type(rdf_type_to_use)
+    # execute a query to return all objects (restricted by this class's rdf_type if specified)
+    # returns a criteria object
+    def all
+      criteria = Tripod::Criteria.new(self)
+      criteria
     end
 
-    # Finds all +Resource+s with the rdf_type passed in.
-    # @param [String, RDF::URI] rdf_type The uri, as a string or RDF::URI of the rdf_type to which to restrict the find.
-    # @return [ Array ] An array of hydrated resources of this class's type.
-    def find_by_type(rdf_type)
-      where("SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <#{rdf_type.to_s}> } }")
+    def count
+      self.all.count
+    end
+
+    def first
+      self.all.first
     end
 
     # returns a graph of triples which describe the uris passed in.
@@ -106,64 +89,6 @@ module Tripod::Finders
       end
 
       graph
-    end
-
-
-  end
-
-  # FOLLOWING METHODS NOT PART OF THE PUBLIC API:
-  def self.included(base)
-
-    class << base
-
-      private
-
-      # create and hydrate the resources identified in uris_and_graphs.
-      # Note: if any of the  graphs are not set, those resources can still be constructed, but not persisted back to DB.
-      def create_and_hydrate_resources(uris_and_graphs)
-
-        graph = describe_uris(uris_and_graphs.keys)
-        repo = add_data_to_repository(graph)
-
-        resources = []
-
-        uris_and_graphs.each_pair do |u,g|
-
-          # instantiate a new resource
-          r = self.new(u,g)
-
-          # make a graph of data for this resource's uri
-          data_graph = RDF::Graph.new
-          repo.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
-            data_graph << statement
-          end
-
-          # use it to hydrate this resource
-          r.hydrate!(:graph => data_graph)
-          r.new_record = false
-          resources << r
-        end
-
-        resources
-      end
-
-
-      # based on the query passed in, build a hash of uris->graphs
-      def select_uris_and_graphs(criteria, opts)
-        select_results = Tripod::SparqlClient::Query.select(criteria)
-
-        uris_and_graphs = {}
-
-        select_results.each do |r|
-          uri_variable = opts[:uri_variable] || 'uri'
-          graph_variable = opts[:graph_variable] || 'graph'
-          uris_and_graphs[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
-        end
-
-        uris_and_graphs
-      end
-
-
     end
 
   end
