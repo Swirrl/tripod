@@ -118,6 +118,8 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 
         Resource.graph("http://mygraph") #=> Retruns a criteria object with a graph restriction (note: if graph_uri set on the class, it will default to using this)
 
+        Resource.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }') #=> allows arbitrary sparql. Again, use ?uri for the variable of the subjects (and ?graph for the graph).
+
 ## Chainable criteria
 
         Person.all.where("?uri <http://name> 'Ric'").where("?uri <http://knows> <http://asa>).first

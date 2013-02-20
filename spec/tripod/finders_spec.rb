@@ -120,4 +120,35 @@ describe Tripod::Finders do
     end
   end
 
+  describe '.find_by_sparql' do
+
+    before do
+      # save these into the db
+      bill.save!
+      ric.save!
+    end
+
+    it 'returns an array of resources which match those in the db' do
+      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
+      res.length.should == 2
+      res.first.should == ric
+      res.last.should == bill
+
+      res.first.name.should == "ric"
+      res.first.knows.should == [RDF::URI.new("http://bill")]
+    end
+
+    it 'uses the uri and graph variables if supplied' do
+      res = Person.find_by_sparql('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
+      res.length.should == 2
+    end
+
+    it "returns non-new records" do
+      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
+      res.first.new_record?.should be_false
+    end
+
+  end
+
+
 end

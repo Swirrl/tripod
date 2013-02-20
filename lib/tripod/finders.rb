@@ -62,7 +62,7 @@ module Tripod::Finders
     #
     # @return [ Array ] An array of hydrated resources of this class's type.
     def find_by_sparql(sparql_query, opts={})
-      uris_and_graphs = _select_uris_and_graphs(criteria, opts)
+      uris_and_graphs = _select_uris_and_graphs(sparql_query, opts)
       _create_and_hydrate_resources(uris_and_graphs)
     end
 
