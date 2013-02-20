@@ -103,9 +103,9 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         # It doesn't actually do anything against the DB until you run resources, first, or count on it.
         # (from Tripod::CriteriaExecution)
 
-        Person.all #=> returns a Tripod::Criteria object which selects all resources of rdf_type http://person
+        Person.all #=> returns a Tripod::Criteria object which selects all resources of rdf_type http://person, in the http://people graph
 
-        Resource.all #=> returns a criteria object to return resources in the database (as no rdf_type specified at class level)
+        Resource.all #=> returns a criteria object to return resources in the database (as no rdf_type or graph_uri specified at class level)
 
         Person.all.resources #=> returns all the actual resources for the criteria object, as an array
 
