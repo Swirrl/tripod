@@ -38,10 +38,18 @@ module Tripod
       end
 
       def build_select_query
+
+        # convert the order, limit and offset to extras in the right order
+        extras(order_clause)
+        extras(limit_clause)
+        extras(offset_clause)
+
+        # build the query.
         select_query = "SELECT ?uri ?graph WHERE { GRAPH ?graph { "
         select_query += self.where_clauses.join(" . ")
-        # TODO: Deal with extras.
-        select_query += " } }"
+        select_query += " } } "
+        select_query += self.extra_clauses.join(" ")
+        select_query.strip
       end
 
       # create and hydrate the resources identified in uris_and_graphs.

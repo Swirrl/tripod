@@ -62,4 +62,49 @@ describe Tripod::Criteria do
     end
   end
 
+  describe "#limit" do
+    it "calls extras with the right limit clause" do
+      resource_criteria.limit(10)
+      resource_criteria.limit_clause.should == "LIMIT 10"
+    end
+
+    context 'calling it twice' do
+      it 'should overwrite the previous version' do
+         resource_criteria.limit(10)
+         resource_criteria.limit(20)
+         resource_criteria.limit_clause.should == "LIMIT 20"
+      end
+    end
+  end
+
+  describe "#offset" do
+    it "calls extras with the right limit clause" do
+      resource_criteria.offset(10)
+      resource_criteria.offset_clause.should == "OFFSET 10"
+    end
+
+    context 'calling it twice' do
+      it 'should overwrite the previous version' do
+         resource_criteria.offset(10)
+         resource_criteria.offset(30)
+         resource_criteria.offset_clause.should == "OFFSET 30"
+      end
+    end
+  end
+
+  describe "#order" do
+    it "calls extras with the right limit clause" do
+      resource_criteria.order("DESC(?label)")
+      resource_criteria.order_clause.should == "ORDER BY DESC(?label)"
+    end
+
+    context 'calling it twice' do
+      it 'should overwrite the previous version' do
+         resource_criteria.order("DESC(?label)")
+         resource_criteria.order("ASC(?label)")
+         resource_criteria.order_clause.should == "ORDER BY ASC(?label)"
+      end
+    end
+  end
+
 end

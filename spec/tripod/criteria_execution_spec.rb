@@ -51,6 +51,15 @@ describe Tripod::Criteria do
         end
       end
     end
+
+    context "with extras" do
+
+      before { resource_criteria.where("[pattern]").extras("LIMIT 10").extras("OFFSET 20") }
+
+      it "should add the extras on the end" do
+        resource_criteria.send(:build_select_query).should == "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } } LIMIT 10 OFFSET 20"
+      end
+    end
   end
 
   describe "#resources" do
@@ -113,6 +122,30 @@ describe Tripod::Criteria do
       person_criteria.count
     end
 
+  end
+
+  describe "exeuting a chained criteria" do
+
+    before do
+      john.save!
+      barry.save!
+    end
+
+    let(:chained_criteria) { Person.where("?uri <http://name> ?name").limit(1).offset(0).order("DESC(?name)") }
+
+    it "should run the right Sparql" do
+      sparql = "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://person> . ?uri <http://name> ?name } } ORDER BY DESC(?name) LIMIT 1 OFFSET 0"
+      Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
+      chained_criteria.resources
+    end
+
+    it "should return the right resources" do
+      chained_criteria.resources.should == [john]
+    end
+
+    it "should return the right number of resources" do
+      chained_criteria.count.should == 1
+    end
   end
 
 end

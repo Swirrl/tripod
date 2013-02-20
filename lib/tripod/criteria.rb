@@ -11,11 +11,12 @@ module Tripod
     # the resource class that this criteria is for.
     attr_accessor :resource_class
 
-    # array of all the where clauses in this criteria
     attr_accessor :where_clauses
-
-    # array of all the extra clauses in this criteria
     attr_accessor :extra_clauses
+
+    attr_accessor :limit_clause
+    attr_accessor :order_clause
+    attr_accessor :offset_clause
 
     def initialize(resource_class)
       self.resource_class = resource_class
@@ -46,9 +47,29 @@ module Tripod
     end
 
     # takes a string and adds an extra clause to this criteria.
+    # e.g. my_criteria.extras("LIMIT 10 OFFSET 20").extrass
+    #
     # TODO: make it also take a hash?
     def extras(sparql_snippet)
       extra_clauses << sparql_snippet
+      self
+    end
+
+    # replaces this criteria's limit clause
+    def limit(the_limit)
+      self.limit_clause = "LIMIT #{the_limit.to_s}"
+      self
+    end
+
+    # replaces this criteria's offset clause
+    def offset(the_offset)
+      self.offset_clause = "OFFSET #{the_offset.to_s}"
+      self
+    end
+
+    # replaces this criteria's order clause
+    def order(param)
+      self.order_clause = "ORDER BY #{param}"
       self
     end
 
