@@ -73,7 +73,7 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         knows.label # this won't cause another database lookup
 
         ric.eager_load_object_triples! #does a big DESCRIBE statement behind the scenes
-        asa = ric.get_related_resource('http://knows', Person) # returns a fully hydrated Person object for asa, without an extra lookup
+        asa = ric.get_related_resource('http://asa', Person) # returns a fully hydrated Person object for asa, without an extra lookup
 
 ## Defining a graph at instantiation-time
 
