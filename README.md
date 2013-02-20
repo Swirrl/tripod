@@ -99,7 +99,9 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 
 ## Finders and criteria
 
-        # Similarly to Mongoid::Criteria,
+        # A Tripod::Criteria object defines a set of constraints for a SPARQL query.
+        # It doens't actually do anything against the DB until you run resources, first, or count on it.
+        # (from Tripod::CriteriaExecution)
 
         Person.all #=> returns a Tripod::Criteria object which selects all resources of rdf_type http://person
 
