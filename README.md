@@ -95,22 +95,24 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 ## Reading and writing arbitrary predicates
 
         r.write_predicate(RDF.type, 'http://myresource/type')
-        r.read_predicate(RDF.type) # => RDF::URI.new("http://myresource/type")
+        r.read_predicate(RDF.type) #=> [RDF::URI.new("http://myresource/type")]
 
 ## Finders and criteria
 
-        Person.all #=> returns a Tripod::Criteria which selets all resources of rdf_type http://person
+        # Similarly to Mongoid::Criteria,
 
-        Resource.all #=> returns all resources in the database (as no rdf_type specified at class level)
+        Person.all #=> returns a Tripod::Criteria object which selects all resources of rdf_type http://person
 
-        Person.all.resources #=> returns all the actual resources for the criteria, as an array
+        Resource.all #=> returns a criteria object to return resources in the database (as no rdf_type specified at class level)
 
-        Person.first #=> returns the first person
+        Person.all.resources #=> returns all the actual resources for the criteria object, as an array
 
-        Person.count  #=> returns the count of all people
+        Person.first #=> returns the first person (by crafting a sparql query under the covers that only returns 1 result)
+
+        Person.count  #=> returns the count of all people (by crafting a count query under the covers that only returns a count)
 
         # note that you need to use ?uri as the variable for the subject.
-        Person.where("?uri <http://name> 'Joe'") #=> returns a Tripod::Criteria
+        Person.where("?uri <http://name> 'Joe'") #=> returns a Tripod::Criteria object
 
 ## Chainable criteria
 
