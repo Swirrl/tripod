@@ -15,9 +15,8 @@ module Tripod
     cattr_accessor :KEYWORDS
     @@KEYWORDS = %w(CONSTRUCT ASK DESCRIBE SELECT)
 
-    def initialize(query_string, parent_query=nil)
+    def initialize(query_string)
       @query = query_string
-      @parent_query = parent_query
 
       if self.has_prefixes?
         @prefixes, @body = self.extract_prefixes
@@ -42,9 +41,14 @@ module Tripod
       return p.strip, b.strip
     end
 
-    def as_count_query_str
+    def check_subqueryable!
       # only allow for selects
       raise SparqlQueryError.new("Can't turn this into a subquery") unless self.query_type == :select
+    end
+
+    def as_count_query_str
+
+      check_subqueryable!
 
       count_query = "SELECT COUNT(*) { #{self.body} }"
       count_query = "#{self.prefixes} #{count_query}" if self.prefixes

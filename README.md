@@ -116,6 +116,8 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         # note that you need to use ?uri as the variable for the subject.
         Person.where("?uri <http://name> 'Joe'") #=> returns a Tripod::Criteria object
 
+        Resource.graph("http://mygraph") #=> Retruns a criteria object with a graph restriction (note: if graph_uri set on the class, it will default to using this)
+
 ## Chainable criteria
 
         Person.all.where("?uri <http://name> 'Ric'").where("?uri <http://knows> <http://asa>).first

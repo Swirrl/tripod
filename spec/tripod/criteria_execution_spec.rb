@@ -11,34 +11,42 @@ describe Tripod::Criteria do
   end
 
   let(:john) do
-    p = Person.new('http://john', 'http://people')
+    p = Person.new('http://john')
     p.name = "John"
     p
   end
 
   let(:barry) do
-    p = Person.new('http://barry', 'http://people')
+    p = Person.new('http://barry')
     p.name = "Barry"
     p
   end
 
   describe "#build_select_query" do
 
-    context "for a class with an rdf_type" do
+    context "for a class with an rdf_type and graph" do
       it "should return a SELECT query based with an rdf type restriction" do
-        person_criteria.send(:build_select_query).should == "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://person> } }"
+        person_criteria.send(:build_select_query).should == "SELECT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> } }"
       end
 
       context "and extra restrictions" do
         before { person_criteria.where("[pattern]") }
 
-        it "should return a SELECT query with the extra restriction and rdf type restriction" do
-          person_criteria.send(:build_select_query).should == "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://person> . [pattern] } }"
+        it "should return a SELECT query with the extra restriction" do
+          person_criteria.send(:build_select_query).should == "SELECT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . [pattern] } }"
+        end
+      end
+
+      context "with an overriden graph" do
+        before { person_criteria.graph("http://anothergraph") }
+
+         it "should override the graph in the query" do
+          person_criteria.send(:build_select_query).should == "SELECT ?uri (<http://anothergraph> as ?graph) WHERE { GRAPH <http://anothergraph> { ?uri a <http://person> } }"
         end
       end
     end
 
-    context "for a class without an rdf_type" do
+    context "for a class without an rdf_type and graph" do
       it "should return a SELECT query without an rdf_type restriction" do
         resource_criteria.send(:build_select_query).should == "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }"
       end
@@ -48,6 +56,14 @@ describe Tripod::Criteria do
 
         it "should return a SELECT query with the extra restrictions" do
           resource_criteria.send(:build_select_query).should == "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } }"
+        end
+      end
+
+      context "with a graph set" do
+        before { resource_criteria.graph("http://graphy") }
+
+         it "should override the graph in the query" do
+          resource_criteria.send(:build_select_query).should == "SELECT ?uri (<http://graphy> as ?graph) WHERE { GRAPH <http://graphy> { ?uri ?p ?o } }"
         end
       end
     end
@@ -134,7 +150,7 @@ describe Tripod::Criteria do
     let(:chained_criteria) { Person.where("?uri <http://name> ?name").limit(1).offset(0).order("DESC(?name)") }
 
     it "should run the right Sparql" do
-      sparql = "SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://person> . ?uri <http://name> ?name } } ORDER BY DESC(?name) LIMIT 1 OFFSET 0"
+      sparql = "SELECT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . ?uri <http://name> ?name } } ORDER BY DESC(?name) LIMIT 1 OFFSET 0"
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       chained_criteria.resources
     end

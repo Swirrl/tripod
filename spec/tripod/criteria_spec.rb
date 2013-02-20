@@ -107,4 +107,11 @@ describe Tripod::Criteria do
     end
   end
 
+  describe "#graph" do
+    it "sets the graph_uri for this criteria, as a string" do
+      resource_criteria.graph(RDF::URI("http://foobar"))
+      resource_criteria.graph_uri.should == "http://foobar"
+    end
+  end
+
 end
