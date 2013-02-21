@@ -47,7 +47,6 @@ module Tripod
     end
 
     def as_count_query_str
-
       check_subqueryable!
 
       count_query = "SELECT COUNT(*) { #{self.body} }"
@@ -58,8 +57,7 @@ module Tripod
     end
 
     def as_first_query_str
-      # only allow for selects
-      raise SparqlQueryError.new("Can't turn this into a subquery") unless self.query_type == :select
+      check_subqueryable!
 
       first_query = "SELECT * { #{self.body} } LIMIT 1"
       first_query = "#{self.prefixes} #{first_query}" if self.prefixes

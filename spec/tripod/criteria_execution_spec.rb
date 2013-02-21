@@ -10,15 +10,17 @@ describe Tripod::Criteria do
     c = Tripod::Criteria.new(Resource)
   end
 
-  let(:john) do
+  let!(:john) do
     p = Person.new('http://john')
     p.name = "John"
+    p.save!
     p
   end
 
-  let(:barry) do
+  let!(:barry) do
     p = Person.new('http://barry')
     p.name = "Barry"
+    p.save!
     p
   end
 
@@ -80,10 +82,7 @@ describe Tripod::Criteria do
 
   describe "#resources" do
 
-    before do
-      john.save!
-      barry.save!
-    end
+
 
     context "with no extra restrictions" do
       it "should return a set of hydrated objects for the type" do
@@ -104,11 +103,6 @@ describe Tripod::Criteria do
 
   describe "#first" do
 
-    before do
-      john.save!
-      barry.save!
-    end
-
     it "should return the first resource for the criteria" do
       person_criteria.first.should == john
     end
@@ -122,10 +116,6 @@ describe Tripod::Criteria do
 
   describe "#count" do
 
-    before do
-      john.save!
-      barry.save!
-    end
 
     it "should return a set of hydrated objects for the criteria" do
       person_criteria.count.should == 2
@@ -138,14 +128,15 @@ describe Tripod::Criteria do
       person_criteria.count
     end
 
+    it "should execute the right Sparql" do
+      sparql = "SELECT COUNT(*) { SELECT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> } }  LIMIT 10 OFFSET 20 }"
+      Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
+      Person.all.limit(10).offset(20).count
+    end
+
   end
 
   describe "exeuting a chained criteria" do
-
-    before do
-      john.save!
-      barry.save!
-    end
 
     let(:chained_criteria) { Person.where("?uri <http://name> ?name").limit(1).offset(0).order("DESC(?name)") }
 

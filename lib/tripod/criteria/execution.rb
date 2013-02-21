@@ -39,10 +39,6 @@ module Tripod
 
       def build_select_query
 
-        # convert the order, limit and offset to extras in the right order
-        extras(order_clause)
-        extras(limit_clause)
-        extras(offset_clause)
 
         if graph_uri
           select_query = "SELECT ?uri (<#{graph_uri}> as ?graph) WHERE { GRAPH <#{graph_uri}> "
@@ -54,6 +50,9 @@ module Tripod
         select_query += self.where_clauses.join(" . ")
         select_query += " } } "
         select_query += self.extra_clauses.join(" ")
+
+        select_query += [order_clause, limit_clause, offset_clause].join(" ")
+
         select_query.strip
       end
 
