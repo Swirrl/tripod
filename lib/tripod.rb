@@ -68,6 +68,7 @@ end
 require "tripod/extensions"
 require "tripod/sparql_client"
 require "tripod/sparql_query"
+require "tripod/resource_collection"
 
 require "tripod/predicates"
 require "tripod/attributes"

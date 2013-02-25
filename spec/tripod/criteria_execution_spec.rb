@@ -86,7 +86,7 @@ describe Tripod::Criteria do
 
     context "with no extra restrictions" do
       it "should return a set of hydrated objects for the type" do
-        person_criteria.resources.should == [john, barry]
+        person_criteria.resources.to_a.should == [john, barry]
       end
     end
 
@@ -95,7 +95,7 @@ describe Tripod::Criteria do
       before { person_criteria.where("?uri <http://name> 'John'") }
 
       it "should return a set of hydrated objects for the type and restrictions" do
-         person_criteria.resources.should == [john]
+         person_criteria.resources.to_a.should == [john]
       end
     end
 
@@ -147,7 +147,7 @@ describe Tripod::Criteria do
     end
 
     it "should return the right resources" do
-      chained_criteria.resources.should == [john]
+      chained_criteria.resources.to_a.should == [john]
     end
 
     it "should return the right number of resources" do

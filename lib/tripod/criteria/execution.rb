@@ -6,9 +6,10 @@ module Tripod
 
     extend ActiveSupport::Concern
 
-    # Execute the query and return an array of all hydrated resources
+    # Execute the query and return a +ResourceCollection+ of all hydrated resources
+    # +ResourceCollection+ is an +Enumerable+, Array-like object.
     def resources
-      resources_from_sparql(build_select_query)
+      Tripod::ResourceCollection.new(resources_from_sparql(build_select_query))
     end
 
     # Execute the query and return the first result as a hydrated resource
