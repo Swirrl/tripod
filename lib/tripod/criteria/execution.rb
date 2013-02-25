@@ -40,11 +40,10 @@ module Tripod
 
       def build_select_query
 
-
         if graph_uri
-          select_query = "SELECT ?uri (<#{graph_uri}> as ?graph) WHERE { GRAPH <#{graph_uri}> "
+          select_query = "SELECT DISTINCT ?uri (<#{graph_uri}> as ?graph) WHERE { GRAPH <#{graph_uri}> "
         else
-          select_query = "SELECT ?uri ?graph WHERE { GRAPH ?graph "
+          select_query = "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph "
         end
 
         select_query += "{ "
