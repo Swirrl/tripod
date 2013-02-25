@@ -13,6 +13,10 @@ module Tripod
       @resources = resources
     end
 
+    def length
+      self.resources.length
+    end
+
     def each
       self.resources.each { |e| yield(e) }
     end
@@ -20,6 +24,11 @@ module Tripod
     # return the underlying array
     def to_a
       resources
+    end
+
+    # allow index operator to act on underlying array of resources.
+    def [](*args)
+      resources[*args]
     end
 
     # for n-triples we can just concatenate them
