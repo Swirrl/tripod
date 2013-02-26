@@ -26,8 +26,6 @@ module Tripod
 
       if resource_class._RDF_TYPE
         self.where("?uri a <#{resource_class._RDF_TYPE.to_s}>")
-      else
-        self.where("?uri ?p ?o")
       end
 
       self.graph_uri = resource_class._GRAPH_URI.to_s if resource_class._GRAPH_URI
@@ -86,6 +84,7 @@ module Tripod
     # @return [ Tripod::Criteria ] A criteria object
     def graph(graph_uri)
       self.graph_uri = graph_uri.to_s
+      self
     end
   end
 end

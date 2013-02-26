@@ -3,11 +3,11 @@ require "spec_helper"
 describe Tripod::Criteria do
 
   let(:person_criteria) do
-    c = Tripod::Criteria.new(Person)
+    c = Person.all #Tripod::Criteria.new(Person)
   end
 
   let(:resource_criteria) do
-    c = Tripod::Criteria.new(Resource)
+    c = Resource.all #Tripod::Criteria.new(Resource)
   end
 
   let!(:john) do
@@ -28,14 +28,14 @@ describe Tripod::Criteria do
 
     context "for a class with an rdf_type and graph" do
       it "should return a SELECT query based with an rdf type restriction" do
-        person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> } }"
+        person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . ?uri ?p ?o } }"
       end
 
       context "and extra restrictions" do
         before { person_criteria.where("[pattern]") }
 
         it "should return a SELECT query with the extra restriction" do
-          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . [pattern] } }"
+          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . ?uri ?p ?o . [pattern] } }"
         end
       end
 
@@ -43,7 +43,7 @@ describe Tripod::Criteria do
         before { person_criteria.graph("http://anothergraph") }
 
          it "should override the graph in the query" do
-          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://anothergraph> as ?graph) WHERE { GRAPH <http://anothergraph> { ?uri a <http://person> } }"
+          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://anothergraph> as ?graph) WHERE { GRAPH <http://anothergraph> { ?uri a <http://person> . ?uri ?p ?o } }"
         end
       end
     end
@@ -116,7 +116,6 @@ describe Tripod::Criteria do
 
   describe "#count" do
 
-
     it "should return a set of hydrated objects for the criteria" do
       person_criteria.count.should == 2
       person_criteria.where("?uri <http://name> 'John'").count.should ==1
@@ -129,7 +128,7 @@ describe Tripod::Criteria do
     end
 
     it "should execute the right Sparql" do
-      sparql = "SELECT COUNT(*) { SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> } }  LIMIT 10 OFFSET 20 }"
+      sparql = "SELECT COUNT(*) { SELECT DISTINCT ?uri (<http://graph> as ?graph) WHERE { GRAPH <http://graph> { ?uri a <http://person> . ?uri ?p ?o } }  LIMIT 10 OFFSET 20 }"
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       Person.all.limit(10).offset(20).count
     end

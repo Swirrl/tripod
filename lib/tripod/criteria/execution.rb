@@ -9,10 +9,13 @@ module Tripod
     # Execute the query and return a +ResourceCollection+ of all hydrated resources
     # +ResourceCollection+ is an +Enumerable+, Array-like object.
     def resources
-      Tripod::ResourceCollection.new(resources_from_sparql(build_select_query))
+      Tripod::ResourceCollection.new(
+        resources_from_sparql(build_select_query)
+      )
     end
 
     # Execute the query and return the first result as a hydrated resource
+
     def first
       sq = Tripod::SparqlQuery.new(build_select_query)
       first_sparql = sq.as_first_query_str

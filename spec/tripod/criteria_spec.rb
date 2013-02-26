@@ -2,9 +2,9 @@ require "spec_helper"
 
 describe Tripod::Criteria do
 
-  let(:person_criteria) { Tripod::Criteria.new(Person) }
+  let(:person_criteria) { Person.all }
 
-  let(:resource_criteria) { Tripod::Criteria.new(Resource) }
+  let(:resource_criteria) { Resource.all }
 
   describe "#initialize" do
 
@@ -18,7 +18,7 @@ describe Tripod::Criteria do
 
     context "with rdf_type set on the class" do
       it "should initialize the where clauses to include a type restriction" do
-        person_criteria.where_clauses.should == ["?uri a <http://person>"]
+        person_criteria.where_clauses.should == ["?uri a <http://person>", "?uri ?p ?o"]
       end
     end
 
