@@ -51,12 +51,17 @@ module Tripod
   mattr_accessor :timeout_seconds
   @@timeout_seconds = 30
 
-  # Use +configure+ to override configuration in an app, e.g.:
+  mattr_accessor :cache_store
+
+  # Use +configure+ to override configuration in an app, (defaults shown)
   #
   #   Tripod.configure do |config|
   #     config.update_endpoint = 'http://127.0.0.1:3030/tripod/update'
   #     config.query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
-  #     config.timeout_seconds = 30
+  #     config.timeout_seconds = 30#
+  #     config.cache_store = nil #e.g Tripod::CacheStores::MemcachedCacheStore.new('localhost:11211')
+  #       # note: if using memcached, make sure you set the -I (slab size) to big enough to store each result
+  #       # and set the -m (total size) to something quite big (or the cache will recycle too often).
   #   end
   #
   def self.configure
@@ -64,6 +69,8 @@ module Tripod
   end
 
 end
+
+require 'tripod/cache_stores/memcached_cache_store'
 
 require "tripod/extensions"
 require "tripod/sparql_client"

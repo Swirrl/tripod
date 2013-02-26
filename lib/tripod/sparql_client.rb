@@ -16,12 +16,24 @@ module Tripod::SparqlClient
       begin
         params = { :params => {:query => sparql, :output => format } }
         hdrs = headers.merge(params)
-        RestClient::Request.execute(
-          :method => :get,
-          :url => Tripod.query_endpoint,
-          :headers => hdrs,
-          :timeout => Tripod.timeout_seconds,
-        )
+
+        make_the_call =
+          -> { RestClient::Request.execute(
+            :method => :get,
+            :url => Tripod.query_endpoint,
+            :headers => hdrs,
+            :timeout => Tripod.timeout_seconds
+          ) }
+
+        if Tripod.cache_store # if a cache store is configured
+          # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
+          # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
+          key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([format, headers, sparql].join(" "))
+          Tripod.cache_store.fetch(key, &make_the_call)
+        else
+          make_the_call.call()
+        end
+
       rescue RestClient::BadRequest => e
         # just re-raise as a BadSparqlRequest Exception
         raise Tripod::Errors::BadSparqlRequest.new(e.http_body, e)
