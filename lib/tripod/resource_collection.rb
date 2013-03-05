@@ -31,6 +31,10 @@ module Tripod
       resources[*args]
     end
 
+    def ==(other)
+      self.to_nt == other.to_nt
+    end
+
     # for n-triples we can just concatenate them
     def to_nt
       nt = ""

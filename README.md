@@ -8,17 +8,13 @@ ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpo
 
 ## Quick start, for using in a rails app.
 
-Note: Tripod doesn't supply a database. You need to install one. I recommend [Fuseki](http://jena.apache.org/documentation/serving_data/index.html), which runs on port 3030 by default.
-
-1. Install the gem:
-
-        gem install tripod
-
-2. Add it to your Gemfile
+1. Add it to your Gemfile and bundle
 
         gem tripod
 
-3. Configure it (in application.rb, or development.rb/production.rb/test.rb)
+        $ bundle
+
+2. Configure it (in application.rb, or development.rb/production.rb/test.rb)
 
         # (values shown are the defaults)
         Tripod.configure do |config|
@@ -27,7 +23,7 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
           config.timeout_seconds = 30
         end
 
-4. Include it in your model classes.
+3. Include it in your model classes.
 
         class Person
           include Tripod::Resource
@@ -45,7 +41,7 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
 
         # Note: Active Model validations are supported
 
-5. Use it
+4. Use it
 
         uri = 'http://ric'
         p = Person.new(uri)
@@ -58,6 +54,10 @@ Note: Tripod doesn't supply a database. You need to install one. I recommend [Fu
         people = Person.all.resources #=> returns all people as an array
 
         ric = Person.find('http://ric') #=> returns a single Person object.
+
+## Note:
+
+Tripod doesn't supply a database. You need to install one. I recommend [Fuseki](http://jena.apache.org/documentation/serving_data/index.html), which runs on port 3030 by default.
 
 
 ## Some Other interesting features
