@@ -18,22 +18,20 @@ module Tripod::Attributes
   # @param [ String ] name The name of the field for which to get the value.
   # @param [ Field ] field An optional Field object
   #
-  # @return Either a string or an Array of strings, depending on whether the field is multivalued or not
+  # @return RDF:Term or array of them, depending on whether the field is multivalued or not
   def read_attribute(name, field=nil)
     field ||= self.fields[name]
     raise Tripod::Errors::FieldNotPresent.new unless field
 
     attr_values = read_predicate(field.predicate)
-    # We always return strings on way out.
+
     # If the field is multivalued, return an array of the results
     # If it's not multivalued, return the first (should be only) result.
+
     if field.multivalued
-      attr_values.map do |v|
-        v.nil? ? nil : v.to_s
-      end
+      attr_values
     else
-      first_val = attr_values.first
-      first_val.nil? ? nil : first_val.to_s
+      attr_values.first
     end
   end
   alias :[] :read_attribute

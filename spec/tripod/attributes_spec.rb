@@ -2,14 +2,40 @@ require "spec_helper"
 
 describe Tripod::Attributes do
   describe ".read_attribute" do
-    let(:person) do
-      p = Person.new('http://barry')
-      p.name = 'Barry'
+
+    let!(:other_person) do
+      p = Person.new('http://garry')
+      p.save!
       p
     end
 
-    it "should read the given attribute" do
-      person[:name].should == 'Barry'
+    let(:person) do
+      p = Person.new('http://barry')
+      p.name = 'Barry'
+      p.father = other_person.uri
+      p
+    end
+
+    context "for a literal" do
+      it "should return an RDF::Literal" do
+        person[:name].class.should == RDF::Literal
+      end
+      it "should read the given attribute" do
+        person[:name].should == 'Barry'
+      end
+    end
+
+    context "for a uri" do
+
+      it "should return an RDF::URI" do
+        puts person[:father]
+
+        person[:father].class.should == RDF::URI
+      end
+
+      it "should read the given attribute" do
+        person[:father].should == other_person.uri
+      end
     end
 
     context "where the attribute is multi-valued" do
