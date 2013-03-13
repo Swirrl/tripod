@@ -95,7 +95,7 @@ module Tripod::Finders
         uris_sparql_str = uris.map{ |u| "<#{u.to_s}>" }.join(" ")
 
         # Do a big describe statement, and read the results into an in-memory repo
-        triples_string = Tripod::SparqlClient::Query.describe("DESCRIBE #{uris_sparql_str}")
+        triples_string = Tripod::SparqlClient::Query.query("DESCRIBE #{uris_sparql_str}", "application/n-triples")
 
         RDF::Reader.for(:ntriples).new(triples_string) do |reader|
           reader.each_statement do |statement|

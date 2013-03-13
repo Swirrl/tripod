@@ -5,7 +5,7 @@ describe Tripod::Fields do
   describe ".field" do
 
     let(:barry) do
-      b = Person.new('http://barry')
+      b = Person.new('http://example.com/id/barry')
       b.name = 'Barry'
       b
       b

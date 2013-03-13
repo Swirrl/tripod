@@ -3,14 +3,14 @@ require "spec_helper"
 describe Tripod::Finders do
 
   let(:ric) do
-    r = Person.new('http://example.com/people/id/ric')
+    r = Person.new('http://example.com/id/ric')
     r.name = "ric"
-    r.knows = RDF::URI.new("http://bill")
+    r.knows = RDF::URI.new("http://example.com/id/bill")
     r
   end
 
   let(:bill) do
-    b = Person.new('http://example.com/people/id/bill')
+    b = Person.new('http://example.com/id/bill')
     b.name = "bill"
     b
   end
@@ -27,12 +27,12 @@ describe Tripod::Finders do
 
       it 'hydrates and return an object' do
         person.name.should == "ric"
-        person.knows.should == [RDF::URI('http://bill')]
+        person.knows.should == [RDF::URI('http://example.com/id/bill')]
       end
 
       it 'sets the graph on the instantiated object' do
         person.graph_uri.should_not be_nil
-        person.graph_uri.should == RDF::URI("http://graph")
+        person.graph_uri.should == RDF::URI("http://example.com/graph")
       end
 
       it "returns a non-new record" do
@@ -43,15 +43,15 @@ describe Tripod::Finders do
 
     context 'when record does not exist' do
       it 'raises not found' do
-        lambda { Person.find('http://nonexistent') }.should raise_error(Tripod::Errors::ResourceNotFound)
+        lambda { Person.find('http://example.com/nonexistent') }.should raise_error(Tripod::Errors::ResourceNotFound)
       end
     end
 
     context 'with graph_uri supplied' do
       it 'should use that graph to call new' do
         ric # trigger the lazy load
-        Person.should_receive(:new).with(ric.uri, 'http://graphx').and_call_original
-        Person.find(ric.uri, "http://graphx")
+        Person.should_receive(:new).with(ric.uri, 'http://example.com/graphx').and_call_original
+        Person.find(ric.uri, "http://example.com/graphx")
       end
     end
 
@@ -135,7 +135,7 @@ describe Tripod::Finders do
       res.last.should == bill
 
       res.first.name.should == "ric"
-      res.first.knows.should == [RDF::URI.new("http://bill")]
+      res.first.knows.should == [RDF::URI.new("http://example.com/id/bill")]
     end
 
     it 'uses the uri and graph variables if supplied' do

@@ -7,7 +7,7 @@ describe Tripod::State do
     context "when calling new on the resource" do
 
       let(:person) do
-        Person.new('http://uri', 'http://graph')
+        Person.new('http://example.com/uri', 'http://example.com/graph')
       end
 
       it "returns true" do
@@ -18,7 +18,7 @@ describe Tripod::State do
     context "when the object has been saved" do
 
       let(:person) do
-        p = Person.new('http://uri', 'http://graph')
+        p = Person.new('http://example.com/uri', 'http://example.com/graph')
         p.save
         p
       end
@@ -32,7 +32,7 @@ describe Tripod::State do
   describe "#persisted?" do
 
     let(:person) do
-      Person.new('http://uri', 'http://graph')
+      Person.new('http://example.com/uri', 'http://example.com/graph')
     end
 
     it "delegates to new_record?" do
@@ -54,7 +54,7 @@ describe Tripod::State do
   describe "destroyed?" do
 
     let(:person) do
-      Person.new('http://uri', 'http://graph')
+      Person.new('http://example.com/uri', 'http://example.com/graph')
     end
 
     context "when destroyed is true" do

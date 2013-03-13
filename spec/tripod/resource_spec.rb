@@ -10,20 +10,20 @@ describe Tripod::Resource do
 
     context 'with a URI' do
       let(:person) do
-        Person.new('http://foobar')
+        Person.new('http://example.com/foobar')
       end
 
       it 'sets the uri instance variable' do
-        person.uri.should == RDF::URI.new('http://foobar')
+        person.uri.should == RDF::URI.new('http://example.com/foobar')
       end
 
       it 'sets the graph_uri instance variable from the class by default' do
-        person.graph_uri.should == RDF::URI.new('http://graph')
+        person.graph_uri.should == RDF::URI.new('http://example.com/graph')
       end
 
       context "with rdf_type specified at class level" do
         it "sets the rdf type from the class" do
-          person.rdf_type.should == ['http://person']
+          person.rdf_type.should == ['http://example.com/person']
         end
       end
 
@@ -34,11 +34,11 @@ describe Tripod::Resource do
 
     context 'with a URI and a graph URI' do
       let(:person) do
-        Person.new('http://foobar', 'http://foobar/graph')
+        Person.new('http://example.com/foobar', 'http://example.com/foobar/graph')
       end
 
       it "overrides the default graph URI with what's given" do
-        person.graph_uri.should == RDF::URI.new('http://foobar/graph')
+        person.graph_uri.should == RDF::URI.new('http://example.com/foobar/graph')
       end
     end
   end

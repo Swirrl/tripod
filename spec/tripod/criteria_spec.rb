@@ -18,7 +18,7 @@ describe Tripod::Criteria do
 
     context "with rdf_type set on the class" do
       it "should initialize the where clauses to include a type restriction" do
-        person_criteria.where_clauses.should == ["?uri a <http://person>", "?uri ?p ?o"]
+        person_criteria.where_clauses.should == ["?uri a <http://example.com/person>", "?uri ?p ?o"]
       end
     end
 
@@ -109,8 +109,8 @@ describe Tripod::Criteria do
 
   describe "#graph" do
     it "sets the graph_uri for this criteria, as a string" do
-      resource_criteria.graph(RDF::URI("http://foobar"))
-      resource_criteria.graph_uri.should == "http://foobar"
+      resource_criteria.graph(RDF::URI("http://example.com/foobar"))
+      resource_criteria.graph_uri.should == "http://example.com/foobar"
     end
   end
 

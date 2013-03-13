@@ -14,7 +14,7 @@ module Tripod::Persistence
     attr_accessor :query
 
     def commit
-      Tripod::SparqlClient::Update::update(self.query)
+      Tripod::SparqlClient::Update.update(self.query)
       clear_transaction
     end
 

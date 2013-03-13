@@ -7,14 +7,14 @@ describe Tripod::Repository do
     context 'uri set' do
 
       before do
-        @uri = 'http://foobar'
-        @uri2 = 'http://bazbar'
-        @graph_uri = 'http://graph'
+        @uri = 'http://example.com/foobar'
+        @uri2 = 'http://example.com/bazbar'
+        @graph_uri = 'http://example.com/graph'
 
         p1 = Person.new(@uri, @graph_uri)
-        p1.write_predicate('http://pred', RDF::URI.new('http://obj'))
-        p1.write_predicate('http://pred2', RDF::URI.new('http://obj2'))
-        p1.write_predicate('http://pred3', 'literal')
+        p1.write_predicate('http://example.com/pred', RDF::URI.new('http://example.com/obj'))
+        p1.write_predicate('http://example.com/pred2', RDF::URI.new('http://example.com/obj2'))
+        p1.write_predicate('http://example.com/pred3', 'literal')
         p1.save!
       end
 
@@ -27,7 +27,7 @@ describe Tripod::Repository do
         context 'no predicate restrictions passed' do
 
           it 'populates the repository with a graph of triples from the db' do
-            Tripod::SparqlClient::Query.should_receive(:describe).with("DESCRIBE <#{@uri}>").and_call_original
+            Tripod::SparqlClient::Query.should_receive(:query).with("DESCRIBE <#{@uri}>", "application/n-triples").and_call_original
             person.hydrate!
             person.repository.should_not be_empty
           end
@@ -43,7 +43,7 @@ describe Tripod::Repository do
             @graph << s
           end
 
-          @graph << RDF::Statement.new( 'http://anotherresource', 'http://pred', 'http://obj')
+          @graph << RDF::Statement.new( 'http://example.com/anotherresource', 'http://example.com/pred', 'http://example.com/obj')
           @graph.statements.count.should ==2 # there'll already be a statement about type in the person.
 
           person.hydrate!(:graph => @graph)

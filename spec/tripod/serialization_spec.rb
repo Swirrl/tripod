@@ -4,11 +4,11 @@ describe Tripod::Serialization do
 
   let(:person) do
 
-    p2 = Person.new('http://fred')
+    p2 = Person.new('http://example.com/fred')
     p2.name = "fred"
     p2.save!
 
-    p = Person.new('http://garry')
+    p = Person.new('http://example.com/garry')
     p.name = 'Garry'
     p.age = 30
     p.knows = p2.uri

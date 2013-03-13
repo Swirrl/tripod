@@ -3,28 +3,28 @@ require "spec_helper"
 describe Tripod::Persistence do
 
   let(:unsaved_person) do
-    @unsaved_uri = @uri = 'http://uri'
-    @graph_uri = 'http://graph'
+    @unsaved_uri = @uri = 'http://example.com/uri'
+    @graph_uri = 'http://example.com/graph'
     @graph1 = RDF::Graph.new(@graph_uri)
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)
-    stmt.predicate = RDF::URI.new('http://pred')
-    stmt.object = RDF::URI.new('http://obj')
+    stmt.predicate = RDF::URI.new('http://example.com/pred')
+    stmt.object = RDF::URI.new('http://example.com/obj')
     @graph1 << stmt
-    p = Person.new(@uri, 'http://graph')
+    p = Person.new(@uri, 'http://example.com/graph')
     p.hydrate!(:graph => @graph1)
     p
   end
 
   let(:saved_person) do
-    @saved_uri = @uri2 = 'http://uri2'
+    @saved_uri = @uri2 = 'http://example.com/uri2'
     @graph2 = RDF::Graph.new
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri2)
-    stmt.predicate = RDF::URI.new('http://pred2')
-    stmt.object = RDF::URI.new('http://obj2')
+    stmt.predicate = RDF::URI.new('http://example.com/pred2')
+    stmt.object = RDF::URI.new('http://example.com/obj2')
     @graph2 << stmt
-    p = Person.new(@uri2, 'http://graph')
+    p = Person.new(@uri2, 'http://example.com/graph')
     p.hydrate!(:graph => @graph2)
     p.save
     p
@@ -35,7 +35,7 @@ describe Tripod::Persistence do
 
     context "with no graph_uri set" do
       it 'should raise a GraphUriNotSet error' do
-        p = Resource.new('http://arbitrary/resource')
+        p = Resource.new('http://example.com/arbitrary/resource')
         lambda { p.save }.should raise_error(Tripod::Errors::GraphUriNotSet)
       end
     end
@@ -49,8 +49,8 @@ describe Tripod::Persistence do
       repo_statements = p2.repository.statements
       repo_statements.count.should == 1
       repo_statements.first.subject.should == RDF::URI.new(@uri)
-      repo_statements.first.predicate.should == RDF::URI.new('http://pred')
-      repo_statements.first.object.should == RDF::URI.new('http://obj')
+      repo_statements.first.predicate.should == RDF::URI.new('http://example.com/pred')
+      repo_statements.first.object.should == RDF::URI.new('http://example.com/obj')
     end
 
 
@@ -86,7 +86,7 @@ describe Tripod::Persistence do
   end
 
   describe '.update_attribute' do
-    let (:person) { Person.new('http://newperson') }
+    let (:person) { Person.new('http://example.com/newperson') }
     before { person.stub(:save) }
 
     it 'should write the attribute' do
@@ -101,7 +101,7 @@ describe Tripod::Persistence do
   end
 
   describe '.update_attributes' do
-    let (:person) { Person.new('http://newperson') }
+    let (:person) { Person.new('http://example.com/newperson') }
     before { person.stub(:save) }
 
     it 'should assign the attributes' do
@@ -122,18 +122,18 @@ describe Tripod::Persistence do
       transaction = Tripod::Persistence::Transaction.new
 
       unsaved_person.save(transaction: transaction)
-      saved_person.write_predicate('http://pred2', 'blah')
+      saved_person.write_predicate('http://example.com/pred2', 'blah')
       saved_person.save(transaction: transaction)
 
       # nothing should have changed yet.
       lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
-      Person.find(saved_person.uri).read_predicate('http://pred2').first.to_s.should == RDF::URI.new('http://obj2').to_s
+      Person.find(saved_person.uri).read_predicate('http://example.com/pred2').first.to_s.should == RDF::URI.new('http://example.com/obj2').to_s
 
       transaction.commit
 
       # things should have changed now.
       lambda {Person.find(unsaved_person.uri)}.should_not raise_error()
-      Person.find(saved_person.uri).read_predicate('http://pred2').first.should == 'blah'
+      Person.find(saved_person.uri).read_predicate('http://example.com/pred2').first.should == 'blah'
 
     end
 
@@ -143,7 +143,7 @@ describe Tripod::Persistence do
       unsaved_person.stub(:graph_uri).and_return(nil) # force a failure
       unsaved_person.save(transaction: transaction).should be_false
 
-      saved_person.write_predicate('http://pred2', 'blah')
+      saved_person.write_predicate('http://example.com/pred2', 'blah')
       saved_person.save(transaction: transaction).should be_true
 
       transaction.commit
@@ -155,7 +155,7 @@ describe Tripod::Persistence do
       lambda {Person.find(unsaved_person.uri)}.should raise_error(Tripod::Errors::ResourceNotFound)
 
       # saved person SHOULD be updated
-      Person.find(saved_person.uri).read_predicate('http://pred2').first.should == 'blah'
+      Person.find(saved_person.uri).read_predicate('http://example.com/pred2').first.should == 'blah'
     end
 
     it "can be aborted" do

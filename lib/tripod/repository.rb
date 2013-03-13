@@ -34,8 +34,7 @@ module Tripod::Repository
         end
       end
     else
-
-    triples = Tripod::SparqlClient::Query::describe("DESCRIBE <#{uri}>")
+      triples = Tripod::SparqlClient::Query.query("DESCRIBE <#{uri}>", "application/n-triples")
       @repository = RDF::Repository.new
       RDF::Reader.for(:ntriples).new(triples) do |reader|
         reader.each_statement do |statement|
