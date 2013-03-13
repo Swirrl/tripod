@@ -38,7 +38,7 @@ module Tripod::Resource
     @graph_uri = RDF::URI(graph_uri) if graph_uri
     @repository = RDF::Repository.new
     @new_record = true
-    self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=)
+    self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=) && self.class._RDF_TYPE
   end
 
   # default comparison is via the uri
