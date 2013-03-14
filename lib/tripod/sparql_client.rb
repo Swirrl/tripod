@@ -33,7 +33,7 @@ module Tripod::SparqlClient
         if Tripod.cache_store # if a cache store is configured
           # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
           # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
-          key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([format, headers, sparql].join(" "))
+          key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join(" "))
           Tripod.cache_store.fetch(key, &make_the_call)
         else
           make_the_call.call()
