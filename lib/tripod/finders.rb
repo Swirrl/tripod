@@ -30,7 +30,7 @@ module Tripod::Finders
         if result.length > 0
           graph_uri = result[0]["g"]["value"]
         else
-          raise Tripod::Errors::ResourceNotFound.new
+          raise Tripod::Errors::ResourceNotFound.new(uri)
         end
       end
 
@@ -42,7 +42,7 @@ module Tripod::Finders
 
       # check that there are triples for the resource (catches case when someone has deleted data
       # between our original check for the graph and hydrating the object.
-      raise Tripod::Errors::ResourceNotFound.new if resource.repository.empty?
+      raise Tripod::Errors::ResourceNotFound.new(uri) if resource.repository.empty?
 
       # return the instantiated, hydrated resource
       resource

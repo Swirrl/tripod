@@ -17,6 +17,10 @@ module Tripod::SparqlClient
     def self.query(sparql, accept_header, extra_params={})
 
       begin
+        if defined?(Rails)
+          Rails.logger.debug "TRIPOD: About to run query:"
+          Rails.logger.debug sparql
+        end
         params = {:query => sparql}.merge(extra_params)
         hdrs = {:accept => accept_header, :params => params}
 
