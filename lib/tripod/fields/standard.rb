@@ -4,7 +4,8 @@ module Tripod::Fields
   class Standard
 
     # Set readers for the instance variables.
-    attr_accessor :name, :predicate, :options, :datatype, :multivalued
+    attr_accessor :name, :predicate, :options, :datatype, :is_uri, :multivalued
+    alias_method :is_uri?, :is_uri
 
     # Create the new field with a name and optional additional options.
     #
@@ -22,8 +23,8 @@ module Tripod::Fields
       @options = options
       @predicate = RDF::URI.new(predicate.to_s)
       @datatype = RDF::URI.new(options[:datatype].to_s) if options[:datatype]
+      @is_uri = !!options[:is_uri]
       @multivalued = options[:multivalued] || false
     end
-
   end
 end
