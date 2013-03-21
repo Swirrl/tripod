@@ -26,10 +26,7 @@ describe Tripod::Attributes do
     end
 
     context "for a uri" do
-
       it "should return an RDF::URI" do
-        puts person[:father]
-
         person[:father].class.should == RDF::URI
       end
 
@@ -62,6 +59,15 @@ describe Tripod::Attributes do
       it "should return a single value" do
         person.read_attribute(:hat_type, field).should == 'fez'
       end
+
+      context "and the value is a URI" do
+        let(:field) { Person.send(:field_for, :hat_type, 'http://example.com/hat', {is_uri: true}) }
+        before do
+          person.stub(:read_predicate).with('http://example.com/hat').and_return(['fez'])
+        end
+
+
+      end
     end
 
     context "where field is given and is multi-valued" do
@@ -93,6 +99,13 @@ describe Tripod::Attributes do
     it "should co-erce the value given to the correct datatype" do
       person[:age] = 34
       person.read_predicate('http://example.com/age').first.datatype.should == RDF::XSD.integer
+    end
+
+    context "where the attribute is a uri" do
+      it "should convert a string to an RDF::URI" do
+        person[:father] = 'http://example.com/darth'
+        person.read_predicate('http://example.com/father').first.should be_a(RDF::URI)
+      end
     end
 
     context "where the attribute is multi-valued" do
