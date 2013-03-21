@@ -2,14 +2,14 @@ require "spec_helper"
 
 describe Tripod::Finders do
 
-  let(:ric) do
+  let!(:ric) do
     r = Person.new('http://example.com/id/ric')
     r.name = "ric"
     r.knows = RDF::URI.new("http://example.com/id/bill")
     r
   end
 
-  let(:bill) do
+  let!(:bill) do
     b = Person.new('http://example.com/id/bill')
     b.name = "bill"
     b
@@ -48,10 +48,31 @@ describe Tripod::Finders do
     end
 
     context 'with graph_uri supplied' do
-      it 'should use that graph to call new' do
-        ric # trigger the lazy load
-        Person.should_receive(:new).with(ric.uri, 'http://example.com/graphx').and_call_original
-        Person.find(ric.uri, "http://example.com/graphx")
+
+      let!(:another_person) do
+        p = Person.new('http://example.com/anotherperson', 'http://example.com/graphx')
+        p.name = 'a.n.other'
+        p.save!
+        p
+      end
+
+      context 'when there are triples about the resource in that graph' do
+
+        it 'should use that graph to call new' do
+          Person.should_receive(:new).with(another_person.uri, 'http://example.com/graphx').and_call_original
+          Person.find(another_person.uri, "http://example.com/graphx")
+        end
+
+      end
+
+      context 'when there are no triples about the resource in that graph' do
+        it 'should raise nto found' do
+
+          lambda {
+            Person.find(another_person.uri, "http://example.com/graphy")
+          }.should raise_error(Tripod::Errors::ResourceNotFound)
+
+        end
       end
     end
 

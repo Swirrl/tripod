@@ -22,21 +22,36 @@ describe Tripod::Repository do
         Person.new(@uri, @graph_uri)
       end
 
+      let(:graphless_resource) do
+        Resource.new(@uri)
+      end
+
       context 'no graph passed' do
 
-        context 'no predicate restrictions passed' do
-
-          it 'populates the repository with a graph of triples from the db' do
-            Tripod::SparqlClient::Query.should_receive(:query).with("DESCRIBE <#{@uri}>", "application/n-triples").and_call_original
+        context 'graph_uri set on object' do
+          it 'populates the object with triples, restricted to the graph_uri' do
+            Tripod::SparqlClient::Query.should_receive(:query).with(
+              "CONSTRUCT {<#{person.uri}> ?p ?o} WHERE { GRAPH <#{person.graph_uri}> { <#{person.uri}> ?p ?o } }",
+              "application/n-triples").and_call_original
             person.hydrate!
             person.repository.should_not be_empty
           end
-
         end
+
+        context 'graph_uri not set on object' do
+          it 'populates the object with triples, not to a graph' do
+            Tripod::SparqlClient::Query.should_receive(:query).with(
+              "CONSTRUCT {<#{graphless_resource.uri}> ?p ?o} WHERE { GRAPH ?g { <#{graphless_resource.uri}> ?p ?o } }",
+              "application/n-triples").and_call_original
+            graphless_resource.hydrate!
+            graphless_resource.repository.should_not be_empty
+          end
+        end
+
       end
 
       context 'graph passed' do
-        it 'populates the repository with the graph of triples passed in, ingoring triples not about this resource' do
+        it 'populates the repository with the graph of triples passed in' do
           @graph = RDF::Graph.new
 
           person.repository.statements.each do |s|
@@ -44,12 +59,12 @@ describe Tripod::Repository do
           end
 
           @graph << RDF::Statement.new( 'http://example.com/anotherresource', 'http://example.com/pred', 'http://example.com/obj')
-          @graph.statements.count.should ==2 # there'll already be a statement about type in the person.
+          @graph.statements.count.should == 2 # there'll already be a statement about type in the person.
 
           person.hydrate!(:graph => @graph)
           person.repository.should_not be_empty
-          person.repository.statements.count.should == 1 # not the extra ones
-          person.repository.statements.first.should == @graph.statements.first
+          person.repository.statements.count.should == 2 # not the extra ones
+          person.repository.statements.to_a.should == @graph.statements.to_a
         end
       end
 

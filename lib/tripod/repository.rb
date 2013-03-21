@@ -28,13 +28,19 @@ module Tripod::Repository
 
     if graph
       graph.each_statement do |statement|
-        # only use statements about this resource for hydrating
-        if statement.subject.to_s == @uri.to_s
-          @repository << statement
-        end
+        # Note that we use all statements, even those not about this resource, in case we're being
+        # passed eager-loaded ones.
+        @repository << statement
       end
     else
-      triples = Tripod::SparqlClient::Query.query("DESCRIBE <#{uri}>", "application/n-triples")
+
+      graph_selector = self.graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
+
+      triples = Tripod::SparqlClient::Query.query(
+        "CONSTRUCT {<#{uri}> ?p ?o} WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o } }",
+        "application/n-triples"
+      )
+
       @repository = RDF::Repository.new
       RDF::Reader.for(:ntriples).new(triples) do |reader|
         reader.each_statement do |statement|
@@ -43,6 +49,15 @@ module Tripod::Repository
       end
     end
 
+  end
+
+  # returns a graph of all triples in the repository
+  def repository_as_graph
+    g = RDF::Graph.new
+    @repository.each_statement do |s|
+      g << s
+    end
+    g
   end
 
   # returns a graph of triples from the underlying repository where this resource's uri is the subject.
