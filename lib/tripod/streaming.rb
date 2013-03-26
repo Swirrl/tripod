@@ -23,6 +23,11 @@ module Tripod
       response_string = ""
 
       http.request_get(uri.request_uri, 'Accept' => accept) do |res|
+
+        Rails.logger.debug "TRIPOD: response code: #{res.code}" if defined?(Rails)
+
+        raise Tripod::Errors::BadSparqlRequest.new(res.body) if res.code.to_s != "200"
+
         res.read_body do |seg|
           total_bytes += seg.size
           response_string += seg.to_s

@@ -8,6 +8,7 @@ describe Tripod::SparqlClient do
     describe "Query#query" do
 
       let(:query) { "SELECT * WHERE {?s ?p ?o}" }
+      let(:bad_query) { "SELECT * WHERE ?s ?p ?o}" }
 
       before do
         p = Person.new('http://example.com/id/garry')
@@ -31,6 +32,14 @@ describe Tripod::SparqlClient do
 
       it "should execute the query and return the format requested" do
         JSON.parse(Tripod::SparqlClient::Query.query(query, "application/sparql-results+json"))["results"]["bindings"].length > 0
+      end
+
+      context "with a bad query" do
+        it "should raise a bad request error" do
+          lambda {
+            Tripod::SparqlClient::Query.query(bad_query, "application/sparql-results+json")
+          }.should raise_error
+        end
       end
     end
 

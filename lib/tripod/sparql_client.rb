@@ -16,40 +16,33 @@ module Tripod::SparqlClient
     # @return [ RestClient::Response ]
     def self.query(sparql, accept_header, extra_params={})
 
-      begin
+      params = {:query => sparql}.merge(extra_params)
+      request_url = Tripod.query_endpoint + '?' + params.to_query
+      streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
+      streaming_opts.merge!(:response_limit_bytes => Tripod.response_limit_bytes) if Tripod.response_limit_bytes
 
-
-        params = {:query => sparql}.merge(extra_params)
-        request_url = Tripod.query_endpoint + '?' + params.to_query
-        streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
-        streaming_opts.merge!(:response_limit_bytes => Tripod.response_limit_bytes) if Tripod.response_limit_bytes
-
-        # Hash.to_query from active support core extensions
-        stream_data = -> {
-          if defined?(Rails)
-            Rails.logger.debug "TRIPOD: About to run query: #{sparql}"
-            Rails.logger.debug "TRIPOD: Straming fron url: #{request_url}"
-            Rails.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
-          end
-
-          response = Tripod::Streaming.get_data(request_url, streaming_opts)
-          Rails.logger.debug "TRIPOD: response: #{response}" if defined?(Rails)
-          response
-        }
-
-        if Tripod.cache_store # if a cache store is configured
-          # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
-          # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
-          key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join(" "))
-          Tripod.cache_store.fetch(key, &stream_data)
-        else
-          stream_data.call()
+      # Hash.to_query from active support core extensions
+      stream_data = -> {
+        if defined?(Rails)
+          Rails.logger.debug "TRIPOD: About to run query: #{sparql}"
+          Rails.logger.debug "TRIPOD: Straming fron url: #{request_url}"
+          Rails.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
         end
 
-      rescue RestClient::BadRequest => e
-        # just re-raise as a BadSparqlRequest Exception
-        raise Tripod::Errors::BadSparqlRequest.new(e.http_body, e)
+        response = Tripod::Streaming.get_data(request_url, streaming_opts)
+        Rails.logger.debug "TRIPOD: response: #{response}" if defined?(Rails)
+        response
+      }
+
+      if Tripod.cache_store # if a cache store is configured
+        # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
+        # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
+        key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join(" "))
+        Tripod.cache_store.fetch(key, &stream_data)
+      else
+        stream_data.call()
       end
+
     end
 
     # Runs a SELECT +query+ against the endpoint. Returns a Hash of the results.
