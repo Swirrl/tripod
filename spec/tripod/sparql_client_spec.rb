@@ -2,11 +2,22 @@ require "spec_helper"
 
 describe Tripod::SparqlClient do
   describe Data do
+
     let(:data) { 'some-data-goes-here' }
 
     describe "Query#query" do
+
+      let(:query) { "SELECT * WHERE {?s ?p ?o}" }
+
+      before do
+        p = Person.new('http://example.com/id/garry')
+        p.name = "garry"
+        p.save!
+        p
+      end
+
       it "should use Tripod::Streaming to get the data" do
-        query = "SELECT * WHERE {?s ?p ?o}"
+
         Tripod::Streaming.should_receive(:get_data).with(
           Tripod.query_endpoint + "?query=#{CGI.escape(query)}",
           {
@@ -16,6 +27,10 @@ describe Tripod::SparqlClient do
           }
         ).and_return("some data")
         Tripod::SparqlClient::Query.query(query, "application/sparql-results+json")
+      end
+
+      it "should execute the query and return the format requested" do
+        JSON.parse(Tripod::SparqlClient::Query.query(query, "application/sparql-results+json"))["results"]["bindings"].length > 0
       end
     end
 
