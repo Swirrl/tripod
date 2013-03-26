@@ -27,7 +27,7 @@ module Tripod
       sq = Tripod::SparqlQuery.new(build_select_query)
       count_sparql = sq.as_count_query_str
       result = Tripod::SparqlClient::Query.select(count_sparql)
-      result[0][".1"]["value"].to_i
+      result[0]["c"]["value"].to_i
     end
 
     # PRIVATE:
