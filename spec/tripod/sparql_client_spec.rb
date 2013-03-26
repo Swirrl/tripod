@@ -4,6 +4,21 @@ describe Tripod::SparqlClient do
   describe Data do
     let(:data) { 'some-data-goes-here' }
 
+    describe "Query#query" do
+      it "should use Tripod::Streaming to get the data" do
+        query = "SELECT * WHERE {?s ?p ?o}"
+        Tripod::Streaming.should_receive(:get_data).with(
+          Tripod.query_endpoint + "?query=#{CGI.escape(query)}",
+          {
+            accept: "application/sparql-results+json",
+            timeout_seconds: Tripod.timeout_seconds,
+            response_limit_bytes: Tripod.response_limit_bytes
+          }
+        ).and_return("some data")
+        Tripod::SparqlClient::Query.query(query, "application/sparql-results+json")
+      end
+    end
+
     describe "Data#append" do
       it "should add the graph uri to the configured data endpoint" do
         RestClient::Request.should_receive(:execute).with(hash_including(url: 'http://127.0.0.1:3030/tripod-test/data?graph=http://example.com/foo'))
