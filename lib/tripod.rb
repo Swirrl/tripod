@@ -51,6 +51,9 @@ module Tripod
   mattr_accessor :timeout_seconds
   @@timeout_seconds = 30
 
+  mattr_accessor :response_limit_bytes
+  @@response_limit_bytes = 4.megabytes
+
   mattr_accessor :cache_store
 
   # Use +configure+ to override configuration in an app, (defaults shown)
@@ -59,6 +62,7 @@ module Tripod
   #     config.update_endpoint = 'http://127.0.0.1:3030/tripod/update'
   #     config.query_endpoint = 'http://127.0.0.1:3030/tripod/sparql'
   #     config.timeout_seconds = 30#
+  #     config.response_limit_bytes = 4.megabytes # omit for no limit
   #     config.cache_store = nil #e.g Tripod::CacheStores::MemcachedCacheStore.new('localhost:11211')
   #       # note: if using memcached, make sure you set the -I (slab size) to big enough to store each result
   #       # and set the -m (total size) to something quite big (or the cache will recycle too often).
@@ -73,6 +77,7 @@ end
 require 'tripod/cache_stores/memcached_cache_store'
 
 require "tripod/extensions"
+require "tripod/streaming"
 require "tripod/sparql_client"
 require "tripod/sparql_query"
 require "tripod/resource_collection"

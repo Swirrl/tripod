@@ -21,26 +21,24 @@ module Tripod::SparqlClient
           Rails.logger.debug "TRIPOD: About to run query:"
           Rails.logger.debug sparql
         end
-        params = {:query => sparql}.merge(extra_params)
-        hdrs = {:accept => accept_header, :params => params}
 
-        make_the_call = -> {
-          response = RestClient::Request.execute(
-            :method => :get,
-            :url => Tripod.query_endpoint,
-            :headers => hdrs,
-            :timeout => Tripod.timeout_seconds
-          )
-          response.body
+        params = {:query => sparql}.merge(extra_params)
+        request_url = Tripod.query_endpoint + '?' + params.to_query
+        streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
+        streaming_opts.merge!(:response_limit_bytes => Tripod.response_limit_bytes) if Tripod.response_limit_bytes
+
+        # Hash.to_query from active support core extensions
+        stream_data = -> {
+          Tripod::Streaming.get_data(request_url, streaming_opts)
         }
 
         if Tripod.cache_store # if a cache store is configured
           # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
           # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
           key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join(" "))
-          Tripod.cache_store.fetch(key, &make_the_call)
+          Tripod.cache_store.fetch(key, &stream_data)
         else
-          make_the_call.call()
+          stream_data.call()
         end
 
       rescue RestClient::BadRequest => e

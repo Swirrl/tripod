@@ -7,5 +7,6 @@ require 'tripod/errors/rdf_type_not_set'
 require 'tripod/errors/validations'
 require 'tripod/errors/rdf_parse_failed'
 
+require 'tripod/errors/sparql_response_too_large'
 require 'tripod/errors/bad_sparql_request'
 require 'tripod/errors/bad_data_request'
