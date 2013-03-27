@@ -30,7 +30,7 @@ module Tripod::SparqlClient
         end
 
         response = Tripod::Streaming.get_data(request_url, streaming_opts)
-        Rails.logger.debug "TRIPOD: response: #{response}" if defined?(Rails)
+       # Rails.logger.debug "TRIPOD: response: #{response}" if defined?(Rails)
         response
       }
 
