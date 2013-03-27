@@ -22,18 +22,20 @@ module Tripod
       total_bytes = 0
       response_string = ""
 
-      http.request_get(uri.request_uri, 'Accept' => accept) do |res|
+      begin
+        http.request_get(uri.request_uri, 'Accept' => accept) do |res|
+          Rails.logger.debug "TRIPOD: response code: #{res.code}" if defined?(Rails)
+          raise Tripod::Errors::BadSparqlRequest.new(res.body) if res.code.to_s != "200"
 
-        Rails.logger.debug "TRIPOD: response code: #{res.code}" if defined?(Rails)
-
-        raise Tripod::Errors::BadSparqlRequest.new(res.body) if res.code.to_s != "200"
-
-        res.read_body do |seg|
-          total_bytes += seg.size
-          response_string += seg.to_s
-          # if there's a limit, stop when we reach it
-          raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
+          res.read_body do |seg|
+            total_bytes += seg.size
+            response_string += seg.to_s
+            # if there's a limit, stop when we reach it
+            raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
+          end
         end
+      rescue Timeout::Error => timeout
+        raise Tripod::Errors::Timeout.new
       end
 
       response_string
