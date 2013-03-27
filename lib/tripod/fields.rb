@@ -34,6 +34,7 @@ module Tripod::Fields
 
 
     def new_value_for_field(value, field)
+      return unless value
       if field.is_uri?
         RDF::URI.new(value.to_s)
       elsif field.datatype

@@ -63,10 +63,16 @@ describe Tripod::Predicates do
       end
     end
 
+    context 'given a nil value' do
+      it 'just removes the predicate' do
+        person.write_predicate('http://example.com/name', nil)
+        person.read_predicate('http://example.com/name').should be_empty
+      end
+    end
   end
 
   describe '#remove_predicate' do
-    it 'remnoves the values where the predicate matches' do
+    it 'removes the values where the predicate matches' do
       person.remove_predicate('http://example.com/blog')
       person.read_predicate('http://example.com/blog').should be_empty
     end

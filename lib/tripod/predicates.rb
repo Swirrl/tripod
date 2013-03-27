@@ -46,10 +46,12 @@ module Tripod::Predicates
     # remove existing
     remove_predicate(predicate_uri)
 
-    # ... and replace
-    objects = [objects] unless objects.kind_of?(Array)
-    objects.each do |object|
-      @repository << RDF::Statement.new( @uri, RDF::URI.new(predicate_uri.to_s), object )
+    if objects
+      # ... and replace
+      objects = [objects] unless objects.kind_of?(Array)
+      objects.each do |object|
+        @repository << RDF::Statement.new( @uri, RDF::URI.new(predicate_uri.to_s), object )
+      end
     end
 
     # returns the new values
