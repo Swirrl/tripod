@@ -4,6 +4,11 @@
 module Tripod::Persistence
   extend ActiveSupport::Concern
 
+  included do
+    extend ActiveModel::Callbacks
+    define_model_callbacks :save, :destroy
+  end
+
   class Tripod::Persistence::Transaction
 
     def initialize
@@ -67,33 +72,34 @@ module Tripod::Persistence
   #
   # @return [ true, false ] True is success, false if not.
   def save(opts={})
+    run_callbacks :save do
+      raise Tripod::Errors::GraphUriNotSet.new() unless @graph_uri
 
-    raise Tripod::Errors::GraphUriNotSet.new() unless @graph_uri
+      transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
 
-    transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
+      if self.valid?
 
-    if self.valid?
+        query = "
+          DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
+          INSERT DATA {
+            GRAPH <#{@graph_uri}> {
+              #{ @repository.dump(:ntriples) }
+            }
+          };
+        "
 
-      query = "
-        DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
-        INSERT DATA {
-          GRAPH <#{@graph_uri}> {
-            #{ @repository.dump(:ntriples) }
-          }
-        };
-      "
+        if transaction
+          transaction.query ||= ""
+          transaction.query += query
+        else
+          Tripod::SparqlClient::Update::update(query)
+        end
 
-      if transaction
-        transaction.query ||= ""
-        transaction.query += query
+        @new_record = false # if running in a trans, just assume it worked. If the query is dodgy, it will throw an exception later.
+        true
       else
-        Tripod::SparqlClient::Update::update(query)
+        false
       end
-
-      @new_record = false # if running in a trans, just assume it worked. If the query is dodgy, it will throw an exception later.
-      true
-    else
-      false
     end
   end
 
@@ -125,25 +131,26 @@ module Tripod::Persistence
   end
 
   def destroy(opts={})
+    run_callbacks :destroy do
+      transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
 
-    transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
+      query = "
+        # delete from default graph:
+        DELETE {<#{@uri.to_s}> ?p ?o} WHERE {<#{@uri.to_s}> ?p ?o};
+        # delete from named graphs:
+        DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
+      "
 
-    query = "
-      # delete from default graph:
-      DELETE {<#{@uri.to_s}> ?p ?o} WHERE {<#{@uri.to_s}> ?p ?o};
-      # delete from named graphs:
-      DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
-    "
+      if transaction
+        transaction.query ||= ""
+        transaction.query += query
+      else
+        Tripod::SparqlClient::Update::update(query)
+      end
 
-    if transaction
-      transaction.query ||= ""
-      transaction.query += query
-    else
-      Tripod::SparqlClient::Update::update(query)
+      @destroyed = true
+      true
     end
-
-    @destroyed = true
-    true
   end
 
   def update_attribute(name, value)

@@ -63,6 +63,11 @@ describe Tripod::Persistence do
       p2.hydrate!
       p2.repository.dump(:ntriples).should == saved_person.repository.dump(:ntriples)
     end
+
+    it 'runs the callbacks' do
+      unsaved_person.should_receive(:pre_save)
+      unsaved_person.save
+    end
   end
 
   describe ".destroy" do
@@ -76,6 +81,10 @@ describe Tripod::Persistence do
       p2.repository.should be_empty # nothing there any more!
     end
 
+    it 'should run the callbacks' do
+      saved_person.should_receive(:pre_destroy)
+      saved_person.destroy
+    end
   end
 
   describe ".save!" do
