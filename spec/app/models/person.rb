@@ -6,7 +6,7 @@ class Person
   graph_uri 'http://example.com/graph'
 
   field :name, 'http://example.com/name'
-  field :father, 'http://example.com/father'
+  field :father, 'http://example.com/father', :is_uri => true
   field :knows, 'http://example.com/knows', :multivalued => true
   field :aliases, 'http://exmample.com/alias', :multivalued => true
   field :age, 'http://example.com/age', :datatype => RDF::XSD.integer
