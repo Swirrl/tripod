@@ -84,6 +84,7 @@ require "tripod/resource_collection"
 
 require "tripod/predicates"
 require "tripod/attributes"
+require "tripod/callbacks"
 require "tripod/errors"
 require "tripod/repository"
 require "tripod/fields"

@@ -33,12 +33,14 @@ module Tripod::Resource
   def initialize(uri, graph_uri=nil)
     raise Tripod::Errors::UriNotSet.new('uri missing') unless uri
     @uri = RDF::URI(uri.to_s)
-
-    graph_uri ||= self.class._GRAPH_URI if self.class._GRAPH_URI
-    @graph_uri = RDF::URI(graph_uri) if graph_uri
     @repository = RDF::Repository.new
     @new_record = true
-    self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=) && self.class._RDF_TYPE
+
+    run_callbacks :initialize do
+      graph_uri ||= self.class._GRAPH_URI if self.class._GRAPH_URI
+      @graph_uri = RDF::URI(graph_uri) if graph_uri
+      self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=) && self.class._RDF_TYPE
+    end
   end
 
   # default comparison is via the uri
