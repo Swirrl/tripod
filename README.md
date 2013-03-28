@@ -33,7 +33,7 @@ ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpo
           graph_uri 'http://example.com/people'
 
           field :name, 'http://example.com/name'
-          field :knows, 'http://example.com/knows', :multivalued => true
+          field :knows, 'http://example.com/knows', :multivalued => true, :is_uri => true
           field :aliases, 'http://example.com/alias', :multivalued => true
           field :age, 'http://example.com/age', :datatype => RDF::XSD.integer
           field :important_dates, 'http://example.com/importantdates', :datatype => RDF::XSD.date, :multivalued => true
