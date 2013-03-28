@@ -96,7 +96,7 @@ module Tripod::Resource
     # and sets a class level _RDF_TYPE variable with the rdf_type passed in.
     def rdf_type(new_rdf_type)
       self._RDF_TYPE = RDF::URI.new(new_rdf_type.to_s)
-      field :rdf_type, RDF.type, :multivalued => true # things can have more than 1 type and often do
+      field :rdf_type, RDF.type, :multivalued => true, :is_uri => true # things can have more than 1 type and often do
     end
 
     def graph_uri(new_graph_uri)

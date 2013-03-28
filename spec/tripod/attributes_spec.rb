@@ -17,8 +17,8 @@ describe Tripod::Attributes do
     end
 
     context "for a literal" do
-      it "should return an RDF::Literal" do
-        person[:name].class.should == RDF::Literal
+      it "should return the native type" do
+        person[:name].class.should == String
       end
       it "should read the given attribute" do
         person[:name].should == 'Barry'
@@ -48,32 +48,23 @@ describe Tripod::Attributes do
     context "where field is given and single-valued" do
       let(:field) { Person.send(:field_for, :hat_type, 'http://example.com/hat', {}) }
       before do
-        person.stub(:read_predicate).with('http://example.com/hat').and_return(['fez'])
+        person.stub(:read_predicate).with('http://example.com/hat').and_return([RDF::Literal.new('fez')])
       end
 
       it "should use the predicate name from the given field" do
-        person.should_receive(:read_predicate).with('http://example.com/hat').and_return(['fez'])
+        person.should_receive(:read_predicate).with('http://example.com/hat').and_return([RDF::Literal.new('fez')])
         person.read_attribute(:hat_type, field)
       end
 
       it "should return a single value" do
         person.read_attribute(:hat_type, field).should == 'fez'
       end
-
-      context "and the value is a URI" do
-        let(:field) { Person.send(:field_for, :hat_type, 'http://example.com/hat', {is_uri: true}) }
-        before do
-          person.stub(:read_predicate).with('http://example.com/hat').and_return(['fez'])
-        end
-
-
-      end
     end
 
     context "where field is given and is multi-valued" do
       let(:field) { Person.send(:field_for, :hat_types, 'http://example.com/hat', {multivalued: true}) }
       before do
-        person.stub(:read_predicate).with('http://example.com/hat').and_return(['fez', 'bowler'])
+        person.stub(:read_predicate).with('http://example.com/hat').and_return([RDF::Literal.new('fez'), RDF::Literal.new('bowler')])
       end
 
       it "should return an array of values" do

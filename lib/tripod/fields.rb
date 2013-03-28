@@ -32,18 +32,6 @@ module Tripod::Fields
       add_field(name, predicate, options)
     end
 
-
-    def new_value_for_field(value, field)
-      return unless value
-      if field.is_uri?
-        RDF::URI.new(value.to_s)
-      elsif field.datatype
-        RDF::Literal.new(value, :datatype => field.datatype)
-      else
-        value
-      end
-    end
-
     protected
 
     # Define a field attribute for the +Resource+.
