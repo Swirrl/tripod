@@ -18,7 +18,7 @@ module Tripod::Attributes
   # @param [ String ] name The name of the field for which to get the value.
   # @param [ Field ] field An optional Field object
   #
-  # @return RDF:Term or array of them, depending on whether the field is multivalued or not
+  # @return Native Ruby object (e.g. String, DateTime) or array of them, depending on whether the field is multivalued or not
   def read_attribute(name, field=nil)
     field ||= self.fields[name]
     raise Tripod::Errors::FieldNotPresent.new unless field

@@ -17,7 +17,16 @@ module Tripod::Fields
     # added as an instance method to the Resource.
     #
     # @example Define a field.
-    #   field :name, :predicate => 'http://name'
+    #   field :name, 'http://example.com/name'
+    #
+    # @example Define a field of a specific RDF type
+    #   field :modified_at, 'http://example.com/modified_at', datatype: RDF::XSD.DateTime
+    #
+    # @example Define a multi-valued field (can be combined with other options)
+    #   field :tags, 'http://example.com/tag', multivalued: true
+    #
+    # @example Define a field containing a URI to another RDF resource
+    #   field :knows, 'http://example.com/knows', is_uri: true
     #
     # @param [ Symbol ] name The name of the field.
     # @param [ String, RDF::URI ] predicate The predicate for the field.
