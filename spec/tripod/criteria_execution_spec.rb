@@ -31,6 +31,12 @@ describe Tripod::Criteria do
         person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
       end
 
+      context "with include_graph option set to false" do
+        it "should not select graphs, but restrict to graph" do
+          person_criteria.send(:build_select_query, :return_graph => false).should == "SELECT DISTINCT ?uri WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+        end
+      end
+
       context "and extra restrictions" do
         before { person_criteria.where("[pattern]") }
 
@@ -51,6 +57,12 @@ describe Tripod::Criteria do
     context "for a class without an rdf_type and graph" do
       it "should return a SELECT query without an rdf_type restriction" do
         resource_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }"
+      end
+
+      context "with include_graph option set to false" do
+        it "should not select graphs or restrict to graph" do
+          resource_criteria.send(:build_select_query, :return_graph => false).should ==  "SELECT DISTINCT ?uri WHERE { ?uri ?p ?o }"
+        end
       end
 
       context "and extra restrictions" do
@@ -82,7 +94,12 @@ describe Tripod::Criteria do
 
   describe "#resources" do
 
-
+    context "with options passed" do
+      it "should pass the options to build_select_query" do
+        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+        person_criteria.resources(:return_graph => false)
+      end
+    end
 
     context "with no extra restrictions" do
       it "should return a set of hydrated objects for the type" do
@@ -91,17 +108,39 @@ describe Tripod::Criteria do
     end
 
     context "with extra restrictions" do
-
       before { person_criteria.where("?uri <http://example.com/name> 'John'") }
 
       it "should return a set of hydrated objects for the type and restrictions" do
-         person_criteria.resources.to_a.should == [john]
+        person_criteria.resources.to_a.should == [john]
       end
+    end
+
+    context "with return_graph option set to false" do
+
+      context "where the class has a graph_uri set" do
+        it "should set the graph_uri on the hydrated objects" do
+          person_criteria.resources(:return_graph => false).first.graph_uri.should_not be_nil
+        end
+      end
+
+      context "where the class does not have a graph_uri set" do
+        it "should not set the graph_uri on the hydrated objects" do
+          resource_criteria.resources(:return_graph => false).first.graph_uri.should be_nil
+        end
+      end
+
     end
 
   end
 
   describe "#first" do
+
+    context "with options passed" do
+      it "should pass the options to build_select_query" do
+        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+        person_criteria.first(:return_graph => false)
+      end
+    end
 
     it "should return the first resource for the criteria" do
       person_criteria.first.should == john
@@ -112,9 +151,32 @@ describe Tripod::Criteria do
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       person_criteria.first
     end
+
+    context "with return_graph option set to false" do
+
+      context "where the class has a graph_uri set" do
+        it "should set the graph_uri on the hydrated object" do
+          person_criteria.first(:return_graph => false).graph_uri.should_not be_nil
+        end
+      end
+
+      context "where the class does not have a graph_uri set" do
+        it "should not set the graph_uri on the hydrated object" do
+          resource_criteria.first(:return_graph => false).graph_uri.should be_nil
+        end
+      end
+
+    end
   end
 
   describe "#count" do
+
+    context "with options passed" do
+      it "should pass the options to build_select_query" do
+        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+        person_criteria.count(:return_graph => false)
+      end
+    end
 
     it "should return a set of hydrated objects for the criteria" do
       person_criteria.count.should == 2

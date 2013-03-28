@@ -154,7 +154,8 @@ module Tripod::Finders
       select_results.each do |r|
         uri_variable = opts[:uri_variable] || 'uri'
         graph_variable = opts[:graph_variable] || 'graph'
-        uris_and_graphs[ r[uri_variable]["value"] ] = r[graph_variable]["value"]
+        graph_value = r[graph_variable]["value"] if r[graph_variable]
+        uris_and_graphs[ r[uri_variable]["value"] ] = graph_value || nil
       end
 
       uris_and_graphs
