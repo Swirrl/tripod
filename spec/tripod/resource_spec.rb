@@ -23,7 +23,7 @@ describe Tripod::Resource do
 
       context "with rdf_type specified at class level" do
         it "sets the rdf type from the class" do
-          person.rdf_type.should == ['http://example.com/person']
+          person.rdf_type.should == [RDF::URI.new('http://example.com/person')]
         end
       end
 

@@ -4,11 +4,6 @@
 module Tripod::Persistence
   extend ActiveSupport::Concern
 
-  included do
-    extend ActiveModel::Callbacks
-    define_model_callbacks :save, :destroy
-  end
-
   class Tripod::Persistence::Transaction
 
     def initialize

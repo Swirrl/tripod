@@ -24,6 +24,7 @@ module Tripod::Attributes
     raise Tripod::Errors::FieldNotPresent.new unless field
 
     attr_values = read_predicate(field.predicate)
+    attr_values.map! { |v| read_value_for_field(v, field) }
 
     # If the field is multivalued, return an array of the results
     # If it's not multivalued, return the first (should be only) result.
@@ -56,16 +57,38 @@ module Tripod::Attributes
       if field.multivalued
         new_val = []
         value.each do |v|
-          new_val << self.class.new_value_for_field(v, field)
+          new_val << write_value_for_field(v, field)
         end
       else
-        new_val = self.class.new_value_for_field(value.first, field)
+        new_val = write_value_for_field(value.first, field)
       end
     else
-      new_val = self.class.new_value_for_field(value, field)
+      new_val = write_value_for_field(value, field)
     end
 
     write_predicate(field.predicate, new_val)
   end
   alias :[]= :write_attribute
+
+  private
+
+  def read_value_for_field(value, field)
+    if field.is_uri?
+      value
+    else
+      value.object
+    end
+  end
+
+  def write_value_for_field(value, field)
+    return unless value
+
+    if field.is_uri?
+      RDF::URI.new(value.to_s)
+    elsif field.datatype
+      RDF::Literal.new(value, :datatype => field.datatype)
+    else
+      value
+    end
+  end
 end

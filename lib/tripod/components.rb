@@ -15,6 +15,7 @@ module Tripod::Components
 
   include Tripod::Predicates
   include Tripod::Attributes
+  include Tripod::Callbacks
   include Tripod::Persistence
   include Tripod::Fields
   include Tripod::Finders
