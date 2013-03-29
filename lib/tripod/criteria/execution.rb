@@ -12,7 +12,7 @@ module Tripod
       #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
     def resources(opts={})
       Tripod::ResourceCollection.new(
-        resources_from_sparql(build_select_query(opts))
+        self.resource_class._resources_from_sparql(build_select_query(opts))
       )
     end
 
@@ -22,7 +22,7 @@ module Tripod
     def first(opts={})
       sq = Tripod::SparqlQuery.new(build_select_query(opts))
       first_sparql = sq.as_first_query_str
-      resources_from_sparql(first_sparql).first
+      self.resource_class._resources_from_sparql(first_sparql).first
     end
 
     # Return how many records the current criteria would return
@@ -40,11 +40,6 @@ module Tripod
     included do
 
       private
-
-      def resources_from_sparql(sparql)
-        uris_and_graphs = self.resource_class._select_uris_and_graphs(sparql)
-        self.resource_class._create_and_hydrate_resources(uris_and_graphs)
-      end
 
       # options:
       #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
