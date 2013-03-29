@@ -43,7 +43,7 @@ module Tripod
 
           if Tripod.logger.debug?
             stream_duration = Time.now - stream_start_time if
-            total_request_time = stream_end_time - request_start_time
+            total_request_time = Time.now - request_start_time
           end
 
           Tripod.logger.debug "TRIPOD: #{total_bytes} bytes streamed in: #{stream_duration} secs"
