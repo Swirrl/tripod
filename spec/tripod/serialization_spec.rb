@@ -15,32 +15,34 @@ describe Tripod::Serialization do
     p
   end
 
-  context "where no eager loading has happened" do
-
+  shared_examples_for "a serialisable resource" do
     describe "#to_rdf" do
-      it "should dump the contents of the repository as rdfxml" do
-        person.to_rdf.should == person.repository.dump(:rdfxml)
+      it "should get the data from the database as rdf/xml" do
+        person.to_rdf.should == person.retrieve_triples_from_database(accept_header="application/rdf+xml")
       end
     end
 
     describe "#to_ttl" do
-      it "should dump the contents of the repository with the n3 serializer" do
-        person.to_ttl.should == person.repository.dump(:n3)
+      it "should get the data from the database as text/turtle" do
+        person.to_ttl.should == person.retrieve_triples_from_database(accept_header="text/turtle")
       end
     end
 
     describe "#to_nt" do
-      it "should dump the contents of the repository as ntriples" do
-        person.to_nt.should == person.repository.dump(:ntriples)
+      it "should get the data from the database as application/n-triples" do
+        person.to_nt.should == person.retrieve_triples_from_database(accept_header="application/n-triples")
       end
     end
 
-     describe "#to_json" do
-      it "should dump the contents of the repository as ntriples" do
-        person.to_json.should == person.repository.dump(:jsonld)
+    describe "#to_json" do
+      it "should dump the triples for this resource only as json-ld" do
+        person.to_json.should == person.get_triples_for_this_resource.dump(:jsonld)
       end
     end
+  end
 
+  context "where no eager loading has happened" do
+    it_should_behave_like "a serialisable resource"
   end
 
   context "where eager loading has happened" do
@@ -50,31 +52,7 @@ describe Tripod::Serialization do
       person.eager_load_object_triples!
     end
 
-    describe "#to_rdf" do
-      it "should dump the triples for this resource only as rdfxml" do
-        person.to_rdf.should == person.get_triples_for_this_resource.dump(:rdfxml)
-      end
-    end
-
-    describe "#to_ttl" do
-      it "should dump the triples for this resource only with the n3 serializer" do
-        person.to_ttl.should == person.get_triples_for_this_resource.dump(:n3)
-      end
-    end
-
-    describe "#to_nt" do
-      it "should dump the triples for this resource only as ntriples" do
-        person.to_nt.should == person.get_triples_for_this_resource.dump(:ntriples)
-      end
-    end
-
-     describe "#to_json" do
-      it "should dump the triples for this resource only as ntriples" do
-        person.to_json.should == person.get_triples_for_this_resource.dump(:jsonld)
-      end
-    end
-
-
+    it_should_behave_like "a serialisable resource"
 
   end
 

@@ -101,7 +101,16 @@ module Tripod::Finders
       graph
     end
 
-    # THESE AREN'T INTENDED TO BE PART OF THE PUBLIC API:
+    # returns a graph of triples which describe results of the sparql passed in.
+    #
+    # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
+    def describe_select_results(select_sparql, opts={})
+      ntriples_string = _raw_describe_select_results(select_sparql, opts) # this defaults to using n-triples
+      _rdf_graph_from_ntriples_string(ntriples_string)
+    end
+
+    # PRIVATE utility methods (not intended to be used externally)
+    ##########################
 
     # given a sparql select query, create and hydrate some resources
     #
@@ -111,6 +120,8 @@ module Tripod::Finders
       _create_and_hydrate_resources_from_sparql(select_sparql, opts)
     end
 
+    # given a string of ntriples data, populate an RDF graph.
+    # If you pass a graph in, it will add to that one.
     def _rdf_graph_from_ntriples_string(ntriples_string, graph=nil)
       graph ||= RDF::Graph.new
       RDF::Reader.for(:ntriples).new(ntriples_string) do |reader|
@@ -125,17 +136,31 @@ module Tripod::Finders
     # create and hydrate a collection of resources.
     #
     # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
-    # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
+    # @option options [ String ] graph_variable The name of the uri variable in the query, if not 'graph'
     def _create_and_hydrate_resources_from_sparql(select_sparql, opts={})
-      uri_variable = opts[:uri_variable] || 'uri'
-      graph_variable = opts[:graph_variable] || 'graph'
-
       # TODO: Optimization?: if return_graph option is false, then don't do this next line?
-      uris_and_graphs = _select_uris_and_graphs(select_sparql, opts)
-      describe_query = "DESCRIBE ?#{uri_variable} WHERE { #{select_sparql} }"
-      ntriples_string = Tripod::SparqlClient::Query.query(describe_query, "application/n-triples")
+      uris_and_graphs = _select_uris_and_graphs(select_sparql, :uri_variable => opts[:uri_variable], :graph_variable => opts[:graph_variable])
+      ntriples_string = _raw_describe_select_results(select_sparql, :uri_variable => opts[:uri_variable]) # this defaults to ntriples
       graph = _rdf_graph_from_ntriples_string(ntriples_string, graph=nil)
       _resources_from_graph(graph, uris_and_graphs)
+    end
+
+    # For a select query, generate a query which DESCRIBES all the results
+    #
+    # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
+    def _describe_query_for_select(select_sparql, opts={})
+      uri_variable = opts[:uri_variable] || "uri"
+      "DESCRIBE ?#{uri_variable} WHERE { #{select_sparql} }"
+    end
+
+    # For a select query, get a raw serialisation of the DESCRIPTION of the resources from the database.
+    #
+    # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
+    # @option options [ String ] accept_header The http accept header (default application/n-triples)
+    def _raw_describe_select_results(select_sparql, opts={})
+      accept_header = opts[:accept_header] || "application/n-triples"
+      query = _describe_query_for_select(select_sparql, :uri_variable => opts[:uri_variable])
+      Tripod::SparqlClient::Query.query(query, accept_header)
     end
 
     # given a graph of data, and a hash of uris=>graphs, create and hydrate some resources.

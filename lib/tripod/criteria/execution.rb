@@ -8,17 +8,29 @@ module Tripod
 
     # Execute the query and return a +ResourceCollection+ of all hydrated resources
     # +ResourceCollection+ is an +Enumerable+, Array-like object.
-    # options:
-      #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
+    #
+    # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
     def resources(opts={})
       Tripod::ResourceCollection.new(
-        self.resource_class._resources_from_sparql(build_select_query(opts))
+        self.resource_class._resources_from_sparql(build_select_query(opts)),
+         # pass in the criteria that was used to generate this collection, as well as whether the user specified return graph
+        :return_graph => (opts.has_key?(:return_graph) ? opts[:return_graph] : true),
+        :criteria => self
       )
     end
 
+    # run a query to get the raw serialisation of the results of this criteria object.
+    #
+    # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
+    # @option options [ String ] accept_header The accept header to use for serializing (defaults to application/n-triples)
+    def serialize(opts={})
+      select_sparql = build_select_query(:return_graph => opts[:return_graph])
+      self.resource_class._raw_describe_select_results(select_sparql, :accept_header => opts[:accept_header]) # note that this method defaults to using application/n-triples.
+    end
+
     # Execute the query and return the first result as a hydrated resource
-    # options:
-    #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
+    #
+    # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
     def first(opts={})
       sq = Tripod::SparqlQuery.new(build_select_query(opts))
       first_sparql = sq.as_first_query_str
@@ -26,8 +38,8 @@ module Tripod
     end
 
     # Return how many records the current criteria would return
-    # options:
-    #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
+    #
+    # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
     def count(opts={})
       sq = Tripod::SparqlQuery.new(build_select_query(opts))
       count_sparql = sq.as_count_query_str
@@ -41,11 +53,14 @@ module Tripod
 
       private
 
-      # options:
-      #  :return_graph (default true) # indicates whether to return the graph as one of the variables.
+      # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
       def build_select_query(opts={})
 
+        Tripod.logger.debug("TRIPOD: building select query for criteria...")
+
         return_graph = opts.has_key?(:return_graph) ? opts[:return_graph] : true
+
+        Tripod.logger.debug("TRIPOD: with return_graph: #{return_graph.inspect}")
 
         select_query = "SELECT DISTINCT ?uri "
 

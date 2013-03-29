@@ -56,6 +56,10 @@ module Tripod
 
   mattr_accessor :cache_store
 
+  mattr_accessor :logger
+  @@logger = Logger.new(STDOUT)
+  @@logger.level = Logger::WARN
+
   # Use +configure+ to override configuration in an app, (defaults shown)
   #
   #   Tripod.configure do |config|
@@ -66,6 +70,7 @@ module Tripod
   #     config.cache_store = nil #e.g Tripod::CacheStores::MemcachedCacheStore.new('localhost:11211')
   #       # note: if using memcached, make sure you set the -I (slab size) to big enough to store each result
   #       # and set the -m (total size) to something quite big (or the cache will recycle too often).
+  #     config.logger = Logger.new(STDOUT) # you can set this to the Rails.logger in a rails app.
   #   end
   #
   def self.configure

@@ -8,9 +8,15 @@ module Tripod
     include Enumerable
 
     attr_reader :resources
+    attr_reader :criteria # the criteria used to generate this collection
 
-    def initialize(resources)
+    # options:
+    #  :criteria - the criteria used to create this collection
+    #  :return_graph - whether the original query returned the graphs or not.
+    def initialize(resources, opts={})
       @resources = resources
+      @criteria = opts[:criteria]
+      @return_graph = opts[:return_graph]
     end
 
     def length
@@ -37,26 +43,56 @@ module Tripod
 
     # for n-triples we can just concatenate them
     def to_nt
-      nt = ""
-      resources.each do |resource|
-        nt += resource.to_nt
+      time_serialization('nt') do
+        if @criteria
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/n-triples")
+        else
+          # for n-triples we can just concatenate them
+          nt = ""
+          resources.each do |resource|
+            nt += resource.to_nt
+          end
+          nt
+        end
       end
-      nt
     end
 
     def to_json(opts={})
-      get_graph.dump(:jsonld)
+      # most databases don't have a native json-ld implementation.
+      time_serialization('json') do
+        get_graph.dump(:jsonld)
+      end
     end
 
     def to_rdf
-      get_graph.dump(:rdf)
+      time_serialization('rdf') do
+        if @criteria
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/rdf+xml")
+        else
+          get_graph.dump(:rdf)
+        end
+      end
     end
 
     def to_ttl
-      get_graph.dump(:n3)
+      time_serialization('ttl') do
+        if @criteria
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => "text/turtle")
+        else
+          get_graph.dump(:n3)
+        end
+      end
     end
 
     private
+
+    def time_serialization(format)
+      start_serializing = Time.now if Tripod.logger.debug?
+      result = yield if block_given?
+      serializing_duration = Time.now - start_serializing if Tripod.logger.debug?
+      Tripod.logger.debug( "TRIPOD: Serializing collection to #{format} took #{serializing_duration} secs" )
+      result
+    end
 
     def get_graph
       graph = RDF::Graph.new

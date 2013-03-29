@@ -23,15 +23,11 @@ module Tripod::SparqlClient
 
       # Hash.to_query from active support core extensions
       stream_data = -> {
-        if defined?(Rails)
-          Rails.logger.debug "TRIPOD: About to run query: #{sparql}"
-          Rails.logger.debug "TRIPOD: Streaming fron url: #{request_url}"
-          Rails.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
-        end
+        Tripod.logger.debug "TRIPOD: About to run query: #{sparql}"
+        Tripod.logger.debug "TRIPOD: Streaming fron url: #{request_url}"
+        Tripod.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
 
-        response = Tripod::Streaming.get_data(request_url, streaming_opts)
-       # Rails.logger.debug "TRIPOD: response: #{response}" if defined?(Rails)
-        response
+        Tripod::Streaming.get_data(request_url, streaming_opts)
       }
 
       if Tripod.cache_store # if a cache store is configured

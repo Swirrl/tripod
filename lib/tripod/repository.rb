@@ -34,12 +34,7 @@ module Tripod::Repository
       end
     else
 
-      graph_selector = self.graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
-
-      triples = Tripod::SparqlClient::Query.query(
-        "CONSTRUCT {<#{uri}> ?p ?o} WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o } }",
-        "application/n-triples"
-      )
+      triples = retrieve_triples_from_database
 
       @repository = RDF::Repository.new
       RDF::Reader.for(:ntriples).new(triples) do |reader|
@@ -58,6 +53,14 @@ module Tripod::Repository
       g << s
     end
     g
+  end
+
+  def retrieve_triples_from_database(accept_header="application/n-triples")
+    graph_selector = self.graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
+    Tripod::SparqlClient::Query.query(
+      "CONSTRUCT {<#{uri}> ?p ?o} WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o } }",
+      accept_header
+    )
   end
 
   # returns a graph of triples from the underlying repository where this resource's uri is the subject.
