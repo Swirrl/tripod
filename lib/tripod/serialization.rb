@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-# This module defines behaviour for finders.
 module Tripod::Serialization
   extend ActiveSupport::Concern
 
@@ -22,6 +21,10 @@ module Tripod::Serialization
   # Serialises this resource's triples to JSON-LD
   def to_json(opts={})
     get_triples_for_this_resource.dump(:jsonld)
+  end
+
+  def to_text
+    to_nt
   end
 
 end

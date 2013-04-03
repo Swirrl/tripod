@@ -41,6 +41,10 @@ module Tripod
       self.to_nt == other.to_nt
     end
 
+    def to_text
+      to_nt
+    end
+
     # for n-triples we can just concatenate them
     def to_nt
       time_serialization('nt') do
