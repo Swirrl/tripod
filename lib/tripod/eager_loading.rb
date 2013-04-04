@@ -10,23 +10,33 @@ module Tripod::EagerLoading
 
   # get all the triples in the db where the predicate uri is their subject
   # stick the results in this resource's repo
-  def eager_load_predicate_triples!
-    graph_of_triples = self.class.describe_uris(predicates)
-    self.class.add_data_to_repository(graph_of_triples, self.repository)
+  # options: labels_only (default false)
+  def eager_load_predicate_triples!(opts={})
+
+    if opts[:labels_only]
+      construct_query = "CONSTRUCT { ?p <#{RDF::RDFS.label}> ?pred_label } WHERE { <#{self.uri.to_s}> ?p ?o . ?p <#{RDF::RDFS.label}> ?pred_label }"
+    else
+      construct_query = "CONSTRUCT { ?p ?pred_pred ?pred_label } WHERE { <#{self.uri.to_s}> ?p ?o . ?p ?pred_pred ?pred_label }"
+    end
+
+    extra_triples = self.class._graph_of_triples_from_construct_or_describe construct_query
+    self.class.add_data_to_repository(extra_triples, self.repository)
   end
 
   # get all the triples in the db where the object uri is their subject
   # stick the results in this resource's repo
-  def eager_load_object_triples!
+  # options: labels_only (default false)
+  def eager_load_object_triples!(opts={})
     object_uris = []
 
-    self.get_triples_for_this_resource.each_statement do |statement|
-      object_uris << statement.object if statement.object.uri?
+    if opts[:labels_only]
+      construct_query = "CONSTRUCT { ?o <#{RDF::RDFS.label}> ?obj_label } WHERE { <#{self.uri.to_s}> ?p ?o . ?o <#{RDF::RDFS.label}> ?obj_label }"
+    else
+      construct_query = "CONSTRUCT { ?o ?obj_pred ?obj_label } WHERE { <#{self.uri.to_s}> ?p ?o . ?o ?obj_pred ?obj_label }"
     end
 
-    object_uris = object_uris.uniq # in case an object appears > once.
-    graph_of_triples = self.class.describe_uris(object_uris)
-    self.class.add_data_to_repository(graph_of_triples, self.repository)
+    extra_triples = self.class._graph_of_triples_from_construct_or_describe construct_query
+    self.class.add_data_to_repository(extra_triples, self.repository)
   end
 
   # get the resource that represents a particular uri. If there's triples in our repo where that uri
@@ -49,5 +59,6 @@ module Tripod::EagerLoading
     end
     r
   end
+
 
 end

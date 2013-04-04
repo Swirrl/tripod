@@ -132,6 +132,12 @@ module Tripod::Finders
       graph
     end
 
+    # given a construct or describe query, return a graph of triples.
+    def _graph_of_triples_from_construct_or_describe(construct_query)
+      ntriples_str = Tripod::SparqlClient::Query.query(construct_query, "application/n-triples")
+      _rdf_graph_from_ntriples_string(ntriples_str, graph=nil)
+    end
+
     # Given a select query, perform a DESCRIBE query to get a graph of data from which we
     # create and hydrate a collection of resources.
     #
