@@ -61,7 +61,7 @@ module Tripod::Fields
 
       # create a URL validation if appropriate
       # (format nabbed from https://gist.github.com/joshuap/948880)
-      validates(name, format: /(^$)|(^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$)/ix) if field.is_uri?
+      validates(name, is_url: true) if field.is_uri?
 
       field
     end

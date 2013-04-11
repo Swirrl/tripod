@@ -34,7 +34,7 @@ require 'rdf/rdfxml'
 require 'rdf/n3'
 require 'rdf/json'
 require 'json/ld'
-
+require 'uri'
 require 'rest_client'
 
 module Tripod
@@ -90,6 +90,7 @@ require "tripod/resource_collection"
 require "tripod/predicates"
 require "tripod/attributes"
 require "tripod/callbacks"
+require "tripod/validations/is_url"
 require "tripod/errors"
 require "tripod/repository"
 require "tripod/fields"
