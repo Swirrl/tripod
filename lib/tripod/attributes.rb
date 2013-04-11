@@ -81,10 +81,10 @@ module Tripod::Attributes
   end
 
   def write_value_for_field(value, field)
-    return unless value
+    return if value.blank?
 
     if field.is_uri?
-      RDF::URI.new(value.to_s)
+      uri = RDF::URI.new(value.to_s)
     elsif field.datatype
       RDF::Literal.new(value, :datatype => field.datatype)
     else
