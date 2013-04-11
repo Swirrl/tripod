@@ -16,7 +16,7 @@ module Tripod::Validations
         return false
       end
       return false unless ['http', 'https'].include?(uri.scheme)
-      return false unless uri.host.split('.').length > 1
+      return false unless uri.host && uri.host.split('.').length > 1
       true
     end
   end
