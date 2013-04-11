@@ -105,3 +105,6 @@ require "tripod/version"
 # these need to be at the end
 require "tripod/components"
 require "tripod/resource"
+
+require 'active_support/i18n'
+I18n.load_path << File.dirname(__FILE__) + '/tripod/locale/en.yml'
