@@ -58,6 +58,11 @@ module Tripod::Fields
 
       # set up the accessors for the fields
       create_accessors(name, name, options)
+
+      # create a URL validation if appropriate
+      # (format nabbed from https://gist.github.com/joshuap/948880)
+      validates(name, is_url: true) if field.is_uri?
+
       field
     end
 

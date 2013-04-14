@@ -1,0 +1,10 @@
+en:
+  activemodel:
+    errors:
+      # The default format to use in full error messages.
+      format: "%{attribute} %{message}"
+
+      # The values :model, :attribute and :value are always available for interpolation
+      # The value :count is available when applicable. Can be used for pluralization.
+      messages:
+        is_url: "is not a valid URL"

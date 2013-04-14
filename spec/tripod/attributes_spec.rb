@@ -74,7 +74,7 @@ describe Tripod::Attributes do
 
     context "where there is no field with the given name" do
       it "should raise a 'field not present' error" do
-        lambda { person.read_attribute(:hoof_size) }.should raise_error(Tripod::Errors::FieldNotPresent)
+        expect { person.read_attribute(:hoof_size) }.to raise_error(Tripod::Errors::FieldNotPresent)
       end
     end
   end
@@ -90,6 +90,11 @@ describe Tripod::Attributes do
     it "should co-erce the value given to the correct datatype" do
       person[:age] = 34
       person.read_predicate('http://example.com/age').first.datatype.should == RDF::XSD.integer
+    end
+
+    it "should not write the predicate given a blank value" do
+      person[:name] = ''
+      person.read_predicate('http://example.com/name').should be_empty
     end
 
     context "where the attribute is a uri" do

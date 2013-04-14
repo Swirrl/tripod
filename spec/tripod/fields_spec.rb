@@ -24,12 +24,18 @@ describe Tripod::Fields do
     end
 
     context "when the value is not set" do
-      before do
-        barry.name = nil
-      end
+      before { barry.name = nil }
 
       it "should have a check? method which returns false" do
         barry.name?.should == false
+      end
+    end
+
+    context "given a field of type URI where an invalid URI is given" do
+      before { barry.father = 'Steven Notauri' }
+
+      it "should not be valid" do
+        barry.should_not be_valid
       end
     end
   end
