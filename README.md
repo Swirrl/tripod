@@ -109,11 +109,11 @@ Tripod doesn't supply a database. You need to install one. I recommend [Fuseki](
 
         Person.all.resources #=> returns all the actual resources for the criteria object, as an array-like object
 
-        Person.all.resources(:return_graph) #=> returns the actual resources, but without returning the graph_uri in the select (helps avoid pagination issues). Note: doesn't set the graph uri on the instantiated resources.
+        Person.all.resources(:return_graph => false) #=> returns the actual resources, but without returning the graph_uri in the select (helps avoid pagination issues). Note: doesn't set the graph uri on the instantiated resources.
 
         Person.first #=> returns the first person (by crafting a sparql query under the covers that only returns 1 result)
 
-        Person.first(:return_graph) # as with resources, doesn't return / set the graph_uri.
+        Person.first(:return_graph => false) # as with resources, doesn't return / set the graph_uri.
 
         Person.count  #=> returns the count of all people (by crafting a count query under the covers that only returns a count)
 
