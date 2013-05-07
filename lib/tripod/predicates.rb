@@ -69,11 +69,11 @@ module Tripod::Predicates
   def append_to_predicate(predicate_uri, object )
     raise Tripod::Errors::UriNotSet.new() unless @uri
 
-    @repository << RDF::Statement.new(@uri, RDF::URI.new(predicate_uri.to_s), object)
+    @repository << RDF::Statement.new(self.uri, RDF::URI.new(predicate_uri.to_s), object)
   end
 
   def remove_predicate(predicate_uri)
-    @repository.query( [:subject, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
+    @repository.query( [self.uri, RDF::URI.new(predicate_uri.to_s), :object] ) do |statement|
       @repository.delete( statement )
     end
   end

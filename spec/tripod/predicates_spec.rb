@@ -76,6 +76,19 @@ describe Tripod::Predicates do
       person.remove_predicate('http://example.com/blog')
       person.read_predicate('http://example.com/blog').should be_empty
     end
+
+    context 'when there are other triples in the repository that share the same predicate' do
+      let(:subject)   { RDF::URI.new('http://foo') }
+      let(:predicate) { RDF::URI.new('http://example.com/blog') }
+      before do
+        person.repository << [subject, predicate, RDF::URI.new('http://foo.tumblr.com')]
+      end
+
+      it "doesn't remove a value where the subject of the triple isn't the resource's URI" do
+        person.remove_predicate('http://example.com/blog')
+        person.repository.query( [subject, predicate, :object] ).should_not be_empty
+      end
+    end
   end
 
   describe "#append_to_predicate" do
