@@ -59,6 +59,7 @@ module Tripod::Finders
     #
     # @option options [ String ] uri_variable The name of the uri variable in thh query, if not 'uri'
     # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
+    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
     #
     # @return [ Array ] An array of hydrated resources of this class's type.
     def find_by_sparql(sparql_query, opts={})
@@ -115,7 +116,8 @@ module Tripod::Finders
     # given a sparql select query, create and hydrate some resources
     #
     # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
-    # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
+    # @option options [ String ] graph_variable The name of the uri variable in the query, if not 'graph'
+    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
     def _resources_from_sparql(select_sparql, opts={})
       _create_and_hydrate_resources_from_sparql(select_sparql, opts)
     end
@@ -143,12 +145,13 @@ module Tripod::Finders
     #
     # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
     # @option options [ String ] graph_variable The name of the uri variable in the query, if not 'graph'
+    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
     def _create_and_hydrate_resources_from_sparql(select_sparql, opts={})
       # TODO: Optimization?: if return_graph option is false, then don't do this next line?
       uris_and_graphs = _select_uris_and_graphs(select_sparql, :uri_variable => opts[:uri_variable], :graph_variable => opts[:graph_variable])
       ntriples_string = _raw_describe_select_results(select_sparql, :uri_variable => opts[:uri_variable]) # this defaults to ntriples
       graph = _rdf_graph_from_ntriples_string(ntriples_string, graph=nil)
-      _resources_from_graph(graph, uris_and_graphs)
+      _resources_from_graph(graph, uris_and_graphs, :only_set_fields => opts[:only_set_fields])
     end
 
     # For a select query, generate a query which DESCRIBES all the results
@@ -169,10 +172,12 @@ module Tripod::Finders
       Tripod::SparqlClient::Query.query(query, accept_header)
     end
 
-    # given a graph of data, and a hash of uris=>graphs, create and hydrate some resources.
+    # Given a graph of data, and a hash of uris=>graphs, create and hydrate some resources.
     # Note: if any of the graphs are not set in the hash,
     # those resources can still be constructed, but not persisted back to DB.
-    def _resources_from_graph(graph, uris_and_graphs)
+    #
+    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
+    def _resources_from_graph(graph, uris_and_graphs, opts={})
       repo = add_data_to_repository(graph)
       resources = []
 
@@ -187,8 +192,11 @@ module Tripod::Finders
 
         # make a graph of data for this resource's uri
         data_graph = RDF::Graph.new
+
         repo.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
-          data_graph << statement
+          if !opts[:only_set_fields] || self.fields.values.map{ |v| v.predicate.to_s }.include?(statement.predicate.to_s)
+            data_graph << statement
+          end
         end
 
         # use it to hydrate this resource
