@@ -12,7 +12,6 @@ describe Tripod::Criteria do
 
   let!(:john) do
     p = Person.new('http://example.com/id/john')
-    p.write_predicate('http://example.com/this-is-not-declared-as-a-field', 'blah')
     p.name = "John"
     p.save!
     p
@@ -97,8 +96,8 @@ describe Tripod::Criteria do
 
     context "with options passed" do
       it "should pass the options to build_select_query" do
-        person_criteria.should_receive(:build_select_query).with(:return_graph => false, :only_set_fields => true).and_call_original
-        person_criteria.resources(:return_graph => false, :only_set_fields => true)
+        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+        person_criteria.resources(:return_graph => false)
       end
     end
 
@@ -130,18 +129,6 @@ describe Tripod::Criteria do
         end
       end
 
-    end
-
-    context "with the only_set_fields option set to true" do
-      it "should only populate predicates for fields that have been declared at class level" do
-        person_criteria.resources(:only_set_fields => true).first.read_predicate('http://example.com/this-is-not-declared-as-a-field').should be_empty
-      end
-    end
-
-    context "without setting the only_set_fields option (i.e. false)" do
-      it "should only populate all preciates that have been declared at class level" do
-        person_criteria.resources.first.read_predicate('http://example.com/this-is-not-declared-as-a-field').should_not be_empty
-      end
     end
 
   end

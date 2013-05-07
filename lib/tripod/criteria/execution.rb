@@ -10,13 +10,11 @@ module Tripod
     # +ResourceCollection+ is an +Enumerable+, Array-like object.
     #
     # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
-    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
     def resources(opts={})
       Tripod::ResourceCollection.new(
-        self.resource_class._resources_from_sparql(build_select_query(opts), :only_set_fields => opts[:only_set_fields]),
+        self.resource_class._resources_from_sparql(build_select_query(opts)),
          # pass in the criteria that was used to generate this collection, as well as whether the user specified return graph
         :return_graph => (opts.has_key?(:return_graph) ? opts[:return_graph] : true),
-        :only_set_fields => opts[:only_set_fields],
         :criteria => self
       )
     end
@@ -33,7 +31,6 @@ module Tripod
     # Execute the query and return the first result as a hydrated resource
     #
     # @option options [ String ] return_graph Indicates whether to return the graph as one of the variables.
-    # @option options [ Boolean ] only_set_fields Indicates whether to set only the declared fields on the resources. (default false).
     def first(opts={})
       sq = Tripod::SparqlQuery.new(build_select_query(opts))
       first_sparql = sq.as_first_query_str
