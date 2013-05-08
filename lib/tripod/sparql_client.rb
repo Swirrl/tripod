@@ -31,11 +31,22 @@ module Tripod::SparqlClient
       }
 
       if Tripod.cache_store # if a cache store is configured
+        Tripod.logger.debug "TRIPOD: caching is on!"
         # SHA-2 the key to keep the it within the small limit for many cache stores (e.g. Memcached is 250bytes)
         # Note: SHA2's are pretty certain to be unique http://en.wikipedia.org/wiki/SHA-2.
-        key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join(" "))
-        Tripod.cache_store.fetch(key, &stream_data)
+        cache_key = 'SPARQL-QUERY-' + Digest::SHA2.hexdigest([extra_params, accept_header, sparql].join("-"))
+
+        if Tripod.logger.debug?
+          Tripod.logger.debug "TRIPOD: cache key: #{cache_key}"
+          Tripod.logger.debug "TRIPOD: existing cache data? #{Tripod.cache_store.exist?(cache_key)}"
+          if Tripod.cache_store.exist?(cache_key)
+            Tripod.logger.debug "TRIPOD: existing cache data length #{Tripod.cache_store.read(cache_key).length}"
+          end
+        end
+
+        Tripod.cache_store.fetch(cache_key, &stream_data)
       else
+        Tripod.logger.debug "TRIPOD caching is off!"
         stream_data.call()
       end
 

@@ -52,7 +52,7 @@ module Tripod
   @@timeout_seconds = 30
 
   mattr_accessor :response_limit_bytes
-  @@response_limit_bytes = 4.megabytes
+  @@response_limit_bytes = 5.megabytes
 
   mattr_accessor :cache_store
 

@@ -10,7 +10,7 @@ module Tripod
 
       # initialize a memcached cache store at the specified port (default 'localhost:11211')
       def initialize(location)
-        @dalli = Dalli::Client.new(location)
+        @dalli = Dalli::Client.new(location, :value_max_bytes => Tripod.response_limit_bytes)
       end
 
       # takes a block
@@ -20,6 +20,10 @@ module Tripod
         @dalli.fetch(key) do
           yield
         end
+      end
+
+      def exist?(key)
+        !!@dalli.get(key)
       end
 
       def write(key, data)
