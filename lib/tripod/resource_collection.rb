@@ -83,7 +83,7 @@ module Tripod
         if @criteria
           @criteria.serialize(:return_graph => @return_graph, :accept_header => "text/turtle")
         else
-          get_graph.dump(:n3)
+          get_graph.dump(:turtle)
         end
       end
     end

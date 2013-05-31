@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "equivalent-xml"
   gem.add_dependency "rdf", "~> 1.0"
   gem.add_dependency "rdf-rdfxml"
-  gem.add_dependency "rdf-n3"
+  gem.add_dependency "rdf-turtle"
   gem.add_dependency "rdf-json"
   gem.add_dependency "json-ld"
   gem.add_dependency "guid"

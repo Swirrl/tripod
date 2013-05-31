@@ -31,7 +31,7 @@ require "guid"
 
 require 'rdf'
 require 'rdf/rdfxml'
-require 'rdf/n3'
+require 'rdf/turtle'
 require 'rdf/json'
 require 'json/ld'
 require 'uri'
