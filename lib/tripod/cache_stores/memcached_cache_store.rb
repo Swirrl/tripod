@@ -34,6 +34,10 @@ module Tripod
         @dalli.get(key)
       end
 
+      def clear!
+        @dalli.flush
+      end
+
     end
   end
 end
