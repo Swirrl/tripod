@@ -16,7 +16,7 @@ module Tripod
     @@KEYWORDS = %w(CONSTRUCT ASK DESCRIBE SELECT)
 
     def initialize(query_string)
-      @query = query_string
+      @query = query_string.strip
 
       if self.has_prefixes?
         @prefixes, @body = self.extract_prefixes

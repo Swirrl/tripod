@@ -17,6 +17,28 @@ describe Tripod::SparqlQuery do
         q.body.should == 'SELECT xyz'
       end
     end
+
+    context 'given a query with a leading space' do
+      it 'should successfully split up the query' do
+        q = Tripod::SparqlQuery.new(' PREFIX e: <http://example.com> SELECT xyz')
+        q.prefixes.should == 'PREFIX e: <http://example.com>'
+        q.body.should == 'SELECT xyz'
+      end
+    end
+
+    context 'given a query with comments' do
+      it 'should successfully split up the query' do
+        q = Tripod::SparqlQuery.new('PREFIX e: <http://example.com>
+SELECT xyz # foo
+WHERE abc # bar
+# baz'
+         )
+        q.prefixes.should == 'PREFIX e: <http://example.com>'
+        q.body.should == 'SELECT xyz # foo
+WHERE abc # bar
+# baz'
+      end
+    end
   end
 
   describe "#has_prefixes?" do
