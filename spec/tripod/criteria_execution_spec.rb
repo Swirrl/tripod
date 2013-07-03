@@ -190,7 +190,9 @@ describe Tripod::Criteria do
     end
 
     it "should execute the right Sparql" do
-      sparql = "SELECT (COUNT(*) as ?tripod_count_var) { SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }  LIMIT 10 OFFSET 20 }"
+      sparql = "SELECT (COUNT(*) as ?tripod_count_var) {
+  SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }  LIMIT 10 OFFSET 20
+}"
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       Person.all.limit(10).offset(20).count
     end

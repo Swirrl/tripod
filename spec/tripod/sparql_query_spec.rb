@@ -110,14 +110,18 @@ WHERE abc # bar
       context 'without prefixes' do
         it "should return a new SparqlQuery with the original query wrapped in a count" do
           q = Tripod::SparqlQuery.new('SELECT ?s WHERE { ?s ?p ?o }')
-          q.as_count_query_str.should == 'SELECT (COUNT(*) as ?tripod_count_var) { SELECT ?s WHERE { ?s ?p ?o } }'
+          q.as_count_query_str.should == 'SELECT (COUNT(*) as ?tripod_count_var) {
+  SELECT ?s WHERE { ?s ?p ?o }
+}'
         end
       end
 
       context 'with prefixes' do
         it "should move the prefixes to the start" do
           q = Tripod::SparqlQuery.new('PREFIX e: <http://example.com> SELECT ?s WHERE { ?s ?p ?o }')
-          q.as_count_query_str.should == 'PREFIX e: <http://example.com> SELECT (COUNT(*) as ?tripod_count_var) { SELECT ?s WHERE { ?s ?p ?o } }'
+          q.as_count_query_str.should == 'PREFIX e: <http://example.com> SELECT (COUNT(*) as ?tripod_count_var) {
+  SELECT ?s WHERE { ?s ?p ?o }
+}'
         end
       end
     end
