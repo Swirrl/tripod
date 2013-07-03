@@ -37,9 +37,9 @@ module Tripod::Resource
     @new_record = true
 
     run_callbacks :initialize do
-      graph_uri ||= self.class._GRAPH_URI if self.class._GRAPH_URI
+      graph_uri ||= self.class.get_graph_uri
       @graph_uri = RDF::URI(graph_uri) if graph_uri
-      self.rdf_type = self.class._RDF_TYPE if respond_to?(:rdf_type=) && self.class._RDF_TYPE
+      self.rdf_type = self.class.get_rdf_type if respond_to?(:rdf_type=) && self.class.get_rdf_type
     end
   end
 
@@ -101,8 +101,16 @@ module Tripod::Resource
       field :rdf_type, RDF.type, :multivalued => true, :is_uri => true # things can have more than 1 type and often do
     end
 
+    def get_rdf_type
+      self._RDF_TYPE
+    end
+
     def graph_uri(new_graph_uri)
       self._GRAPH_URI = new_graph_uri
+    end
+
+    def get_graph_uri
+      self._GRAPH_URI
     end
   end
 
