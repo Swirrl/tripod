@@ -33,7 +33,7 @@ module Tripod
 
     # they're equal if they return the same query
     def ==(other)
-      build_select_query == other.send(:build_select_query)
+      as_query == other.send(:as_query)
     end
 
     # Takes a string and adds a where clause to this criteria.

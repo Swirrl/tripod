@@ -24,16 +24,16 @@ describe Tripod::Criteria do
     p
   end
 
-  describe "#build_select_query" do
+  describe "#as_query" do
 
     context "for a class with an rdf_type and graph" do
       it "should return a SELECT query based with an rdf type restriction" do
-        person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+        person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
       end
 
       context "with include_graph option set to false" do
         it "should not select graphs, but restrict to graph" do
-          person_criteria.send(:build_select_query, :return_graph => false).should == "SELECT DISTINCT ?uri WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+          person_criteria.as_query(:return_graph => false).should == "SELECT DISTINCT ?uri WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
         end
       end
 
@@ -41,7 +41,7 @@ describe Tripod::Criteria do
         before { person_criteria.where("[pattern]") }
 
         it "should return a SELECT query with the extra restriction" do
-          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o . [pattern] } }"
+          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o . [pattern] } }"
         end
       end
 
@@ -49,19 +49,19 @@ describe Tripod::Criteria do
         before { person_criteria.graph("http://example.com/anothergraph") }
 
          it "should override the graph in the query" do
-          person_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://example.com/anothergraph> as ?graph) WHERE { GRAPH <http://example.com/anothergraph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/anothergraph> as ?graph) WHERE { GRAPH <http://example.com/anothergraph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
         end
       end
     end
 
     context "for a class without an rdf_type and graph" do
       it "should return a SELECT query without an rdf_type restriction" do
-        resource_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }"
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }"
       end
 
       context "with include_graph option set to false" do
         it "should not select graphs or restrict to graph" do
-          resource_criteria.send(:build_select_query, :return_graph => false).should ==  "SELECT DISTINCT ?uri WHERE { ?uri ?p ?o }"
+          resource_criteria.as_query(:return_graph => false).should ==  "SELECT DISTINCT ?uri WHERE { ?uri ?p ?o }"
         end
       end
 
@@ -69,7 +69,7 @@ describe Tripod::Criteria do
         before { resource_criteria.where("[pattern]") }
 
         it "should return a SELECT query with the extra restrictions" do
-          resource_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } }"
+          resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } }"
         end
       end
 
@@ -77,7 +77,7 @@ describe Tripod::Criteria do
         before { resource_criteria.graph("http://example.com/graphy") }
 
          it "should override the graph in the query" do
-          resource_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri (<http://example.com/graphy> as ?graph) WHERE { GRAPH <http://example.com/graphy> { ?uri ?p ?o } }"
+          resource_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graphy> as ?graph) WHERE { GRAPH <http://example.com/graphy> { ?uri ?p ?o } }"
         end
       end
     end
@@ -87,7 +87,7 @@ describe Tripod::Criteria do
       before { resource_criteria.where("[pattern]").extras("LIMIT 10").extras("OFFSET 20") }
 
       it "should add the extras on the end" do
-        resource_criteria.send(:build_select_query).should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } } LIMIT 10 OFFSET 20"
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } } LIMIT 10 OFFSET 20"
       end
     end
   end
@@ -95,8 +95,8 @@ describe Tripod::Criteria do
   describe "#resources" do
 
     context "with options passed" do
-      it "should pass the options to build_select_query" do
-        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+      it "should pass the options to as_query" do
+        person_criteria.should_receive(:as_query).with(:return_graph => false).and_call_original
         person_criteria.resources(:return_graph => false)
       end
     end
@@ -136,8 +136,8 @@ describe Tripod::Criteria do
   describe "#first" do
 
     context "with options passed" do
-      it "should pass the options to build_select_query" do
-        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+      it "should pass the options to as_query" do
+        person_criteria.should_receive(:as_query).with(:return_graph => false).and_call_original
         person_criteria.first(:return_graph => false)
       end
     end
@@ -147,7 +147,7 @@ describe Tripod::Criteria do
     end
 
     it "should call Query.select with the 'first sparql'" do
-      sparql = Tripod::SparqlQuery.new(person_criteria.send(:build_select_query)).as_first_query_str
+      sparql = Tripod::SparqlQuery.new(person_criteria.as_query).as_first_query_str
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       person_criteria.first
     end
@@ -172,8 +172,8 @@ describe Tripod::Criteria do
   describe "#count" do
 
     context "with options passed" do
-      it "should pass the options to build_select_query" do
-        person_criteria.should_receive(:build_select_query).with(:return_graph => false).and_call_original
+      it "should pass the options to as_querys" do
+        person_criteria.should_receive(:as_query).with(:return_graph => false).and_call_original
         person_criteria.count(:return_graph => false)
       end
     end
@@ -184,7 +184,7 @@ describe Tripod::Criteria do
     end
 
     it "should call Query.select with the 'count sparql'" do
-      sparql = Tripod::SparqlQuery.new(person_criteria.send(:build_select_query)).as_count_query_str
+      sparql = Tripod::SparqlQuery.new(person_criteria.as_query).as_count_query_str
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       person_criteria.count
     end

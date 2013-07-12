@@ -9,13 +9,17 @@ module Tripod
 
     attr_reader :resources
     attr_reader :criteria # the criteria used to generate this collection
+    attr_reader :sparql_query_str # the sparql query used to generate this collection
 
     # options:
     #  :criteria - the criteria used to create this collection
+    #  :sparql_query_str - the sparql used to create this collection
     #  :return_graph - whether the original query returned the graphs or not.
     def initialize(resources, opts={})
       @resources = resources
       @criteria = opts[:criteria]
+      @sparql_query_str = opts[:sparql_query_str]
+      @resource_class = opts[:resource_class]
       @return_graph = opts[:return_graph]
     end
 
@@ -50,6 +54,9 @@ module Tripod
       time_serialization('nt') do
         if @criteria
           @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/n-triples")
+        elsif @sparql_query_str && @resource_class
+          # run the query as a describe.
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => "application/n-triples")
         else
           # for n-triples we can just concatenate them
           nt = ""
@@ -72,6 +79,9 @@ module Tripod
       time_serialization('rdf') do
         if @criteria
           @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/rdf+xml")
+        elsif @sparql_query_str && @resource_class
+          # run the query as a describe.
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => "application/rdf+xml")
         else
           get_graph.dump(:rdf)
         end
@@ -82,6 +92,9 @@ module Tripod
       time_serialization('ttl') do
         if @criteria
           @criteria.serialize(:return_graph => @return_graph, :accept_header => "text/turtle")
+        elsif @sparql_query_str && @resource_class
+          # run the query as a describe.
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header =>"text/turtle")
         else
           get_graph.dump(:turtle)
         end
