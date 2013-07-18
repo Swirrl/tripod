@@ -11,6 +11,8 @@ module Tripod::Resource
   included do
     # every resource needs a graph set.
     validates_presence_of :graph_uri
+    # uri is a valid linked data url
+    validates :uri, is_url: true
     # every instance of a resource has an rdf type field, which is set at the class level
     class_attribute :_RDF_TYPE
     # the Graph URI is set at the class level by default also, although this can be overridden in the constructor
