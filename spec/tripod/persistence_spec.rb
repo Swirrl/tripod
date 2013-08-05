@@ -96,16 +96,42 @@ describe Tripod::Persistence do
 
   describe '.update_attribute' do
     let (:person) { Person.new('http://example.com/newperson') }
-    before { person.stub(:save) }
+    
+    context 'without transactions' do
+      before { person.stub(:save) }
 
-    it 'should write the attribute' do
-      person.update_attribute(:name, 'Bob')
-      person.name.should == 'Bob'
+      it 'should write the attribute' do
+        person.update_attribute(:name, 'Bob')
+        person.name.should == 'Bob'
+      end
+
+      it 'should save the record' do
+        person.should_receive(:save)
+        person.update_attribute(:name, 'Bob')
+      end
     end
 
-    it 'should save the record' do
-      person.should_receive(:save)
-      person.update_attribute(:name, 'Bob')
+    context 'with transactions' do
+      it 'should create a new resource' do
+        transaction = Tripod::Persistence::Transaction.new
+
+        person.update_attribute(:name, 'George', transaction: transaction)
+
+        lambda { Person.find(person.uri) }.should raise_error(Tripod::Errors::ResourceNotFound)
+        transaction.commit
+        lambda { Person.find(person.uri) }.should_not raise_error()
+      end
+
+      it 'should assign the attributes of an existing' do
+        transaction = Tripod::Persistence::Transaction.new
+        person.save
+
+        person.update_attribute(:name, 'George', transaction: transaction)
+
+        Person.find(person.uri).name.should_not == 'George'
+        transaction.commit
+        Person.find(person.uri).name.should == 'George'
+      end
     end
   end
 

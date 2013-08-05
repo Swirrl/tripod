@@ -148,9 +148,9 @@ module Tripod::Persistence
     end
   end
 
-  def update_attribute(name, value)
+  def update_attribute(name, value, opts={})
     write_attribute(name, value)
-    save
+    save(opts)
   end
 
   def update_attributes(attributes, opts={})
