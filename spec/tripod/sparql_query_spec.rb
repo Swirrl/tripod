@@ -39,6 +39,19 @@ WHERE abc # bar
 # baz'
       end
     end
+
+    context 'given a query with interpolations' do
+      it 'should interpolate the query' do
+        q = Tripod::SparqlQuery.new('SELECT xyz WHERE %{foo}', foo: 'bar')
+        q.query.should == 'SELECT xyz WHERE bar'
+      end
+
+      context 'where there are missing interpolation values' do
+        it "should raise a 'missing variables' exception" do
+          expect { Tripod::SparqlQuery.new('SELECT xyz WHERE %{foo}', {bar: 'baz'}) }.to raise_error(Tripod::SparqlQueryMissingVariables)
+        end
+      end
+    end
   end
 
   describe "#has_prefixes?" do
