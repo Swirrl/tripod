@@ -17,7 +17,9 @@ module Tripod
 
     def initialize(query_string, interpolations=nil)
       query_string.strip!
+
       @query = interpolate_query(query_string, interpolations) if interpolations
+
       @query ||= query_string
 
       if self.has_prefixes?
@@ -78,6 +80,7 @@ module Tripod
 
     def interpolate_query(query_string, interpolations)
       expected_variables = self.class.get_expected_variables(query_string)
+      interpolations = interpolations.symbolize_keys.select{ |k,v| v && v.length > 0 } # remove ones that have no value
       missing_variables = expected_variables - interpolations.keys
 
       if missing_variables.any?
