@@ -15,8 +15,12 @@ module Tripod
     cattr_accessor :KEYWORDS
     @@KEYWORDS = %w(CONSTRUCT ASK DESCRIBE SELECT)
 
-    def initialize(query_string)
-      @query = query_string.strip
+    def initialize(query_string, interpolations=nil)
+      query_string.strip!
+
+      @query = interpolate_query(query_string, interpolations) if interpolations
+
+      @query ||= query_string
 
       if self.has_prefixes?
         @prefixes, @body = self.extract_prefixes
@@ -68,7 +72,23 @@ module Tripod
       first_query
     end
 
+    def self.get_expected_variables(query_string)
+      query_string.scan(/[.]?\%\{(\w+)\}[.]?/).flatten.uniq.map(&:to_sym)
+    end
+
     private
+
+    def interpolate_query(query_string, interpolations)
+      expected_variables = self.class.get_expected_variables(query_string)
+      interpolations = interpolations.symbolize_keys.select{ |k,v| v && v.length > 0 } # remove ones that have no value
+      missing_variables = expected_variables - interpolations.keys
+
+      if missing_variables.any?
+        raise SparqlQueryMissingVariables.new(missing_variables, expected_variables, interpolations)
+      end
+
+      query_string % interpolations # do the interpolating
+    end
 
     def get_query_type
       if /^CONSTRUCT/i.match(self.body)
