@@ -73,7 +73,10 @@ module Tripod::SparqlClient
           :method => :post,
           :url => Tripod.update_endpoint,
           :timeout => Tripod.timeout_seconds,
-          :payload => {:update => sparql}
+          :payload => sparql,
+          :headers => { 
+            :content_type => 'application/sparql-update'
+          }
         )
         true
       rescue RestClient::BadRequest => e
