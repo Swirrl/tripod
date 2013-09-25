@@ -90,6 +90,7 @@ module Tripod::Links
           incoming_link = klass.linked_tos[link.incoming_field_name.to_sym]
           incoming_predicate = klass.fields[incoming_link.field_name].predicate
 
+          # note - this will only find saved ones.
           klass
             .where("?uri <#{incoming_predicate.to_s}> <#{self.uri.to_s}>")
             .resources
@@ -105,12 +106,24 @@ module Tripod::Links
           klass = Kernel.const_get(link.class_name)
 
           if link.multivalued?
-            # TODO: is there a more efficient way of doing this?
+
+            predicate = klass.fields[link.field_name].predicate
+
+            # # TODO: is there a more efficient way of doing this?
+
+            # note that we can't just do a query like this:
+            #   `klass.where('<#{self.uri.to_s}> <#{predicate.to_s}> ?uri').resources`
+            # ... because this will only find saved ones and we want to find resources
+            # whose uris have been set on the resource but not saved to db yet.
+
             criteria = klass.where('?uri ?p ?o')
             read_attribute(link.field_name).each do |uri|
               criteria.where("FILTER(?uri = <#{uri.to_s}>)")
             end
             criteria.resources
+
+            #klass.where('<#{self.uri.to_s}> <#{predicate.to_s}> ?uri').resources
+
           else
             klass.find(read_attribute(link.field_name)) rescue nil #look it up by it's uri
           end
