@@ -35,7 +35,7 @@ module Tripod::Links
     # @option options [ String ] class_name The name of the class of resource which we're linking to (normally will derive this from the link name)
     # @option options [ Symbol ] the symbol of the field that will be generated (normally will just add _uri or _uris to the link name)
     #
-    # @return [ Field ] The generated field
+    # @return [ LinkedTo ] The generated link
     def linked_to(name, predicate, options = {})
       add_linked_to(name, predicate, options)
     end
@@ -51,6 +51,13 @@ module Tripod::Links
     # @example make a method called doggies which returns Dog objects, via the linked_to :person field on Dog.
     #   linked_from :doggies, :person, class_name: 'Dog'
     #
+    # @param [ Symbol ] name The name of the link.
+    # @param [ Symbol ] incoming_field_name The name of the linked_to relationship on the other class
+    # @param [ Hash ] options The options to pass to the field.
+    #
+    # @option options [ String ] class_name The name of the class that links to this resource, if we can't guess it from the link name
+    #
+    # @return [ LinkedTo ] The generated link
     def linked_from(name, incoming_field_name, options = {})
       add_linked_from(name, incoming_field_name, options)
     end
