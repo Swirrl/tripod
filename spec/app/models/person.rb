@@ -12,6 +12,9 @@ class Person
   field :age, 'http://example.com/age', :datatype => RDF::XSD.integer
   field :important_dates, 'http://example.com/importantdates', :datatype => RDF::XSD.date, :multivalued => true
 
+  linked_from :owns_dogs, :owner, class_name: 'Dog'
+  linked_from :dogs, :person
+
   before_save :pre_save
   before_destroy :pre_destroy
 
