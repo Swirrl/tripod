@@ -30,10 +30,9 @@ module Tripod::Links
     # @param [ String, RDF::URI ] predicate The predicate for the field.
     # @param [ Hash ] options The options to pass to the field.
     #
-    # @option options [ String, RDF::URI ] datatype The uri of the datatype for the field (will be used to create an RDF::Literal of the right type on the way in only).
     # @option options [ Boolean ] multivalued Is this a multi-valued field? Default is false.
     # @option options [ String ] class_name The name of the class of resource which we're linking to (normally will derive this from the link name)
-    # @option options [ Symbol ] the symbol of the field that will be generated (normally will just add _uri or _uris to the link name)
+    # @option options [ Symbol ] field_name the symbol of the field that will be generated (normally will just add _uri or _uris to the link name)
     #
     # @return [ LinkedTo ] The generated link
     def linked_to(name, predicate, options = {})
