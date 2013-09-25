@@ -45,8 +45,12 @@ module Tripod::Links
     # For this to work, the incoming class needs to define a linked_to relationship.
     # Just creates the relevant getter which always return an array of objects.
     #
-    # @example make a method called people which returns Person objects, via the organisation linked_to field on Person.
-    #   linked_from :doggies, :owner, class_name: 'Dog'
+    # @example make a method called people which returns Dog objects, via the linked_to :owner field on Dog. We guess the class name based on the linked_from name.
+    #   linked_from :dogs, :owner
+    #
+    # @example make a method called doggies which returns Dog objects, via the linked_to :person field on Dog.
+    #   linked_from :doggies, :person, class_name: 'Dog'
+    #
     def linked_from(name, incoming_field_name, options = {})
       add_linked_from(name, incoming_field_name, options)
     end
