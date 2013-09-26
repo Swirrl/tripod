@@ -99,12 +99,15 @@ describe Tripod::Links do
     context 'its a multivalued field' do
       it "creates a getter and setter for multiple values, instantiating the right types of resource" do
         rover.friends = [fido, spot]
+
         rover.friends.each do |f|
           f.class.should == Dog
         end
 
-        rover.friends.to_a.first.should == fido
-        rover.friends.to_a.last.should == spot
+        rover.friends.length.should == 2
+
+        rover.friends.to_a.first.uri.should == fido.uri
+        rover.friends.to_a.last.uri.should == spot.uri
       end
 
       it "creates field getters and setters with the _uris suffix" do

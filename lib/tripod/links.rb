@@ -112,7 +112,6 @@ module Tripod::Links
           klass = Kernel.const_get(link.class_name)
 
           if link.multivalued?
-
             predicate = klass.fields[link.field_name].predicate
 
             # # TODO: is there a more efficient way of doing this?
@@ -123,13 +122,18 @@ module Tripod::Links
             # whose uris have been set on the resource but not saved to db yet.
 
             criteria = klass.where('?uri ?p ?o')
-            read_attribute(link.field_name).each do |uri|
-              criteria.where("FILTER(?uri = <#{uri.to_s}>)")
+
+            uris = read_attribute(link.field_name)
+
+            filter_str = "FILTER("
+            if uris.any?
+              filter_str += uris.map {|u| "?uri = <#{u.to_s}>" }.join(" || ")
+            else
+              filter_str += "1 = 0"
             end
-            criteria.resources
+            filter_str += ")"
 
-            #klass.where('<#{self.uri.to_s}> <#{predicate.to_s}> ?uri').resources
-
+            criteria.where(filter_str).resources
           else
             klass.find(read_attribute(link.field_name)) rescue nil #look it up by it's uri
           end
@@ -144,9 +148,8 @@ module Tripod::Links
         re_define_method("#{meth}=") do |value|
 
           if link.multivalued?
-            value.to_a.each do |r|
-              write_attribute( link.field_name, r.uri )
-            end
+            val = value.to_a.map{ |v| v.uri }
+            write_attribute( link.field_name, val)
           else
             # set the uri from the passed in resource
             write_attribute( link.field_name, value.uri )
