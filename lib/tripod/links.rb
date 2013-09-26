@@ -112,7 +112,6 @@ module Tripod::Links
           klass = Kernel.const_get(link.class_name)
 
           if link.multivalued?
-            predicate = klass.fields[link.field_name].predicate
 
             # # TODO: is there a more efficient way of doing this?
 
