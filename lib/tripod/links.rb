@@ -109,7 +109,7 @@ module Tripod::Links
       generated_methods.module_eval do
         re_define_method(meth) do
 
-          klass = Kernel.const_get(link.class_name)
+          klass = Kernel.eval(link.class_name)
 
           if link.multivalued?
 
