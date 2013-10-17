@@ -15,7 +15,7 @@ module Tripod::Links
 
   module ClassMethods
 
-    # Define a link to another resource. Creates relevant fields and getter / setter.
+    # Define a link to another resource. Creates relevant fields and getter/setter methods. Note that the getter only retrives saved resources from the db.
     #
     # @example Define a link away from resources of this class to resources of class Organisation
     #   linked_to :organisation, 'http://example.com/name'
