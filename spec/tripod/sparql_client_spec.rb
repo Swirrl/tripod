@@ -17,17 +17,59 @@ describe Tripod::SparqlClient do
         p
       end
 
-      it "should use Tripod::Streaming to get the data" do
+      describe "using Tripod::Streaming to get the data" do
+        before(:each) do
+          Tripod::Streaming.stub(get_data: "some data")
+        end
 
-        Tripod::Streaming.should_receive(:get_data).with(
-          Tripod.query_endpoint + "?query=#{CGI.escape(query)}",
-          {
-            accept: "application/sparql-results+json",
-            timeout_seconds: Tripod.timeout_seconds,
-            response_limit_bytes: Tripod.response_limit_bytes
-          }
-        ).and_return("some data")
-        Tripod::SparqlClient::Query.query(query, "application/sparql-results+json")
+        example do
+          Tripod::SparqlClient::Query.query(query, "application/sparql-results+json")
+
+          expect(Tripod::Streaming).to have_received(:get_data).with(
+            Tripod.query_endpoint + "?query=#{CGI.escape(query)}",
+            {
+              accept: "application/sparql-results+json",
+              timeout_seconds: Tripod.timeout_seconds,
+              response_limit_bytes: Tripod.response_limit_bytes
+            }
+          )
+        end
+
+        context "with an integer response limit (number of bytes)" do
+          it "uses the limit" do
+            Tripod::SparqlClient::Query.query(
+              query, "application/sparql-results+json", {}, 1024
+            )
+
+            expect(Tripod::Streaming).to have_received(:get_data).with(
+              kind_of(String), hash_including(response_limit_bytes: 1024)
+            )
+          end
+        end
+
+        context "with a :default response limit" do
+          it "uses the Tripod response limit" do
+            Tripod::SparqlClient::Query.query(
+              query, "application/sparql-results+json", {}, :default
+            )
+
+            expect(Tripod::Streaming).to have_received(:get_data).with(
+              kind_of(String), hash_including(:response_limit_bytes)
+            )
+          end
+        end
+
+        context "with a :no_response_limit response limit" do
+          it "doesn't pass a limit" do
+            Tripod::SparqlClient::Query.query(
+              query, "application/sparql-results+json", {}, :no_response_limit
+            )
+
+            expect(Tripod::Streaming).to have_received(:get_data).with(
+              kind_of(String), hash_not_including(:response_limit_bytes)
+            )
+          end
+        end
       end
 
       it "should execute the query and return the format requested" do

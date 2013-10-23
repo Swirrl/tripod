@@ -7,7 +7,7 @@ module Tripod
     # opts
     #  :accept => "*/*"
     #  :timeout_seconds = 10
-    #  :limit_bytes = nil
+    #  :response_limit_bytes = nil
     def self.get_data(request_url, opts={})
 
       accept = opts[:accept] || "*/*"

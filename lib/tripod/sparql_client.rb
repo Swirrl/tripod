@@ -14,12 +14,12 @@ module Tripod::SparqlClient
     # @param [ String ] accept_header The accept header to send with the request
     # @param [ Hash ] any extra params to send with the request
     # @return [ RestClient::Response ]
-    def self.query(sparql, accept_header, extra_params={})
+    def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default)
 
       params = {:query => sparql}.merge(extra_params)
       request_url = Tripod.query_endpoint + '?' + params.to_query
       streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
-      streaming_opts.merge!(:response_limit_bytes => Tripod.response_limit_bytes) if Tripod.response_limit_bytes
+      streaming_opts.merge!(_response_limit_options(response_limit_bytes)) if Tripod.response_limit_bytes
 
       # Hash.to_query from active support core extensions
       stream_data = -> {
@@ -56,6 +56,16 @@ module Tripod::SparqlClient
       JSON.parse(query_response)["results"]["bindings"]
     end
 
+    def self._response_limit_options(response_limit_bytes)
+      case response_limit_bytes
+      when Integer
+        {response_limit_bytes: response_limit_bytes}
+      when :default
+        {response_limit_bytes: Tripod.response_limit_bytes}
+      when :no_response_limit
+        {}
+      end
+    end
   end
 
   module Update
@@ -74,7 +84,7 @@ module Tripod::SparqlClient
           :url => Tripod.update_endpoint,
           :timeout => Tripod.timeout_seconds,
           :payload => sparql,
-          :headers => { 
+          :headers => {
             :content_type => 'application/sparql-update'
           }
         )
