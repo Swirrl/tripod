@@ -53,7 +53,7 @@ module Tripod::Resource
   # performs equality checking on the uris
   def ==(other)
     self.class == other.class &&
-      uri.to_s == uri.to_s
+      uri.to_s == other.uri.to_s
   end
 
   # performs equality checking on the class
