@@ -12,30 +12,45 @@ module Tripod::Finders
     #   Person.find('http://ric')
     #   Person.find(RDF::URI('http://ric'))
     # @example Find a single resource by uri and graph
+    #   Person.find('http://ric', :graph_uri => 'http://example.com/people')
+    # @example Find a single resource by uri, looking in any graph (i.e. the UNION graph)
+    #   Person.find('http://ric', :ignore_graph => true)
+    # @example Find a single resource by uri and graph (DEPRECATED)
     #   Person.find('http://ric', 'http://example.com/people')
     #   Person.find(RDF::URI('http://ric'), Person.find(RDF::URI('http://example.com/people')))
     #
     # @param [ String, RDF::URI ] uri The uri of the resource to find
-    # @param [ String, RDF::URI ] graph_uri The uri of the graph from which to get the resource
+    # @param [ Hash, String, RDF::URI ] opts Either an options hash (see above), or (for backwards compatibility) the uri of the graph from which to get the resource
     #
     # @raise [ Tripod::Errors::ResourceNotFound ] If no resource found.
     #
     # @return [ Resource ] A single resource
-    def find(uri, graph_uri=nil)
-
-      unless graph_uri
-        # do a quick select to see what graph to use.
-        select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
-        result = Tripod::SparqlClient::Query.select(select_query)
-        if result.length > 0
-          graph_uri = result[0]["g"]["value"]
-        else
-          raise Tripod::Errors::ResourceNotFound.new(uri)
-        end
+    def find(uri, opts={})
+      if opts.is_a?(String) # backward compatibility hack
+        graph_uri = opts
+        ignore_graph = false
+      else
+        graph_uri = opts.fetch(:graph_uri, nil)
+        ignore_graph = opts.fetch(:ignore_graph, false)
       end
 
-      # instantiate and hydrate the resource
-      resource = self.new(uri, graph_uri.to_s)
+      resource = nil
+      if ignore_graph
+        resource = self.new(uri, :ignore_graph => true)
+      else
+        graph_uri ||= self.get_graph_uri
+        unless graph_uri
+          # do a quick select to see what graph to use.
+          select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
+          result = Tripod::SparqlClient::Query.select(select_query)
+          if result.length > 0
+            graph_uri = result[0]["g"]["value"]
+          else
+            raise Tripod::Errors::ResourceNotFound.new(uri)
+          end
+        end
+        resource = self.new(uri, :graph_uri => graph_uri.to_s)
+      end
 
       resource.hydrate!
       resource.new_record = false
@@ -183,7 +198,8 @@ module Tripod::Finders
       uris_and_graphs.each_pair do |u,g|
 
         # instantiate a new resource
-        r = self.new(u,g)
+        g ||= {}
+        r = self.new(u, g)
 
         # make a graph of data for this resource's uri
         data_graph = RDF::Graph.new

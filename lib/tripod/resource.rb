@@ -27,19 +27,30 @@ module Tripod::Resource
   #
   # @example Instantiate a new Resource
   #   Person.new('http://swirrl.com/ric.rdf#me')
+  # @example Instantiate a new Resource in a particular graph
+  #   Person.new('http://swirrl.com/ric.rdf#me', :graph_uri => 'http://swirrl.com/graph/people')
+  # @example Instantiate a new Resource in a particular graph (DEPRECATED)
+  #   Person.new('http://swirrl.com/ric.rdf#me', 'http://swirrl.com/graph/people')
   #
   # @param [ String, RDF::URI ] uri The uri of the resource.
-  # @param [ String, RDF::URI ] graph_uri The graph_uri where this resource will be saved to. If ommitted, this resource cannot be persisted.
+  # @param [ Hash, String, RDF::URI ] opts An options hash (see above), or the graph_uri where this resource will be saved to. If graph URI is ommitted and can't be derived from the object's class, this resource cannot be persisted.
   #
   # @return [ Resource ] A new +Resource+
-  def initialize(uri, graph_uri=nil)
+  def initialize(uri, opts={})
+    if opts.is_a?(String)
+      graph_uri = opts
+    else
+      graph_uri = opts.fetch(:graph_uri, nil)
+      ignore_graph = opts.fetch(:ignore_graph, false)
+    end
+
     raise Tripod::Errors::UriNotSet.new('uri missing') unless uri
     @uri = RDF::URI(uri.to_s)
     @repository = RDF::Repository.new
     @new_record = true
 
     run_callbacks :initialize do
-      graph_uri ||= self.class.get_graph_uri
+      graph_uri ||= self.class.get_graph_uri unless ignore_graph
       @graph_uri = RDF::URI(graph_uri) if graph_uri
       self.rdf_type = self.class.get_rdf_type if respond_to?(:rdf_type=) && self.class.get_rdf_type
     end

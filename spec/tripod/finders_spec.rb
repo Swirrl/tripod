@@ -48,7 +48,31 @@ describe Tripod::Finders do
     end
 
     context 'with graph_uri supplied' do
+      let!(:another_person) do
+        p = Person.new('http://example.com/anotherperson', :graph_uri => 'http://example.com/graphx')
+        p.name = 'a.n.other'
+        p.save!
+        p
+      end
 
+      context 'when there are triples about the resource in that graph' do
+        it 'should use that graph to call new' do
+          Person.should_receive(:new).with(another_person.uri, :graph_uri => 'http://example.com/graphx').and_call_original
+          Person.find(another_person.uri, :graph_uri => 'http://example.com/graphx')
+        end
+
+      end
+
+      context 'when there are no triples about the resource in that graph' do
+        it 'should raise not found' do
+          expect {
+            Person.find(another_person.uri, :graph_uri => "http://example.com/graphy")
+          }.to raise_error(Tripod::Errors::ResourceNotFound)
+        end
+      end
+    end
+
+    context 'with graph_uri supplied (deprecated)' do
       let!(:another_person) do
         p = Person.new('http://example.com/anotherperson', 'http://example.com/graphx')
         p.name = 'a.n.other'
@@ -57,21 +81,18 @@ describe Tripod::Finders do
       end
 
       context 'when there are triples about the resource in that graph' do
-
         it 'should use that graph to call new' do
-          Person.should_receive(:new).with(another_person.uri, 'http://example.com/graphx').and_call_original
-          Person.find(another_person.uri, "http://example.com/graphx")
+          Person.should_receive(:new).with(another_person.uri, :graph_uri => 'http://example.com/graphx').and_call_original
+          Person.find(another_person.uri, 'http://example.com/graphx')
         end
 
       end
 
       context 'when there are no triples about the resource in that graph' do
-        it 'should raise nto found' do
-
-          lambda {
+        it 'should raise not found' do
+          expect {
             Person.find(another_person.uri, "http://example.com/graphy")
-          }.should raise_error(Tripod::Errors::ResourceNotFound)
-
+          }.to raise_error(Tripod::Errors::ResourceNotFound)
         end
       end
     end
@@ -79,8 +100,40 @@ describe Tripod::Finders do
     context 'with no graph_uri supplied' do
        it 'should look up the graph to call new' do
         ric # trigger the lazy load
-        Person.should_receive(:new).with(ric.uri, Person._GRAPH_URI).and_call_original
-        Person.find(ric.uri, Person._GRAPH_URI)
+        Person.should_receive(:new).with(ric.uri, :graph_uri => Person.get_graph_uri).and_call_original
+        Person.find(ric.uri)
+      end
+    end
+
+    context "looking in any graph" do
+      context 'model has no default graph URI' do
+        let!(:resource) do
+          r = Resource.new('http://example.com/foo', :graph_uri => 'http://example/graph/foo')
+          r.label = 'Foo'
+          r.save!
+          r
+        end
+
+        it 'should find a resource regardless of which graph it is in' do
+          Resource.find(resource.uri, :ignore_graph => true).should_not be_nil
+        end
+      end
+
+      context 'model has a default graph URI' do
+        let!(:another_person) do
+          p = Person.new('http://example.com/anotherperson', :graph_uri => 'http://example.com/graphx')
+          p.name = 'a.n.other'
+          p.save!
+          p
+        end
+
+        it 'should override the default graph URI and find the resource regardless' do
+          Person.find(another_person.uri, :ignore_graph => true).should_not be_nil
+        end
+
+        it 'should return the resource without a graph URI' do
+          Person.find(another_person.uri, :ignore_graph => true).graph_uri.should be_nil
+        end
       end
     end
   end
