@@ -8,7 +8,7 @@ module Tripod
     #  :accept => "*/*"
     #  :timeout_seconds = 10
     #  :response_limit_bytes = nil
-    def self.get_data(request_url, opts={})
+    def self.get_data(request_url, payload, opts={})
 
       accept = opts[:accept] || "*/*"
       timeout_in_seconds = opts[:timeout_seconds] || 10
@@ -25,7 +25,7 @@ module Tripod
       request_start_time = Time.now if Tripod.logger.debug?
 
       begin
-        http.request_get(uri.request_uri, 'Accept' => accept) do |res|
+        http.request_post(uri.request_uri, payload, 'Accept' => accept) do |res|
 
           response_duration = Time.now - request_start_time if Tripod.logger.debug?
 
@@ -37,6 +37,7 @@ module Tripod
           res.read_body do |seg|
             total_bytes += seg.size
             response_string += seg.to_s
+            # raise Tripod::Errors::Timeout.new
             # if there's a limit, stop when we reach it
             raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
           end
