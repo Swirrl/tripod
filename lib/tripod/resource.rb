@@ -37,11 +37,11 @@ module Tripod::Resource
   #
   # @return [ Resource ] A new +Resource+
   def initialize(uri, opts={})
-    if opts.is_a?(String)
-      graph_uri = opts
-    else
+    if opts.is_a?(Hash)
       graph_uri = opts.fetch(:graph_uri, nil)
       ignore_graph = opts.fetch(:ignore_graph, false)
+    else
+      graph_uri = opts
     end
 
     raise Tripod::Errors::UriNotSet.new('uri missing') unless uri
