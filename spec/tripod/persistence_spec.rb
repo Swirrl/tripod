@@ -4,8 +4,7 @@ describe Tripod::Persistence do
 
   let(:unsaved_person) do
     @unsaved_uri = @uri = 'http://example.com/uri'
-    @graph_uri = 'http://example.com/graph'
-    @graph1 = RDF::Graph.new(@graph_uri)
+    @graph1 = RDF::Graph.new
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)
     stmt.predicate = RDF::URI.new('http://example.com/pred')
