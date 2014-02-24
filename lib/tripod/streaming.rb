@@ -36,8 +36,9 @@ module Tripod
 
           res.read_body do |seg|
             total_bytes += seg.size
-            response_string += seg.to_s
-            response_string = response_string.force_encoding('UTF-8') # FORCE ENCODING.
+            # FORCE ENCODING to utf 8
+            response_string += seg.to_s.force_encoding('UTF-8')
+            response_string = response_string.force_encoding('UTF-8') 
             # raise Tripod::Errors::Timeout.new
             # if there's a limit, stop when we reach it
             raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
