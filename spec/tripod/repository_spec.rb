@@ -58,7 +58,7 @@ describe Tripod::Repository do
             @graph << s
           end
 
-          @graph << RDF::Statement.new( 'http://example.com/anotherresource', 'http://example.com/pred', 'http://example.com/obj')
+          @graph << RDF::Statement.new( RDF::URI('http://example.com/anotherresource'), RDF::URI('http://example.com/pred'), RDF::URI('http://example.com/obj'))
           @graph.statements.count.should == 2 # there'll already be a statement about type in the person.
 
           person.hydrate!(:graph => @graph)

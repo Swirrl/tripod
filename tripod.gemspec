@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rest-client"
   gem.add_dependency "activemodel", "~> 3.2"
   gem.add_dependency "equivalent-xml"
-  gem.add_dependency "rdf", "~> 1.0"
+  gem.add_dependency "rdf", "~> 1.1"
   gem.add_dependency "rdf-rdfxml"
   gem.add_dependency "rdf-turtle"
   gem.add_dependency "rdf-json"
