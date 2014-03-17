@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'net/http'
 
 module Tripod
@@ -35,10 +36,10 @@ module Tripod
           stream_start_time = Time.now if Tripod.logger.debug?
 
           res.read_body do |seg|
-            total_bytes += seg.size
+            total_bytes += seg.bytesize
             # FORCE ENCODING to utf 8
             response_string += seg.to_s.force_encoding('UTF-8')
-            response_string = response_string.force_encoding('UTF-8') 
+            response_string = response_string.force_encoding('UTF-8')
             # raise Tripod::Errors::Timeout.new
             # if there's a limit, stop when we reach it
             raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
