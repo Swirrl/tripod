@@ -36,7 +36,7 @@ describe Tripod::Finders do
       end
 
       it "returns a non-new record" do
-        person.new_record?.should be_false
+        person.new_record?.should be false
       end
 
     end
@@ -219,7 +219,7 @@ describe Tripod::Finders do
 
     it "returns non-new records" do
       res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
-      res.first.new_record?.should be_false
+      res.first.new_record?.should be false
     end
 
   end
