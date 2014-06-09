@@ -40,7 +40,7 @@ describe Tripod::Persistence do
     end
 
     it 'saves the contents to the db' do
-      unsaved_person.save.should be_true
+      unsaved_person.save.should be true
 
       # try reading the data back out.
       p2 = Person.new(@uri)
@@ -55,7 +55,7 @@ describe Tripod::Persistence do
 
     it 'should leave other people untouched' do
       # save the unsaved person
-      unsaved_person.save.should be_true
+      unsaved_person.save.should be true
 
       # read the saved person back out the db, and check he's untouched.
       p2 = Person.new(saved_person.uri)
@@ -72,7 +72,7 @@ describe Tripod::Persistence do
   describe ".destroy" do
 
     it 'removes all triples from the db' do
-      saved_person.destroy.should be_true
+      saved_person.destroy.should be true
 
       # re-load it back into memory
       p2 = Person.new(@saved_uri)
@@ -204,10 +204,10 @@ describe Tripod::Persistence do
       transaction = Tripod::Persistence::Transaction.new
 
       unsaved_person.stub(:graph_uri).and_return(nil) # force a failure
-      unsaved_person.save(transaction: transaction).should be_false
+      unsaved_person.save(transaction: transaction).should be false
 
       saved_person.write_predicate('http://example.com/pred2', 'blah')
-      saved_person.save(transaction: transaction).should be_true
+      saved_person.save(transaction: transaction).should be true
 
       transaction.commit
 

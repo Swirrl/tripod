@@ -60,5 +60,8 @@ module Tripod::EagerLoading
     r
   end
 
+  def has_related_resource?(resource_uri, class_of_resource)
+    !!get_related_resource(resource_uri, class_of_resource)
+  end
 
 end
