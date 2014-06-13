@@ -63,6 +63,24 @@ describe Tripod::Persistence do
       p2.repository.dump(:ntriples).should == saved_person.repository.dump(:ntriples)
     end
 
+    context 'given triples about this resource in another graph' do
+      let(:graph_uri) { 'http://example.com/my_other_life' }
+      let(:father) { RDF::URI.new('http://example.com/vader') }
+
+      before do
+        p = Person.new(saved_person.uri, graph_uri: graph_uri)
+        p.father = father
+        p.save!
+      end
+
+      it 'should leave those triples untouched' do
+        saved_person.name = 'Luke'
+        saved_person.save!
+        p = Person.find(saved_person.uri, graph_uri: graph_uri)
+        p.father.should == father
+      end
+    end
+
     it 'runs the callbacks' do
       unsaved_person.should_receive(:pre_save)
       unsaved_person.save
@@ -95,7 +113,7 @@ describe Tripod::Persistence do
 
   describe '.update_attribute' do
     let (:person) { Person.new('http://example.com/newperson') }
-    
+
     context 'without transactions' do
       before { person.stub(:save) }
 
@@ -136,7 +154,7 @@ describe Tripod::Persistence do
 
   describe '.update_attributes' do
     let (:person) { Person.new('http://example.com/newperson') }
-    
+
     context "without transactions" do
       before { person.stub(:save) }
 
