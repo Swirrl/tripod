@@ -100,6 +100,7 @@ require "tripod/persistence"
 require "tripod/eager_loading"
 require "tripod/serialization"
 require "tripod/state"
+require "tripod/graphs"
 require "tripod/version"
 
 # these need to be at the end

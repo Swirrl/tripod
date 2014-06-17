@@ -59,14 +59,14 @@ WHERE abc # bar
     context "for a query with prefixes" do
       it "should return true" do
         q = Tripod::SparqlQuery.new('PREFIX e: <http://example.com> SELECT xyz')
-        q.has_prefixes?.should be_true
+        q.has_prefixes?.should be true
       end
     end
 
     context "for a query without prefixes" do
       it "should return false" do
         q = Tripod::SparqlQuery.new('SELECT xyz')
-        q.has_prefixes?.should be_false
+        q.has_prefixes?.should be false
       end
     end
 
