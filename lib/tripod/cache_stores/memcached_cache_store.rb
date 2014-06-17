@@ -10,8 +10,9 @@ module Tripod
     class MemcachedCacheStore
 
       # initialize a memcached cache store at the specified port (default 'localhost:11211')
-      def initialize(location)
-        @dalli_pool = ConnectionPool.new(:size => 10, :timeout => 3) { Dalli::Client.new(location, :value_max_bytes => Tripod.response_limit_bytes) }
+      # a pool size should also be specified (defaults to 1 for development/local use reasons)
+      def initialize(location, size = 1)
+        @dalli_pool = ConnectionPool.new(:size => size, :timeout => 3) { Dalli::Client.new(location, :value_max_bytes => Tripod.response_limit_bytes) }
       end
 
       # takes a block
@@ -19,9 +20,7 @@ module Tripod
         raise ArgumentError.new("expected a block") unless block_given?
 
         @dalli_pool.with do |client|
-          client.fetch(key) do
-            yield
-          end
+          client.fetch(key) { yield }
         end
       end
 
@@ -41,6 +40,14 @@ module Tripod
         @dalli_pool.with do |client|
           client.get(key)
         end
+      end
+
+      def stats
+        output = []
+        @dalli_pool.with do |client|
+          output << client.stats
+        end
+        output
       end
 
       def clear!

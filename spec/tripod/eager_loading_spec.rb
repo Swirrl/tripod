@@ -143,13 +143,13 @@ describe Tripod::EagerLoading do
     context "when eager load not called" do
       context "and related resource exists" do
         it "should return false" do
-          @john.has_related_resource?(RDF::URI.new('http://example.com/name'), Resource).should be_false
+          @john.has_related_resource?(RDF::URI.new('http://example.com/name'), Resource).should be false
         end
       end
 
       context "and related resource doesn't exist" do
         it "should return false" do
-          @john.has_related_resource?(RDF::URI.new('http://example.com/nonexistent/person'), Person).should be_false
+          @john.has_related_resource?(RDF::URI.new('http://example.com/nonexistent/person'), Person).should be false
         end
       end
     end
@@ -161,13 +161,13 @@ describe Tripod::EagerLoading do
 
       context "and related resource exists" do
         it "should return true" do
-          @john.has_related_resource?(RDF::URI.new('http://example.com/name'), Resource).should be_true
+          @john.has_related_resource?(RDF::URI.new('http://example.com/name'), Resource).should be true
         end
       end
 
       context "and related resource doesn't exist" do
         it "should return false" do
-          @john.has_related_resource?(RDF::URI.new('http://example.com/nonexistent/person'), Person).should be_false
+          @john.has_related_resource?(RDF::URI.new('http://example.com/nonexistent/person'), Person).should be false
         end
       end
     end
