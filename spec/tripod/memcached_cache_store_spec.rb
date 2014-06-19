@@ -45,11 +45,11 @@ describe Tripod::CacheStores, :caching_tests => true do
       end
 
       it "should increase number of memcache get calls" do
-        Tripod.cache_store.stats[0]["localhost:11211"]["cmd_get"].should be > @number_of_memcache_get_calls 
+        Tripod.cache_store.stats[0]["localhost:11211"]["cmd_get"].to_i.should be > @number_of_memcache_get_calls.to_i
       end
 
       it "should not increase cache size" do
-        Tripod.cache_store.stats[0]["localhost:11211"]["cmd_set"].should == @number_of_memcache_set_calls
+        Tripod.cache_store.stats[0]["localhost:11211"]["cmd_set"].to_i.should == @number_of_memcache_set_calls.to_i
       end
     end
   end
