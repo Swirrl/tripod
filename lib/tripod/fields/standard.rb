@@ -6,6 +6,7 @@ module Tripod::Fields
     # Set readers for the instance variables.
     attr_accessor :name, :predicate, :options, :datatype, :is_uri, :multivalued
     alias_method :is_uri?, :is_uri
+    alias_method :multivalued?, :multivalued
 
     # Create the new field with a name and optional additional options.
     #

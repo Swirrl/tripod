@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "tripod/fields/standard"
 
- # This module defines behaviour for fields.
+# This module defines behaviour for fields.
 module Tripod::Fields
   extend ActiveSupport::Concern
 
