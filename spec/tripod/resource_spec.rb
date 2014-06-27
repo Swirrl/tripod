@@ -34,11 +34,21 @@ describe Tripod::Resource do
 
     context 'with a URI and a graph URI' do
       let(:person) do
-        Person.new('http://example.com/foobar', 'http://example.com/foobar/graph')
+        Person.new('http://example.com/foobar', :graph_uri => 'http://example.com/foobar/graph')
       end
 
       it "overrides the default graph URI with what's given" do
         person.graph_uri.should == RDF::URI.new('http://example.com/foobar/graph')
+      end
+    end
+
+    context 'with a URI, ignoring the graph URI' do
+      let(:person) do
+        Person.new('http://example.com/foobar', :ignore_graph => true)
+      end
+
+      it "should ignore the class-level graph URI" do
+        person.graph_uri.should be_nil
       end
     end
   end

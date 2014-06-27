@@ -73,9 +73,9 @@ module Tripod::Persistence
       transaction = Tripod::Persistence::Transaction.get_transaction(opts[:transaction])
 
       if self.valid?
-
+        graph_selector = self.graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
         query = "
-          DELETE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH ?g {<#{@uri.to_s}> ?p ?o}};
+          DELETE {GRAPH #{graph_selector} {<#{@uri.to_s}> ?p ?o}} WHERE {GRAPH #{graph_selector} {<#{@uri.to_s}> ?p ?o}};
           INSERT DATA {
             GRAPH <#{@graph_uri}> {
               #{ @repository.dump(:ntriples) }

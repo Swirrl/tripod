@@ -70,6 +70,7 @@ module Tripod
   #     config.cache_store = nil #e.g Tripod::CacheStores::MemcachedCacheStore.new('localhost:11211')
   #       # note: if using memcached, make sure you set the -I (slab size) to big enough to store each result
   #       # and set the -m (total size) to something quite big (or the cache will recycle too often).
+  #       # also note that the connection pool size can be passed in as an optional second parameter.
   #     config.logger = Logger.new(STDOUT) # you can set this to the Rails.logger in a rails app.
   #   end
   #
@@ -101,6 +102,7 @@ require "tripod/persistence"
 require "tripod/eager_loading"
 require "tripod/serialization"
 require "tripod/state"
+require "tripod/graphs"
 require "tripod/version"
 
 # these need to be at the end
@@ -108,4 +110,5 @@ require "tripod/components"
 require "tripod/resource"
 
 require 'active_support/i18n'
+I18n.enforce_available_locales = true
 I18n.load_path << File.dirname(__FILE__) + '/tripod/locale/en.yml'

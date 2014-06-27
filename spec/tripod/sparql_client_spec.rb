@@ -26,7 +26,8 @@ describe Tripod::SparqlClient do
           Tripod::SparqlClient::Query.query(query, "application/sparql-results+json")
 
           expect(Tripod::Streaming).to have_received(:get_data).with(
-            Tripod.query_endpoint + "?query=#{CGI.escape(query)}",
+            Tripod.query_endpoint,
+            "query=#{CGI.escape(query)}",
             {
               accept: "application/sparql-results+json",
               timeout_seconds: Tripod.timeout_seconds,
@@ -42,7 +43,7 @@ describe Tripod::SparqlClient do
             )
 
             expect(Tripod::Streaming).to have_received(:get_data).with(
-              kind_of(String), hash_including(response_limit_bytes: 1024)
+              kind_of(String), kind_of(String), hash_including(response_limit_bytes: 1024)
             )
           end
         end
@@ -54,7 +55,7 @@ describe Tripod::SparqlClient do
             )
 
             expect(Tripod::Streaming).to have_received(:get_data).with(
-              kind_of(String), hash_including(:response_limit_bytes)
+              kind_of(String), kind_of(String), hash_including(:response_limit_bytes)
             )
           end
         end
@@ -66,7 +67,7 @@ describe Tripod::SparqlClient do
             )
 
             expect(Tripod::Streaming).to have_received(:get_data).with(
-              kind_of(String), hash_not_including(:response_limit_bytes)
+              kind_of(String), kind_of(String), hash_not_including(:response_limit_bytes)
             )
           end
         end

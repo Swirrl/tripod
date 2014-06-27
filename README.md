@@ -130,6 +130,11 @@ Tripod doesn't supply a database. You need to install one. I recommend [Fuseki](
 
         Person.where("?uri <http://example.com/name> ?name").limit(1).offset(0).order("DESC(?name)")
 
+## Running tests
+
+With a Fuseki instance ready and up, edit the config in `spec/spec_helper.rb` to reflect your settings. Make sure you `bundle` to pull in all dependencies before trying to run the tests.
+
+Some tests require memcached to be set up and running. The tests that require memcached are tagged with `:caching_tests => true`; do with this information what you will. 
 
 [Full Documentation](http://rubydoc.info/gems/tripod/frames)
 

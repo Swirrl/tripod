@@ -16,8 +16,8 @@ module Tripod::SparqlClient
     # @return [ RestClient::Response ]
     def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default)
 
-      params = {:query => sparql}.merge(extra_params)
-      request_url = Tripod.query_endpoint + '?' + params.to_query
+      params = {:query => sparql}.merge(extra_params).to_query
+      request_url = Tripod.query_endpoint
       streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
       streaming_opts.merge!(_response_limit_options(response_limit_bytes)) if Tripod.response_limit_bytes
 
@@ -27,7 +27,7 @@ module Tripod::SparqlClient
         Tripod.logger.debug "TRIPOD: Streaming fron url: #{request_url}"
         Tripod.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
 
-        Tripod::Streaming.get_data(request_url, streaming_opts)
+        Tripod::Streaming.get_data(request_url, params, streaming_opts)
       }
 
       if Tripod.cache_store # if a cache store is configured

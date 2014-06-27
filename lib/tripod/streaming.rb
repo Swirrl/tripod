@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'net/http'
 
 module Tripod
@@ -8,7 +9,7 @@ module Tripod
     #  :accept => "*/*"
     #  :timeout_seconds = 10
     #  :response_limit_bytes = nil
-    def self.get_data(request_url, opts={})
+    def self.get_data(request_url, payload, opts={})
 
       accept = opts[:accept] || "*/*"
       timeout_in_seconds = opts[:timeout_seconds] || 10
@@ -20,12 +21,13 @@ module Tripod
       http.read_timeout = timeout_in_seconds
 
       total_bytes = 0
-      response_string = ""
 
       request_start_time = Time.now if Tripod.logger.debug?
 
+      response = StringIO.new
+
       begin
-        http.request_get(uri.request_uri, 'Accept' => accept) do |res|
+        http.request_post(uri.request_uri, payload, 'Accept' => accept) do |res|
 
           response_duration = Time.now - request_start_time if Tripod.logger.debug?
 
@@ -34,15 +36,16 @@ module Tripod
 
           stream_start_time = Time.now if Tripod.logger.debug?
 
+          response.set_encoding('UTF-8')
           res.read_body do |seg|
-            total_bytes += seg.size
-            response_string += seg.to_s
-            # if there's a limit, stop when we reach it
+            total_bytes += seg.bytesize
             raise Tripod::Errors::SparqlResponseTooLarge.new if limit_in_bytes && (total_bytes > limit_in_bytes)
+            response << seg
+            seg
           end
 
           if Tripod.logger.debug?
-            stream_duration = Time.now - stream_start_time if
+            stream_duration = Time.now - stream_start_time
             total_request_time = Time.now - request_start_time
           end
 
@@ -53,8 +56,7 @@ module Tripod
         raise Tripod::Errors::Timeout.new
       end
 
-      response_string
-
+      response.string
     end
 
   end

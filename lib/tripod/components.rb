@@ -25,5 +25,5 @@ module Tripod::Components
   include Tripod::EagerLoading
   include Tripod::Serialization
   include Tripod::State
-
+  include Tripod::Graphs
 end

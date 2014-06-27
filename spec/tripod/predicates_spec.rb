@@ -4,7 +4,7 @@ describe Tripod::Predicates do
 
   before do
     @uri = 'http://example.com/ric'
-    @graph = RDF::Graph.new('http://example.com/graph')
+    @graph = RDF::Graph.new
 
     stmt = RDF::Statement.new
     stmt.subject = RDF::URI.new(@uri)

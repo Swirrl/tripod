@@ -22,11 +22,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency "activemodel", "~> 3.2"
   gem.add_dependency "activesupport", "~> 3.2"
   gem.add_dependency "equivalent-xml"
-  gem.add_dependency "rdf", "~> 1.0"
+  gem.add_dependency "rdf", "~> 1.1"
   gem.add_dependency "rdf-rdfxml"
   gem.add_dependency "rdf-turtle"
   gem.add_dependency "rdf-json"
   gem.add_dependency "json-ld", "~> 0.9.1" # use v.0.9 for now, as v1.0 changes what is returned for dumping a resource to include other defined resources.
   gem.add_dependency "guid"
-  gem.add_dependency "dalli", "~> 2.6"
+  gem.add_dependency "dalli", "~> 2.7.0"
+  gem.add_dependency "connection_pool", "~> 2.0.0"
 end
