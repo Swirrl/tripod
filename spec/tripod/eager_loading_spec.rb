@@ -5,7 +5,9 @@ describe Tripod::EagerLoading do
    before do
 
     @name = Resource.new('http://example.com/name', 'http://example.com/names')
+    @name.pref_label = "Nom"
     @name.label = "Name"
+    @name.title = "Soubriquet"
     @name.write_predicate('http://example.com/name-other-pred', 'hello') # another predicate
     @name.save!
 
@@ -18,6 +20,7 @@ describe Tripod::EagerLoading do
     @john.name = "john"
     @john.knows = @peter.uri
     @john.save!
+
   end
 
   describe "#eager_load_predicate_triples!" do
@@ -28,14 +31,16 @@ describe Tripod::EagerLoading do
       end
 
       it "should add triples to the repository all for the predicates' predicates" do
-        triples = @peter.repository.query([ RDF::URI.new('http://example.com/name'), :predicate, :object] )
-        triples.to_a.length.should == 2
-
-        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }.first.predicate.should == RDF::URI('http://example.com/name-other-pred')
-        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }.first.object.to_s.should == "hello"
-
-        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }.last.predicate.should == RDF::RDFS.label
-        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }.last.object.to_s.should == "Name"
+        triples = @peter.repository.query([ RDF::URI.new('http://example.com/name'), :predicate, :object] ).to_a.sort{|a,b| a.to_s <=> b.to_s }
+        triples.length.should == 4
+        triples[0].predicate.should == RDF::URI('http://example.com/name-other-pred')
+        triples[0].object.to_s.should == "hello"
+        triples[1].predicate.should == RDF::DC.title
+        triples[1].object.to_s.should == "Soubriquet"
+        triples[2].predicate.should == RDF::RDFS.label
+        triples[2].object.to_s.should == "Name"
+        triples[3].predicate.should == RDF::SKOS.prefLabel
+        triples[3].object.to_s.should == "Nom"
       end
     end
 
@@ -45,10 +50,29 @@ describe Tripod::EagerLoading do
       end
 
       it "should add triples to the repository all for the predicates labels only" do
-        triples = @peter.repository.query([ RDF::URI.new('http://example.com/name'), :predicate, :object] )
-        triples.to_a.length.should == 1
+        triples = @peter.repository.query([ RDF::URI.new('http://example.com/name'), :predicate, :object] ).to_a
+        triples.length.should == 1
         triples.first.predicate.should == RDF::RDFS.label
         triples.first.object.to_s.should == "Name"
+      end
+
+    end
+
+    context "with array of fields" do
+      before do
+        @peter.eager_load_predicate_triples!(:predicates => [RDF::SKOS.prefLabel, RDF::DC.title])
+      end
+
+      it "should add triples to the repository all for the given fields of the predicate" do
+        triples = @peter.repository.query([ RDF::URI.new('http://example.com/name'), :predicate, :object] ).to_a.sort{|a,b| a.to_s <=> b.to_s }
+        triples.length.should == 2
+        
+        triples.first.predicate.should == RDF::DC.title
+        triples.first.object.to_s.should == "Soubriquet"
+
+        triples.last.predicate.should == RDF::SKOS.prefLabel
+        triples.last.object.to_s.should == "Nom"
+        
       end
 
     end
@@ -57,23 +81,53 @@ describe Tripod::EagerLoading do
 
   describe "#eager_load_object_triples!" do
 
-    before do
-      @john.eager_load_object_triples!
+    context "with no options passed" do
+      before do
+        @john.eager_load_object_triples!
+      end
+
+      it "should add triples to the repository for the all the objects' predicates" do
+        triples = @john.repository.query([ @peter.uri, :predicate, :object] )
+        triples.to_a.length.should == 3
+
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[0].predicate.should ==  RDF::URI('http://example.com/age')
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[0].object.to_s.should == "30"
+
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[1].predicate.should ==  RDF::URI('http://example.com/name')
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[1].object.to_s.should == "Peter"
+
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[2].predicate.should == RDF.type
+        triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[2].object.to_s.should == RDF::URI('http://example.com/person')
+
+      end
     end
 
-    it "should add triples to the repository for the all the objects' predicates" do
-      triples = @john.repository.query([ @peter.uri, :predicate, :object] )
-      triples.to_a.length.should == 3
+    context "with labels_only option" do
+      before do
+        @john.eager_load_object_triples!(:labels_only => true)
+      end
 
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[0].predicate.should ==  RDF::URI('http://example.com/age')
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[0].object.to_s.should == "30"
+      it "should add triples to the repository all for the object labels only" do
+        triples = @john.repository.query([ @peter.uri, :predicate, :object] ).to_a      
+        triples.length.should == 0 # people don't have labels    
+      end
 
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[1].predicate.should ==  RDF::URI('http://example.com/name')
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[1].object.to_s.should == "Peter"
+    end
 
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[2].predicate.should == RDF.type
-      triples.to_a.sort{|a,b| a.to_s <=> b.to_s }[2].object.to_s.should == RDF::URI('http://example.com/person')
+    context "with array of fields" do
+      before do
+        @john.eager_load_object_triples!(:predicates => ['http://example.com/name'])
+      end
 
+      it "should add triples to the repository all for the given fields of the object" do
+        triples = @john.repository.query([ @peter.uri, :predicate, :object] ).to_a.sort{|a,b| a.to_s <=> b.to_s }
+       
+        triples.length.should == 1
+        
+        triples.first.predicate.should == 'http://example.com/name'
+        triples.first.object.to_s.should == "Peter"
+                
+      end
     end
 
   end

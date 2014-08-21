@@ -7,6 +7,8 @@ $LOAD_PATH.unshift(MODELS)
 require 'tripod'
 require 'rspec'
 require 'webmock/rspec'
+require 'binding_of_caller'
+require 'pry'
 
 RSpec.configure do |config|
   config.mock_with :rspec

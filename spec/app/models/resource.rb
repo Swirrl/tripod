@@ -2,6 +2,11 @@ class Resource
 
   include Tripod::Resource
 
-  field :label, RDF::RDFS.label
+    field :pref_label, RDF::SKOS.prefLabel
+    field :label, RDF::RDFS.label
+    field :title, RDF::DC.title
 
 end
+
+
+
