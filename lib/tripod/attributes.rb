@@ -24,15 +24,20 @@ module Tripod::Attributes
     raise Tripod::Errors::FieldNotPresent.new unless field
 
     attr_values = read_predicate(field.predicate)
-    attr_values.map! { |v| read_value_for_field(v, field) }
-
-    # If the field is multivalued, return an array of the results
-    # If it's not multivalued, return the first (should be only) result.
-
+   
     if field.multivalued
-      attr_values
-    else
-      attr_values.first
+      # If the field is multivalued, return an array of the results
+      # just return the uri or the value of the literal.  
+      attr_values.map { |v| field.is_uri? ? v :  v.object }
+    else          
+      # If it's not multivalued, return the first (should be only) result.
+      if field.is_uri?    
+        attr_values.first
+      else
+        # try to get it in english if it's there. (TODO: make it configurable what the default is)
+        val = attr_values.select{ |v| v.language == :en }.first || attr_values.first 
+        val.object if val
+      end
     end
   end
   alias :[] :read_attribute
@@ -71,14 +76,6 @@ module Tripod::Attributes
   alias :[]= :write_attribute
 
   private
-
-  def read_value_for_field(value, field)
-    if field.is_uri?
-      value
-    else
-      value.object
-    end
-  end
 
   def write_value_for_field(value, field)
     return if value.blank?
