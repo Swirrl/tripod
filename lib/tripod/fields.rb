@@ -41,6 +41,18 @@ module Tripod::Fields
       add_field(name, predicate, options)
     end
 
+    # Return the field object on a +Resource+ associated with the given name.
+    #
+    # @example Get the field.
+    #   Person.get_field(:name)
+    #
+    # @param [ Symbol ] name The name of the field.
+    def get_field(name)
+      field = self.fields[name]
+      raise Tripod::Errors::FieldNotPresent.new unless field
+      field
+    end
+
     protected
 
     # Define a field attribute for the +Resource+.

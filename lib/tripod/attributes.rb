@@ -20,8 +20,7 @@ module Tripod::Attributes
   #
   # @return Native Ruby object (e.g. String, DateTime) or array of them, depending on whether the field is multivalued or not
   def read_attribute(name, field=nil)
-    field ||= self.fields[name]
-    raise Tripod::Errors::FieldNotPresent.new unless field
+    field ||= self.class.get_field(name)
 
     attr_values = read_predicate(field.predicate)
    

@@ -39,4 +39,14 @@ describe Tripod::Fields do
       end
     end
   end
+
+  describe '.get_field' do
+    it 'should raise an error if the field does not exist' do
+      expect { Person.send(:get_field, :shoe_size) }.to raise_error(Tripod::Errors::FieldNotPresent)
+    end
+
+    it 'should return the field for the given name' do
+      Person.send(:get_field, :age).name.should == :age
+    end
+  end
 end

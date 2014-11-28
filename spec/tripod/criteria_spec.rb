@@ -31,19 +31,27 @@ describe Tripod::Criteria do
 
   describe "#where" do
 
-    it "should add the sparql snippet to the where clauses" do
-      resource_criteria.where("blah")
-      resource_criteria.where_clauses.should == ["?uri ?p ?o", "blah"]
+    context 'given a string' do
+      it "should add the sparql snippet to the where clauses" do
+        resource_criteria.where("blah")
+        resource_criteria.where_clauses.should == ["?uri ?p ?o", "blah"]
+      end
+
+      it "should return an instance of Criteria" do
+        resource_criteria.where("blah").class == Tripod::Criteria
+      end
+
+      it "should return an instance of Criteria with the where clauses added" do
+        resource_criteria.where("blah").where_clauses.should == ["?uri ?p ?o", "blah"]
+      end
     end
 
-    it "should return an instance of Criteria" do
-      resource_criteria.where("blah").class == Tripod::Criteria
+    context 'given a hash' do
+      it 'should construct a sparql snippet with the appropriate predicate' do
+        criteria = resource_criteria.where(label: 'blah')
+        criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> \"blah\""
+      end
     end
-
-    it "should return an instance of Criteria with the where clauses added" do
-      resource_criteria.where("blah").where_clauses.should == ["?uri ?p ?o", "blah"]
-    end
-
   end
 
   describe "#extras" do
