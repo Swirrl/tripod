@@ -47,7 +47,8 @@ module Tripod
       elsif filter.is_a?(Hash)
         filter.each_pair do |key, value|
           field = resource_class.get_field(key)
-          where_clauses << "?uri <#{ field.predicate }> \"#{ value }\""
+          value = RDF::Literal.new(value) unless value.respond_to?(:to_base)
+          where_clauses << "?uri <#{ field.predicate }> #{ value.to_base }"
         end
       end
       self

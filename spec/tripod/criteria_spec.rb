@@ -47,9 +47,22 @@ describe Tripod::Criteria do
     end
 
     context 'given a hash' do
-      it 'should construct a sparql snippet with the appropriate predicate' do
-        criteria = resource_criteria.where(label: 'blah')
-        criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> \"blah\""
+      context 'with a native Ruby value' do
+        let(:value) { 'blah' }
+
+        it 'should construct a sparql snippet with the appropriate predicate, treating the value as a literal' do
+          criteria = resource_criteria.where(label: value)
+          criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> \"#{ value }\""
+        end
+      end
+
+      context 'with a native RDF value' do
+        let(:value) {  RDF::URI.new('http://example.com/bob') }
+
+        it 'should construct a sparql snippet with the appropriate predicate' do
+          criteria = resource_criteria.where(label: value)
+          criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> <#{ value.to_s }>"
+        end
       end
     end
   end
