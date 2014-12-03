@@ -190,7 +190,7 @@ describe Tripod::Finders do
     end
 
     it 'should return the first resources of this type' do
-      Person.first.should == ric
+      Person.first.should == bill
     end
   end
 
@@ -205,11 +205,12 @@ describe Tripod::Finders do
     it 'returns an array of resources which match those in the db' do
       res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
       res.length.should == 2
-      res.first.should == ric
-      res.last.should == bill
+      res.first.should == bill
+      res.last.should == ric
 
-      res.first.name.should == "ric"
-      res.first.knows.should == [RDF::URI.new("http://example.com/id/bill")]
+      r = res.last
+      r.name.should == "ric"
+      r.knows.should == [RDF::URI.new("http://example.com/id/bill")]
     end
 
     it 'uses the uri and graph variables if supplied' do

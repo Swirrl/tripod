@@ -97,30 +97,4 @@ module Tripod::SparqlClient
 
   end
 
-  module Data
-    class DataClient
-      def self.submit(graph_uri, data, method)
-        url = "#{Tripod.data_endpoint}?graph=#{graph_uri}"
-        begin
-          RestClient::Request.execute(
-            :method => method,
-            :url => url,
-            :timeout => Tripod.timeout_seconds,
-            :payload => data
-          )
-          true
-        rescue RestClient::BadRequest => e
-          raise Tripod::Errors::BadDataRequest.new(e.http_body, e)
-        end
-      end
-    end
-
-    def self.append(graph_uri, data)
-      DataClient.submit(graph_uri, data, :post)
-    end
-
-    def self.replace(graph_uri, data)
-      DataClient.submit(graph_uri, data, :put)
-    end
-  end
 end
