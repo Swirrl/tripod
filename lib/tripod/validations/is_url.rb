@@ -17,7 +17,7 @@ module Tripod::Validations
       end
       return false unless ['http', 'https', 'mailto'].include?(uri.scheme)
       unless uri.scheme == "mailto"
-        return false unless uri.host && uri.host.split('.').length > 1
+        return false unless uri.host && (uri.host.split('.').length > 1 || uri.host.split('.')[0] == 'localhost')
       end
       true
     end

@@ -27,4 +27,9 @@ describe Tripod::Validations::IsUrlValidator do
     person.father = 'http://bob'
     person.should_not be_valid
   end
+  
+  it "should be valid with a port in the host" do
+    person.father = 'http://localhost:3000/bob'
+    person.should be_valid
+  end
 end
