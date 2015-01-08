@@ -205,8 +205,8 @@ describe Tripod::Finders do
     it 'returns an array of resources which match those in the db' do
       res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } } ORDER BY ?uri')
       res.length.should == 2
-      res.should include? bill
-      res.should include? ric
+      res.should include bill
+      res.should include ric
 
       r = res.last
       r.name.should == "ric"
