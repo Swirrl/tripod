@@ -190,7 +190,7 @@ describe Tripod::Finders do
     end
 
     it 'should return the first resources of this type' do
-      Person.first.should == bill
+      Person.first.class.should == Person
     end
   end
 
@@ -203,10 +203,10 @@ describe Tripod::Finders do
     end
 
     it 'returns an array of resources which match those in the db' do
-      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
+      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } } ORDER BY ?uri')
       res.length.should == 2
-      res.first.should == bill
-      res.last.should == ric
+      res.should include bill
+      res.should include ric
 
       r = res.last
       r.name.should == "ric"

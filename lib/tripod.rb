@@ -23,6 +23,7 @@
 
 require "tripod/version"
 
+require "active_support"
 require "active_support/core_ext"
 require 'active_support/json'
 require "active_support/inflector"
