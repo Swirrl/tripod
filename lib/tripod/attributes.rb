@@ -80,7 +80,7 @@ module Tripod::Attributes
     return if value.blank?
 
     if field.is_uri?
-      uri = RDF::URI.new(value.to_s)
+      uri = RDF::URI.new(value.to_s.strip)
     elsif field.datatype
       RDF::Literal.new(value, :datatype => field.datatype)
     else
