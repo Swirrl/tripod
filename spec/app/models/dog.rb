@@ -14,4 +14,6 @@ class Dog
 
   linked_to :arch_enemy, 'http://example.com/archenemy', class_name: 'Dog'
   linked_to :enemies, 'http://example.com/enemy', class_name: 'Dog'
+
+  embeds :fleas, 'http://example.com/fleas'
 end
