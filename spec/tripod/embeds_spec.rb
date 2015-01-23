@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 describe Tripod::Embeds do
+  let(:uri) { 'http://example.com/id/spot' }
   let(:dog) {
-    d = Dog.new('http://example.com/id/spot')
+    d = Dog.new(uri)
     d.name = "Spot"
     d
   }
@@ -21,6 +22,32 @@ describe Tripod::Embeds do
     dog.fleas << Flea.new
     expect(dog.valid?).to eq(false)
   end
+
+  context 'given a saved instance' do
+    before do
+      dog.fleas << flea
+      dog.save
+    end
+
+    context 'retrieved by uri' do
+      let(:dogg) { Dog.find(uri) }
+
+      it 'should hydrate embedded resources from the triple store' do
+        f = dogg.fleas.first
+        expect(f.name).to eq(flea.name)
+      end
+    end
+
+    context 'retrieved as part of a resource collection' do
+      let(:dogg) { Dog.all.resources.first }
+
+      it 'should hydrate embedded resources from the triple store' do
+        f = dogg.fleas.first
+        expect(f.name).to eq(flea.name)
+      end
+    end
+  end
+
 
   describe 'delete' do
     before do

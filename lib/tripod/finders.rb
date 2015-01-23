@@ -172,14 +172,20 @@ module Tripod::Finders
     def _describe_query_for_select(select_sparql, opts={})
       uri_variable = opts[:uri_variable] || "uri"
       "
-        CONSTRUCT { ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o } 
-        WHERE { 
-          ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .        
+        CONSTRUCT {
+          ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .
+          ?tripod_construct_o ?tripod_construct_ep ?tripod_construct_eo .
+        }
+        WHERE {
+          ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .
+          OPTIONAL {
+            ?tripod_construct_o ?tripod_construct_ep ?tripod_construct_eo .
+          }
           {
             SELECT (?#{uri_variable} as ?tripod_construct_s)
-            { 
-              #{select_sparql} 
-            } 
+            {
+              #{select_sparql}
+            }
           }
         }
       "
@@ -216,6 +222,10 @@ module Tripod::Finders
         data_graph = RDF::Graph.new
         repo.query( [RDF::URI.new(u), :predicate, :object] ) do |statement|
           data_graph << statement
+
+          if statement.object.is_a? RDF::Node
+            repo.query( [statement.object, :predicate, :object] ) {|s| data_graph << s}
+          end
         end
 
         # use it to hydrate this resource

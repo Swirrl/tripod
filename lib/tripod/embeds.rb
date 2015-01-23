@@ -6,7 +6,8 @@ module Tripod::Embeds
   end
 
   def get_embeds(name, predicate, opts)
-    klass = opts.fetch(:class, name.to_s.classify.constantize)
+    klass = opts.fetch(:class, nil)
+    klass ||= (self.class.name.deconstantize + '::' + name.to_s.classify).constantize
     Many.new(klass, predicate, self)
   end
 
