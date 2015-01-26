@@ -109,7 +109,7 @@ module Tripod::Finders
         uris_sparql_str = uris.map{ |u| "<#{u.to_s}>" }.join(" ")
 
         # Do a big describe statement, and read the results into an in-memory repo
-        ntriples_string = Tripod::SparqlClient::Query.query("CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o .  VALUES ?s { #{uris_sparql_str} } }", "application/n-triples")
+        ntriples_string = Tripod::SparqlClient::Query.query("CONSTRUCT { ?s ?p ?o } WHERE { VALUES ?s { #{uris_sparql_str} }.  ?s ?p ?o . }", "application/n-triples")
         graph = _rdf_graph_from_ntriples_string(ntriples_string, graph)
       end
 
@@ -173,14 +173,14 @@ module Tripod::Finders
       uri_variable = opts[:uri_variable] || "uri"
       "
         CONSTRUCT { ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o } 
-        WHERE { 
-          ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .        
+        WHERE {           
           {
             SELECT (?#{uri_variable} as ?tripod_construct_s)
             { 
               #{select_sparql} 
             } 
           }
+          ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o . 
         }
       "
     end
