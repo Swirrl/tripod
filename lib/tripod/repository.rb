@@ -56,7 +56,11 @@ module Tripod::Repository
   end
 
   def retrieve_triples_from_database(accept_header="application/n-triples")
-    Tripod::SparqlClient::Query.query(self.class.all_triples_query(uri, graph_uri: self.graph_uri), accept_header)
+    graph_selector = self.graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
+    Tripod::SparqlClient::Query.query(
+      "CONSTRUCT {<#{uri}> ?p ?o} WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o } }",
+      accept_header
+    )
   end
 
   # returns a graph of triples from the underlying repository where this resource's uri is the subject.
@@ -81,12 +85,6 @@ module Tripod::Repository
       end
 
       repo
-    end
-
-    def all_triples_query(uri, opts={})
-      graph_uri = opts.fetch(:graph_uri, nil)
-      graph_selector = graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
-      "CONSTRUCT {<#{uri}> ?p ?o . ?o ?ep ?eo . } WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o . OPTIONAL { ?o ?ep ?eo } } }"
     end
 
   end

@@ -17,11 +17,9 @@ module Tripod::Components
   include Tripod::Attributes
   include Tripod::Callbacks
   include Tripod::Validations
-  include Tripod::RdfType
   include Tripod::Persistence
   include Tripod::Fields
   include Tripod::Links
-  include Tripod::Embeds
   include Tripod::Finders
   include Tripod::Repository
   include Tripod::EagerLoading

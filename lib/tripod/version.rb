@@ -1,3 +1,3 @@
 module Tripod
-  VERSION = "0.10.6"
+  VERSION = "0.10.3"
 end
