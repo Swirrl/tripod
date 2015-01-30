@@ -112,7 +112,7 @@ describe Tripod::Attributes do
     end
 
     context "where field is given" do
-      let(:field) { Person.send(:field_for, :hat_type, 'http://example.com/hat', {}) }
+      let(:field) { Person.send(:add_field, :hat_type, 'http://example.com/hat') }
 
       it "should derive the predicate name from the given field" do
         person.write_attribute(:hat_type, 'http://example.com/bowlerhat', field)
@@ -121,7 +121,7 @@ describe Tripod::Attributes do
     end
 
     context "where a field of a particular datatype is given" do
-      let(:field) { Person.send(:field_for, :hat_size, 'http://example.com/hatsize', {datatype: RDF::XSD.integer}) }
+      let(:field) { Person.send(:add_field, :hat_size, 'http://example.com/hatsize', {datatype: RDF::XSD.integer}) }
 
       it "should derive the datatype from the given field" do
         person.write_attribute(:hat_size, 10, field)
@@ -130,7 +130,7 @@ describe Tripod::Attributes do
     end
 
     context "where a multi-valued field of a given datatype is given" do
-      let(:field) { Person.send(:field_for, :hat_heights, 'http://example.com/hatheight', {datatype: RDF::XSD.integer, multivalued: true}) }
+      let(:field) { Person.send(:add_field, :hat_heights, 'http://example.com/hatheight', {datatype: RDF::XSD.integer, multivalued: true}) }
 
       it "should co-erce the values passed" do
         person.write_attribute(:hat_heights, [5, 10, 15], field)

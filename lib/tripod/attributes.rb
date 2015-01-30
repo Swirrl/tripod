@@ -23,18 +23,18 @@ module Tripod::Attributes
     field ||= self.class.get_field(name)
 
     attr_values = read_predicate(field.predicate)
-   
+
     if field.multivalued
       # If the field is multivalued, return an array of the results
-      # just return the uri or the value of the literal.  
+      # just return the uri or the value of the literal.
       attr_values.map { |v| field.is_uri? ? v :  v.object }
-    else          
+    else
       # If it's not multivalued, return the first (should be only) result.
-      if field.is_uri?    
+      if field.is_uri?
         attr_values.first
       else
         # try to get it in english if it's there. (TODO: make it configurable what the default is)
-        val = attr_values.select{ |v| v.language == :en }.first || attr_values.first 
+        val = attr_values.select{ |v| v.language == :en }.first || attr_values.first
         val.object if val
       end
     end
@@ -70,6 +70,7 @@ module Tripod::Attributes
       new_val = write_value_for_field(value, field)
     end
 
+    attribute_will_change!(name)
     write_predicate(field.predicate, new_val)
   end
   alias :[]= :write_attribute
