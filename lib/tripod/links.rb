@@ -124,13 +124,16 @@ module Tripod::Links
 
             uris = read_attribute(link.field_name)
 
-            filter_str = "FILTER("
+            filter_str = ""
+            
             if uris.any?
-              filter_str += uris.map {|u| "?uri = <#{u.to_s}>" }.join(" || ")
+              filter_str += " VALUES ?uri { <"
+              filter_str += uris.join("> <")
+              filter_str += "> } "
             else
-              filter_str += "1 = 0"
+              filter_str += "FILTER (1 = 0)"
             end
-            filter_str += ")"
+            
 
             criteria.where(filter_str).resources
           else
