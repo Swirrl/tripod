@@ -91,6 +91,7 @@ module Tripod::Persistence
         end
 
         @new_record = false # if running in a trans, just assume it worked. If the query is dodgy, it will throw an exception later.
+        post_persist
         true
       else
         false

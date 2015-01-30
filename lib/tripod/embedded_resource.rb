@@ -7,6 +7,7 @@ module Tripod::EmbeddedResource
   include Tripod::Attributes
   include Tripod::Validations
   include Tripod::Fields
+  include Tripod::Dirty
   include Tripod::RdfType
 
   attr_reader :uri

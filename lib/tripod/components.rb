@@ -22,6 +22,7 @@ module Tripod::Components
   include Tripod::Fields
   include Tripod::Links
   include Tripod::Embeds
+  include Tripod::Dirty
   include Tripod::Finders
   include Tripod::Repository
   include Tripod::EagerLoading

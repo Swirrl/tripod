@@ -58,7 +58,7 @@ module Tripod::Fields
     # Define a field attribute for the +Resource+.
     #
     # @example Set the field.
-    #   Person.add_field(:name, :predicate => 'http://myfield')
+    #   Person.add_field(:name, 'http://myfield')
     #
     # @param [ Symbol ] name The name of the field.
     # @param [ String, RDF::URI ] predicate The predicate for the field.
@@ -95,6 +95,9 @@ module Tripod::Fields
       create_field_getter(name, meth, field)
       create_field_setter(name, meth, field)
       create_field_check(name, meth, field)
+
+      # from dirty.rb
+      create_dirty_methods(name, meth)
     end
 
     # Create the getter method for the provided field.
