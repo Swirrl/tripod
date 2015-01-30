@@ -26,6 +26,10 @@ module Tripod::Embeds
       # use this as a way to get to all the embedded properties for validation
       @_EMBEDDED ||= []
       @_EMBEDDED << name
+
+      # add statements to our hydrate query so the repository is populated appropriately
+      append_to_hydrate_construct ->(u) { "#{ u } <#{ predicate.to_s }> ?es . ?es ?ep ?eo ." }
+      append_to_hydrate_where ->(u) { "OPTIONAL { #{ u } <#{ predicate.to_s }> ?es . ?es ?ep ?eo . }" }
     end
 
     def get_embedded

@@ -83,10 +83,31 @@ module Tripod::Repository
       repo
     end
 
+    def append_to_hydrate_construct(statement)
+      @construct_statements ||= []
+      @construct_statements << statement
+    end
+
+    def append_to_hydrate_where(statement)
+      @where_statements ||= []
+      @where_statements << statement
+    end
+
     def all_triples_query(uri, opts={})
       graph_uri = opts.fetch(:graph_uri, nil)
       graph_selector = graph_uri.present? ? "<#{graph_uri.to_s}>" : "?g"
-      "CONSTRUCT {<#{uri}> ?p ?o . ?o ?ep ?eo . } WHERE { GRAPH #{graph_selector} { <#{uri}> ?p ?o . OPTIONAL { ?o ?ep ?eo } } }"
+      uri_selector = "<#{uri}>"
+      "CONSTRUCT { #{uri_selector} ?p ?o . #{ all_triples_construct(uri_selector) } } WHERE { GRAPH #{graph_selector} { #{uri_selector} ?p ?o . #{ all_triples_where(uri_selector) } } }"
+    end
+
+    def all_triples_construct(uri)
+      extra_construct = @construct_statements.map{|s| s.call(uri) }.join if @construct_statements.present?
+      extra_construct || ''
+    end
+
+    def all_triples_where(uri)
+      extra_where = @where_statements.map{|s| s.call(uri) }.join if @where_statements.present?
+      extra_where || ''
     end
 
   end

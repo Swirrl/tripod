@@ -174,13 +174,11 @@ module Tripod::Finders
       "
         CONSTRUCT {
           ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .
-          ?tripod_construct_o ?tripod_construct_ep ?tripod_construct_eo .
+          #{ all_triples_construct('?tripod_construct_s') }
         }
         WHERE {
           ?tripod_construct_s ?tripod_construct_p ?tripod_construct_o .
-          OPTIONAL {
-            ?tripod_construct_o ?tripod_construct_ep ?tripod_construct_eo .
-          }
+          #{ all_triples_where('?tripod_construct_s') }
           {
             SELECT (?#{uri_variable} as ?tripod_construct_s)
             {
