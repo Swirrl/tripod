@@ -49,6 +49,9 @@ module Tripod
   mattr_accessor :data_endpoint
   @@data_endpoint = 'http://127.0.0.1:3030/tripod/data'
 
+  mattr_accessor :extra_endpoint_params
+  @@extra_endpoint_params = {}
+
   mattr_accessor :timeout_seconds
   @@timeout_seconds = 30
 

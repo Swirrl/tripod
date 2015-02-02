@@ -16,7 +16,9 @@ module Tripod::SparqlClient
     # @return [ RestClient::Response ]
     def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default)
 
-      params = {:query => sparql}.merge(extra_params).to_query
+      non_sparql_params = (Tripod.extra_endpoint_params).merge(extra_params)
+      params_hash = {:query => sparql}.merge(non_sparql_params)
+      params = self.to_query(params_hash)
       request_url = Tripod.query_endpoint
       streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
       streaming_opts.merge!(_response_limit_options(response_limit_bytes)) if Tripod.response_limit_bytes
@@ -25,8 +27,8 @@ module Tripod::SparqlClient
       stream_data = -> {
         Tripod.logger.debug "TRIPOD: About to run query: #{sparql}"
         Tripod.logger.debug "TRIPOD: Streaming from url: #{request_url}"
+        Tripod.logger.debug "TRIPOD: non sparql params #{non_sparql_params.to_s}"
         Tripod.logger.debug "TRIPOD: Streaming opts: #{streaming_opts.inspect}"
-
         Tripod::Streaming.get_data(request_url, params, streaming_opts)
       }
 
@@ -41,6 +43,20 @@ module Tripod::SparqlClient
         stream_data.call()
       end
 
+    end
+
+    # Tripod helper to turn a hash to a query string, allowing multiple params in arrays
+    # e.g. :query=>'foo', :graph=>['bar', 'baz'] 
+    #  -> query=foo&graph=bar&graph=baz
+    # based on the ActiveSupport implementation, but with different behaviour for arrays
+    def self.to_query hash
+      hash.collect_concat do |key, value|
+        if value.class == Array
+          value.collect { |v| v.to_query( key ) }
+        else
+          value.to_query(key)
+        end
+      end.sort * '&'
     end
 
     # Runs a SELECT +query+ against the endpoint. Returns a Hash of the results.

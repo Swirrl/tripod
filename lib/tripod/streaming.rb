@@ -49,8 +49,13 @@ module Tripod
             total_request_time = Time.now - request_start_time
           end
 
-          Tripod.logger.debug "TRIPOD: #{total_bytes} bytes streamed in: #{stream_duration} secs"
-          Tripod.logger.debug "TRIPOD: total request time: #{total_request_time} secs"
+          if Tripod.logger.debug?
+            Tripod.logger.debug "TRIPOD: #{total_bytes} bytes streamed in: #{stream_duration} secs"          
+            time_str = "TRIPOD: total request time: #{total_request_time} secs" 
+            time_str += "!!! SLOW !!! " if total_request_time >= 1.0
+            Tripod.logger.debug time_str
+          end
+          
         end
       rescue Timeout::Error => timeout
         raise Tripod::Errors::Timeout.new
