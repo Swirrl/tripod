@@ -161,8 +161,8 @@ module Tripod::Finders
     def _create_and_hydrate_resources_from_sparql(select_sparql, opts={})
       # TODO: Optimization?: if return_graph option is false, then don't do this next line?
       uris_and_graphs = _select_uris_and_graphs(select_sparql, :uri_variable => opts[:uri_variable], :graph_variable => opts[:graph_variable])
-      ntriples_string = _raw_describe_select_results(select_sparql, :uri_variable => opts[:uri_variable]) # this defaults to ntriples
-      graph = _rdf_graph_from_ntriples_string(ntriples_string, graph=nil)
+      construct_query = _construct_query_for_uris_and_graphs(uris_and_graphs)
+      graph = _graph_of_triples_from_construct_or_describe(construct_query)
       _resources_from_graph(graph, uris_and_graphs)
     end
 
@@ -184,6 +184,19 @@ module Tripod::Finders
           #{ all_triples_where('?tripod_construct_s') }
         }
       "
+    end
+
+    # Generate a CONSTRUCT query for the given uri and graph pairs.
+    def _construct_query_for_uris_and_graphs(uris_and_graphs)
+      query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE {"
+      clauses = uris_and_graphs.each_pair.map do |u, g|
+        clause = " { GRAPH "
+        clause += g ? "<#{g}>" : "?graph"
+        clause += " { <#{u}> ?p ?o. #{ self.all_triples_where("<#{u}>") } BIND (<#{u}> AS ?uri) }}"
+        clause
+      end
+      query += clauses.join(" UNION ")
+      query + "}"
     end
 
     # For a select query, get a raw serialisation of the DESCRIPTION of the resources from the database.

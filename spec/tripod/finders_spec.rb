@@ -14,6 +14,13 @@ describe Tripod::Finders do
     b.name = "bill"
     b
   end
+  
+  let!(:john) do
+    j = Person.new('http://example.com/id/john', 'http://example.com/another_graph')
+    j.name = "john"
+    j
+  end
+
 
   describe '.find' do
 
@@ -200,11 +207,12 @@ describe Tripod::Finders do
       # save these into the db
       bill.save!
       ric.save!
+      john.save!
     end
 
     it 'returns an array of resources which match those in the db' do
       res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } } ORDER BY ?uri')
-      res.length.should == 2
+      res.length.should == 3
       res.should include bill
       res.should include ric
 
@@ -215,13 +223,28 @@ describe Tripod::Finders do
 
     it 'uses the uri and graph variables if supplied' do
       res = Person.find_by_sparql('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
-      res.length.should == 2
+      res.length.should == 3
     end
 
     it "returns non-new records" do
       res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
       res.first.new_record?.should be false
     end
+
+    it "extracts resources from specified graph" do
+      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH <http://example.com/graph> { ?uri ?p ?o  } }')
+      res.length.should == 2
+    end
+
+    it "extracts resources from different graphs" do
+      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { 
+                                  { GRAPH <http://example.com/graph> { ?uri ?p ?o  } }
+                                    UNION
+                                  { GRAPH <http://example.com/another_graph> { ?uri ?p ?o } }
+                                  }')
+      res.length.should == 3
+    end 
+
 
   end
 
