@@ -188,15 +188,12 @@ module Tripod::Finders
 
     # Generate a CONSTRUCT query for the given uri and graph pairs.
     def _construct_query_for_uris_and_graphs(uris_and_graphs)
-      query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE {"
-      clauses = uris_and_graphs.each_pair.map do |u, g|
-        clause = " { GRAPH "
-        clause += g ? "<#{g}>" : "?graph"
-        clause += " { <#{u}> ?p ?o. #{ self.all_triples_where("<#{u}>") } BIND (<#{u}> AS ?uri) }}"
-        clause
+      value_pairs = uris_and_graphs.map do |(uri, graph)|
+        u = RDF::URI.new(uri).to_base
+        g = graph ? RDF::URI.new(graph).to_base : 'UNDEF'
+        "(#{u} #{g})"
       end
-      query += clauses.join(" UNION ")
-      query + "}"
+      query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE { GRAPH ?g { ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES (?uri ?g) { #{ value_pairs.join(' ') } } } }"
     end
 
     # For a select query, get a raw serialisation of the DESCRIPTION of the resources from the database.
@@ -220,7 +217,7 @@ module Tripod::Finders
       # uris from the graph, and just not create the resoruces with a graph
       # (but they won't be persistable).
 
-      uris_and_graphs.each_pair do |u,g|
+      uris_and_graphs.each do |(u,g)|
 
         # instantiate a new resource
         g ||= {}
@@ -245,7 +242,7 @@ module Tripod::Finders
       resources
     end
 
-    # based on the query passed in, build a hash of uris->graphs
+    # based on the query passed in, build an array of [uri, graph] pairs
     # @param [ String] sparql. The sparql query
     # @param [ Hash ] opts. A hash of options.
     #
@@ -254,16 +251,15 @@ module Tripod::Finders
     def _select_uris_and_graphs(sparql, opts={})
       select_results = Tripod::SparqlClient::Query.select(sparql)
 
-      uris_and_graphs = {}
+      uri_variable = opts[:uri_variable] || 'uri'
+      graph_variable = opts[:graph_variable] || 'graph'
 
-      select_results.each do |r|
-        uri_variable = opts[:uri_variable] || 'uri'
-        graph_variable = opts[:graph_variable] || 'graph'
-        graph_value = r[graph_variable]["value"] if r[graph_variable]
-        uris_and_graphs[ r[uri_variable]["value"] ] = graph_value || nil
+      select_results.reduce([]) do |memo, result|
+        u = result[uri_variable]['value']
+        g = result[graph_variable]['value'] if result[graph_variable]
+        memo << [u, g]
+        memo
       end
-
-      uris_and_graphs
     end
 
   end
