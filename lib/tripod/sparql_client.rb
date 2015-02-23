@@ -46,7 +46,7 @@ module Tripod::SparqlClient
     end
 
     # Tripod helper to turn a hash to a query string, allowing multiple params in arrays
-    # e.g. :query=>'foo', :graph=>['bar', 'baz'] 
+    # e.g. :query=>'foo', :graph=>['bar', 'baz']
     #  -> query=foo&graph=bar&graph=baz
     # based on the ActiveSupport implementation, but with different behaviour for arrays
     def self.to_query hash
@@ -93,13 +93,12 @@ module Tripod::SparqlClient
     #
     # @return [ true ]
     def self.update(sparql)
-
       begin
         RestClient::Request.execute(
           :method => :post,
           :url => Tripod.update_endpoint,
           :timeout => Tripod.timeout_seconds,
-          :payload => sparql,
+          :payload => { update: sparql }.merge(Tripod.extra_endpoint_params),
           :headers => {
             :content_type => 'application/sparql-update'
           }
