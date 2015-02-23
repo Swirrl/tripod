@@ -15,6 +15,13 @@ describe Tripod::Finders do
     b
   end
 
+  let!(:john) do
+    j = Person.new('http://example.com/id/john', 'http://example.com/another_graph')
+    j.name = "john"
+    j
+  end
+
+
   describe '.find' do
 
     before do
@@ -196,34 +203,65 @@ describe Tripod::Finders do
 
   describe '.find_by_sparql' do
 
-    before do
-      # save these into the db
-      bill.save!
-      ric.save!
+    before { [bill, ric, john].each(&:save!) }
+
+    context 'given a simple SELECT query, returning uri and graph' do
+      let(:query) { 'SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }' }
+
+      it 'returns an array of matching resources' do
+        res = Person.find_by_sparql(query)
+        res.should =~ [bill, ric, john]
+      end
     end
 
-    it 'returns an array of resources which match those in the db' do
-      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } } ORDER BY ?uri')
-      res.length.should == 2
-      res.should include bill
-      res.should include ric
+    context 'given a simple SELECT query, returning uri only' do
+      let(:query) { 'SELECT DISTINCT ?uri WHERE { ?uri ?p ?o }' }
 
-      r = res.last
-      r.name.should == "ric"
-      r.knows.should == [RDF::URI.new("http://example.com/id/bill")]
+      it 'returns an array of matching resources' do
+        res = Person.find_by_sparql(query)
+        res.should =~ [bill, ric, john]
+      end
     end
 
-    it 'uses the uri and graph variables if supplied' do
-      res = Person.find_by_sparql('SELECT ?bob ?geoff WHERE { GRAPH ?geoff { ?bob ?p ?o } }', :uri_variable => 'bob', :graph_variable => 'geoff')
-      res.length.should == 2
+    context 'given a SELECT query and named uri and graph variables' do
+      let(:query) { 'SELECT DISTINCT ?x ?y WHERE { GRAPH ?y { ?x ?p ?o } }' }
+      let(:opts) { {:uri_variable => 'x', :graph_variable => 'y'} }
+
+      it 'returns an array of matching resources' do
+        res = Person.find_by_sparql(query, opts)
+        res.should =~ [bill, ric, john]
+      end
     end
 
-    it "returns non-new records" do
-      res = Person.find_by_sparql('SELECT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o } }')
-      res.first.new_record?.should be false
+    context 'given a SELECT query containing a graph restriction' do
+      let(:query) { 'SELECT DISTINCT ?uri ?graph WHERE { GRAPH <http://example.com/graph> { ?uri ?p ?o  } }' }
+
+      it 'only returns matching resources' do
+        res = Person.find_by_sparql(query)
+        res.should =~ [bill, ric]
+      end
     end
 
+    context 'given a SELECT query containing multiple graph restrictions' do
+      let(:query) { 'SELECT DISTINCT ?uri ?graph WHERE {
+                     { GRAPH <http://example.com/graph> { ?uri ?p ?o } }
+                       UNION
+                     { GRAPH <http://example.com/another_graph> { ?uri ?p ?o } }
+                     }' }
+
+      it "should return matching resources" do
+        res = Person.find_by_sparql(query)
+        res.should =~ [bill, ric, john]
+      end
+    end
+
+    context 'given a SELECT query which returns no resources' do
+      let(:query) { 'SELECT ?uri WHERE { ?uri ?p ?o . <http://example.com/minotaur> ?p ?o . }' }
+
+      it 'returns an empty array' do
+        res = Person.find_by_sparql(query)
+        res.empty?.should == true
+      end
+    end
   end
-
-
 end
