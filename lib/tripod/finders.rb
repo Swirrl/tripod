@@ -196,11 +196,6 @@ module Tripod::Finders
 
     # Generate a CONSTRUCT query for the given uri and graph pairs.
     def _construct_query_for_uris_and_graphs(uris_and_graphs)
-      # value_pairs = uris_and_graphs.map do |(uri, graph)|
-      #   u = RDF::URI.new(uri).to_base
-      #   g = graph ? RDF::URI.new(graph).to_base : 'UNDEF'
-      #   "(#{u} #{g})"
-      # end
 
       uris_with_no_graph = uris_and_graphs.select {|(uri, graph)| graph.blank? }.map {|(uri, graph)| RDF::URI.new(uri).to_base }
       with_graphs = uris_and_graphs.select {|(uri, graph)| graph.present? }
@@ -224,8 +219,6 @@ module Tripod::Finders
           #{to_union.join(' UNION ')}
         }
       "
-
-      #query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE { GRAPH ?g { ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES (?uri ?g) { #{ value_pairs.join(' ') } } } }"
     end
 
     # For a select query, get a raw serialisation of the DESCRIPTION of the resources from the database.
