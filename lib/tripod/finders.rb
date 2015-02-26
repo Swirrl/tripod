@@ -186,38 +186,31 @@ module Tripod::Finders
       "
     end
 
-    def _construct_query_union_contents(uris)
-      "
-      ?uri ?p ?o .
-      #{ self.all_triples_where("?uri") }
-      VALUES ?uri { #{uris.join(' ')} }
-      "
-    end
-
     # Generate a CONSTRUCT query for the given uri and graph pairs.
     def _construct_query_for_uris_and_graphs(uris_and_graphs)
+      no_graph, with_graph = uris_and_graphs.partition{ |(uri, graph)| graph.blank? }
 
-      uris_with_no_graph = uris_and_graphs.select {|(uri, graph)| graph.blank? }.map {|(uri, graph)| RDF::URI.new(uri).to_base }
-      with_graphs = uris_and_graphs.select {|(uri, graph)| graph.present? }
-      grouped_by_graphs = with_graphs.group_by {|(uri, graph)| graph } # => produces hash with graphs as keys, and nested array as values
-      to_union = []
-
-      # query uris with no graph
-      to_union << "{ #{_construct_query_union_contents(uris_with_no_graph)} }" if uris_with_no_graph.any?
-
-      grouped_by_graphs.each_pair do |graph, uri_graph_pair|
-        g = RDF::URI.new(graph).to_base
-        uris = uri_graph_pair.map{|(uri, graph)| RDF::URI.new(uri).to_base }
-        to_union << "{ GRAPH #{g} { #{_construct_query_union_contents(uris)} } }"
+      uris = no_graph.map{|(uri, _)| RDF::URI.new(uri) }
+      graphs_and_uris = with_graph.reduce({}) do |memo, (u, g)|
+        uri = RDF::URI.new(u)
+        graph = RDF::URI.new(g)
+        memo[graph] ||= []
+        memo[graph] << uri
+        memo
       end
 
-      query = "
+      tripleizer = ->(uris) { "{ ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES ?uri { #{ uris.map(&:to_base).join(' ') } } }" }
+
+      uri_triples = uris.map{|uri| tripleizer.call([uri]) }
+      graph_and_uri_triples = graphs_and_uris.map do |(graph, uris)|
+        "{ GRAPH #{ graph.to_base } #{ tripleizer.call(uris) } }"
+      end
+
+      "
         CONSTRUCT {
           ?uri ?p ?o .
           #{ self.all_triples_construct("?uri") }
-        } WHERE {
-          #{to_union.join(' UNION ')}
-        }
+        } WHERE { #{ (uri_triples + graph_and_uri_triples).join(' UNION ') } }
       "
     end
 
