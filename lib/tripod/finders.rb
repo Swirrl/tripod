@@ -186,11 +186,11 @@ module Tripod::Finders
       "
     end
 
-    def _construct_query_union_contents(uris)
+    def _construct_query_union_contents(uris, suffix)
       "
-      ?uri ?p ?o .
-      #{ self.all_triples_where("?uri") }
-      VALUES ?uri { #{uris.join(' ')} }
+      ?uri_#{suffix} ?p_#{suffix} ?o_#{suffix} .
+      #{ self.all_triples_where("?uri_#{suffix}") }
+      VALUES ?uri_#{suffix} { #{uris.join(' ')} }
       "
     end
 
@@ -201,20 +201,26 @@ module Tripod::Finders
       with_graphs = uris_and_graphs.select {|(uri, graph)| graph.present? }
       grouped_by_graphs = with_graphs.group_by {|(uri, graph)| graph } # => produces hash with graphs as keys, and nested array as values
       to_union = []
+      to_construct = []
 
       # query uris with no graph
-      to_union << "{ #{_construct_query_union_contents(uris_with_no_graph)} }" if uris_with_no_graph.any?
+      to_union << "{ #{_construct_query_union_contents(uris_with_no_graph, "no_graph")} }" if uris_with_no_graph.any?
+
+      i = 0
 
       grouped_by_graphs.each_pair do |graph, uri_graph_pair|
         g = RDF::URI.new(graph).to_base
         uris = uri_graph_pair.map{|(uri, graph)| RDF::URI.new(uri).to_base }
-        to_union << "{ GRAPH #{g} { #{_construct_query_union_contents(uris)} } }"
+        to_union << "{ GRAPH #{g} { #{_construct_query_union_contents(uris, i)} } }"
+        to_construct << "?uri_#{i} ?p_#{i} ?o_#{i}"
+        all_triples = "#{ self.all_triples_construct("?uri_#{i}") }"
+        to_construct << all_triples unless all_triples.blank?
+        i+=1
       end
 
       query = "
         CONSTRUCT {
-          ?uri ?p ?o .
-          #{ self.all_triples_construct("?uri") }
+          #{to_construct.join(". ")}
         } WHERE {
           #{to_union.join(' UNION ')}
         }
