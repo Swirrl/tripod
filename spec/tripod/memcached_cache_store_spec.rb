@@ -1,9 +1,10 @@
 require "spec_helper"
+require 'tripod/http/content_type'
 
 describe Tripod::CacheStores, :caching_tests => true do
 
   let(:query) { "SELECT * WHERE {?s ?p ?o}" }
-  let(:accept_header) { "application/sparql-results+json" }
+  let(:accept_header) { Tripod::Http::ContentType.NTriples }
   let(:params) { {:query => query}.to_query }
   let(:streaming_opts) { {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds} }
 

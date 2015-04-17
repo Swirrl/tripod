@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'tripod/http/content_type'
 
 describe Tripod::Streaming do
 
@@ -32,8 +33,8 @@ describe Tripod::Streaming do
 
     context "with an accept header option" do
       it "should use that header for the request " do
-        stub_http_request(:post, url).with(:body => query, :headers => {'Accept' => "application/json"})
-        Tripod::Streaming.get_data(url, query, :accept => 'application/json')
+        stub_http_request(:post, url).with(:body => query, :headers => {'Accept' => Tripod::Http::ContentType.JSON})
+        Tripod::Streaming.get_data(url, query, :accept => Tripod::Http::ContentType.JSON)
       end
     end
 

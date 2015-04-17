@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'tripod/http/content_type'
+
 module Tripod
 
   # class that wraps a collection of resources, and allows them to be serialized
@@ -53,10 +55,10 @@ module Tripod
     def to_nt
       time_serialization('nt') do
         if @criteria
-          @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/n-triples")
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => Tripod::Http::ContentType.NTriples)
         elsif @sparql_query_str && @resource_class
           # run the query as a describe.
-          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => "application/n-triples")
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => Tripod::Http::ContentType.NTriples)
         else
           # for n-triples we can just concatenate them
           nt = ""
@@ -78,10 +80,10 @@ module Tripod
     def to_rdf
       time_serialization('rdf') do
         if @criteria
-          @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/rdf+xml")
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => Tripod::Http::ContentType.RDFXml)
         elsif @sparql_query_str && @resource_class
           # run the query as a describe.
-          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => "application/rdf+xml")
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => Tripod::Http::ContentType.RDFXml)
         else
           get_graph.dump(:rdf)
         end
@@ -91,10 +93,10 @@ module Tripod
     def to_ttl
       time_serialization('ttl') do
         if @criteria
-          @criteria.serialize(:return_graph => @return_graph, :accept_header => "text/turtle")
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => Tripod::Http::ContentType.Turtle)
         elsif @sparql_query_str && @resource_class
           # run the query as a describe.
-          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header =>"text/turtle")
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => Tripod::Http::ContentType.Turtle)
         else
           get_graph.dump(:turtle)
         end
