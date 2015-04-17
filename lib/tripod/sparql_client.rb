@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'tripod/http/content_type'
+
 # this module is responsible for connecting to an http sparql endpoint
 module Tripod::SparqlClient
 
@@ -68,7 +70,7 @@ module Tripod::SparqlClient
     #
     # @return [ Hash, String ]
     def self.select(query)
-      query_response = self.query(query, "application/sparql-results+json")
+      query_response = self.query(query, Tripod::Http::ContentType.SPARQLResultsJSON)
       JSON.parse(query_response)["results"]["bindings"]
     end
 
@@ -100,7 +102,7 @@ module Tripod::SparqlClient
           :timeout => Tripod.timeout_seconds,
           :payload => { update: sparql }.merge(Tripod.extra_endpoint_params),
           :headers => {
-            :content_type => 'application/sparql-update'
+            :content_type => Tripod::Http::ContentType.SPARQLUpdate
           }
         )
         true

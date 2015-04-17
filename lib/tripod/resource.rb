@@ -31,7 +31,7 @@ module Tripod::Resource
   #   Person.new('http://swirrl.com/ric.rdf#me', 'http://swirrl.com/graph/people')
   #
   # @param [ String, RDF::URI ] uri The uri of the resource.
-  # @param [ Hash, String, RDF::URI ] opts An options hash (see above), or the graph_uri where this resource will be saved to. If graph URI is ommitted and can't be derived from the object's class, this resource cannot be persisted.
+  # @param [ Hash, String, RDF::URI ] opts An options hash (see above), or the graph_uri where this resource will be saved to. If graph URI is omitted and can't be derived from the object's class, this resource cannot be persisted.
   #
   # @return [ Resource ] A new +Resource+
   def initialize(uri, opts={})

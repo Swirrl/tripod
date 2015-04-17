@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'tripod/http/content_type'
+
 # This module wraps access to an RDF::Repository
 module Tripod::Repository
   extend ActiveSupport::Concern
@@ -55,7 +57,7 @@ module Tripod::Repository
     g
   end
 
-  def retrieve_triples_from_database(accept_header="application/n-triples")
+  def retrieve_triples_from_database(accept_header=Tripod::Http::ContentType.NTriples)
     Tripod::SparqlClient::Query.query(self.class.all_triples_query(uri, graph_uri: self.graph_uri), accept_header)
   end
 

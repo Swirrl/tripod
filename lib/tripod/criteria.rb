@@ -55,7 +55,7 @@ module Tripod
     end
 
     # takes a string and adds an extra clause to this criteria.
-    # e.g. my_criteria.extras("LIMIT 10 OFFSET 20").extrass
+    # e.g. my_criteria.extras("LIMIT 10 OFFSET 20").extras
     #
     # TODO: make it also take a hash?
     def extras(sparql_snippet)
@@ -81,7 +81,7 @@ module Tripod
       self
     end
 
-    # Restrict htis query to the graph uri passed in
+    # Restrict this query to the graph uri passed in
     #
     # @example .graph(RDF::URI.new('http://graphoid')
     # @example .graph('http://graphoid')

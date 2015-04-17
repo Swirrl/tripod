@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'tripod/http/content_type'
 
 describe Tripod::Serialization do
 
@@ -18,19 +19,19 @@ describe Tripod::Serialization do
   shared_examples_for "a serialisable resource" do
     describe "#to_rdf" do
       it "should get the data from the database as rdf/xml" do
-        person.to_rdf.should == person.retrieve_triples_from_database(accept_header="application/rdf+xml")
+        person.to_rdf.should == person.retrieve_triples_from_database(accept_header=Tripod::Http::ContentType.RDFXml)
       end
     end
 
     describe "#to_ttl" do
       it "should get the data from the database as text/turtle" do
-        person.to_ttl.should == person.retrieve_triples_from_database(accept_header="text/turtle")
+        person.to_ttl.should == person.retrieve_triples_from_database(accept_header=Tripod::Http::ContentType.Turtle)
       end
     end
 
     describe "#to_nt" do
       it "should get the data from the database as application/n-triples" do
-        person.to_nt.should == person.retrieve_triples_from_database(accept_header="application/n-triples")
+        person.to_nt.should == person.retrieve_triples_from_database(accept_header=Tripod::Http::ContentType.NTriples)
       end
     end
 
