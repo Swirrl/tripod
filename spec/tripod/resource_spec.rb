@@ -52,4 +52,45 @@ describe Tripod::Resource do
       end
     end
   end
+
+  describe "#<=>" do
+
+    let(:person) do
+      Person.new('http://example.com/foobar', :graph_uri => 'http://example.com/foobar/graph')
+    end
+
+    let(:person_two) do
+      Person.new('http://example.com/foobay', :graph_uri => 'http://example.com/foobar/graph')
+    end
+
+    let(:person_three) do
+      Person.new('http://example.com/foobaz', :graph_uri => 'http://example.com/foobar/graph')
+    end
+
+    it "should sort the resources" do
+      [person_two, person_three, person].sort { |a,b| a <=> b }.should eq [person, person_two, person_three]
+    end
+
+  end
+
+  describe "#==" do
+
+    let(:person) do
+      Person.new('http://example.com/foobar', :graph_uri => 'http://example.com/foobar/graph')
+    end
+
+    let(:person_two) do
+      Person.new('http://example.com/foobay', :graph_uri => 'http://example.com/foobar/graph')
+    end
+
+    it "correctly identifies the same resource" do
+      (person == person).should be true
+    end
+
+    it "identifies two instances of the same class" do
+      person.class.name.should == person_two.class.name
+      (person == person_two).should be false
+    end
+
+  end
 end

@@ -56,7 +56,7 @@ module Tripod::Resource
 
   # default comparison is via the uri
   def <=>(other)
-    uri.to_s <=> uri.to_s
+    uri.to_s <=> other.uri.to_s
   end
 
   # performs equality checking on the uris
