@@ -3,7 +3,7 @@ module Tripod
     module ContentType
       class << self
         def NTriples;
-          'application/n-triples'
+          'text/plain'
         end
 
         def Turtle
