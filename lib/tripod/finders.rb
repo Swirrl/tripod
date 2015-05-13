@@ -195,6 +195,7 @@ module Tripod::Finders
         g = graph ? RDF::URI.new(graph).to_base : 'UNDEF'
         "(#{u} #{g})"
       end
+      value_pairs = ["(0 0)"] if value_pairs.empty?  # hack for Stardog, otherwise: com.complexible.stardog.plan.eval.ExecutionException: There was an error while creating a new query plan
       query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE { GRAPH ?g { ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES (?uri ?g) { #{ value_pairs.join(' ') } } } }"
     end
 
