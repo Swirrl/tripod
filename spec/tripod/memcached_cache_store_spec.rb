@@ -4,7 +4,7 @@ require 'tripod/http/content_type'
 describe Tripod::CacheStores, :caching_tests => true do
 
   let(:query) { "SELECT * WHERE {?s ?p ?o}" }
-  let(:accept_header) { Tripod::Http::ContentType.NTriples }
+  let(:accept_header) { Tripod::Http::ContentType.SPARQLResultsJSON }
   let(:params) { {:query => query}.to_query }
   let(:streaming_opts) { {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds} }
 
@@ -29,7 +29,7 @@ describe Tripod::CacheStores, :caching_tests => true do
       @stream_data = -> { Tripod::Streaming.get_data(Tripod.query_endpoint, params, streaming_opts) }
     end
 
-    it "should set the data in the cache" do 
+    it "should set the data in the cache" do
       Tripod.cache_store.fetch(@cache_key, &@stream_data).should_not be_nil
     end
 
