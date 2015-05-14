@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'tripod/http/content_type'
-
 # this module is responsible for connecting to an http sparql endpoint
 module Tripod::SparqlClient
 

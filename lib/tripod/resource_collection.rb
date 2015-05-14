@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'tripod/http/content_type'
-
 module Tripod
 
   # class that wraps a collection of resources, and allows them to be serialized

@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'tripod/http/content_type'
-
 # This module defines behaviour for finders.
 module Tripod::Finders
   extend ActiveSupport::Concern

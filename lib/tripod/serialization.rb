@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'tripod/http/content_type'
-
 module Tripod::Serialization
   extend ActiveSupport::Concern
 

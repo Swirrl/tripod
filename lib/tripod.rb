@@ -86,6 +86,7 @@ end
 
 require 'tripod/cache_stores/memcached_cache_store'
 
+require "tripod/http/content_type"
 require "tripod/extensions"
 require "tripod/streaming"
 require "tripod/sparql_client"

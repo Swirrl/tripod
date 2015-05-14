@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'tripod/http/content_type'
-
 # This module wraps access to an RDF::Repository
 module Tripod::Repository
   extend ActiveSupport::Concern
