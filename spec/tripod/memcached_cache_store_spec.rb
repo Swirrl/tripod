@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'tripod/http/content_type'
 
 describe Tripod::CacheStores, :caching_tests => true do
 
