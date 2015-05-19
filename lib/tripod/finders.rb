@@ -161,9 +161,15 @@ module Tripod::Finders
     def _create_and_hydrate_resources_from_sparql(select_sparql, opts={})
       # TODO: Optimization?: if return_graph option is false, then don't do this next line?
       uris_and_graphs = _select_uris_and_graphs(select_sparql, :uri_variable => opts[:uri_variable], :graph_variable => opts[:graph_variable])
-      construct_query = _construct_query_for_uris_and_graphs(uris_and_graphs)
-      graph = _graph_of_triples_from_construct_or_describe(construct_query)
-      _resources_from_graph(graph, uris_and_graphs)
+
+      #there are no resources if there are no uris and graphs
+      if uris_and_graphs.empty?
+        []
+      else
+        construct_query = _construct_query_for_uris_and_graphs(uris_and_graphs)
+        graph = _graph_of_triples_from_construct_or_describe(construct_query)
+        _resources_from_graph(graph, uris_and_graphs)
+      end
     end
 
     # For a select query, generate a query which DESCRIBES all the results
