@@ -41,7 +41,7 @@ module Tripod::Finders
         graph_uri ||= self.get_graph_uri
         unless graph_uri
           # do a quick select to see what graph to use.
-          select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
+          select_query = "SELECT * WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
           result = Tripod::SparqlClient::Query.select(select_query)
           if result.length > 0
             graph_uri = result[0]["g"]["value"]
