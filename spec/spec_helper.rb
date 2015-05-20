@@ -23,6 +23,7 @@ RSpec.configure do |config|
     # Tripod::SparqlClient::Update.update('
     #   DELETE {graph ?g {?s ?p ?o}} WHERE {graph ?g {?s ?p ?o}};
     # ')
+    Tripod::SparqlClient::Update.update('drop default')
     Tripod::SparqlClient::Update.update('drop all')
   end
 

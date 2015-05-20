@@ -106,8 +106,7 @@ describe Tripod::Links do
 
         rover.friends.length.should == 2
 
-        rover.friends.to_a.first.uri.should == fido.uri
-        rover.friends.to_a.last.uri.should == spot.uri
+        rover.friends.map {|f| f.uri}.should =~ [fido.uri, spot.uri]
       end
 
       it "creates field getters and setters with the _uris suffix" do
