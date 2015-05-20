@@ -90,7 +90,7 @@ module Tripod::Finders
     # execute a query to return all objects (restricted by this class's rdf_type if specified)
     # returns a criteria object
     def all
-      where('?uri ?p ?o')
+      Tripod::Criteria.new(self)
     end
 
     def count

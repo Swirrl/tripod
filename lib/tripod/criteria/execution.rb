@@ -70,7 +70,7 @@ module Tripod
         select_query += "GRAPH <#{graph_uri}> { " if graph_uri
       end
 
-      select_query += self.where_clauses.join(" . ")
+      select_query += self.query_where_clauses.join(" . ")
       select_query += " } "
       select_query += "} " if return_graph || graph_uri # close the graph clause
       select_query += self.extra_clauses.join(" ")

@@ -16,12 +16,14 @@ RSpec.configure do |config|
   config.before(:each) do
     WebMock.disable!
     # delete from all graphs.
-    Tripod::SparqlClient::Update.update('
-      # delete from default graph:
-      DELETE {?s ?p ?o} WHERE {?s ?p ?o};
-      # delete from named graphs:
-      DELETE {graph ?g {?s ?p ?o}} WHERE {graph ?g {?s ?p ?o}};
-    ')
+    # delete from default graph:
+    # Tripod::SparqlClient::Update.update('
+    #   DELETE {?s ?p ?o} WHERE {?s ?p ?o}')
+    #   # delete from named graphs:
+    # Tripod::SparqlClient::Update.update('
+    #   DELETE {graph ?g {?s ?p ?o}} WHERE {graph ?g {?s ?p ?o}};
+    # ')
+    Tripod::SparqlClient::Update.update('drop all')
   end
 
 end

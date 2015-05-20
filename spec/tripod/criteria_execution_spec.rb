@@ -28,12 +28,12 @@ describe Tripod::Criteria do
 
     context "for a class with an rdf_type and graph" do
       it "should return a SELECT query based with an rdf type restriction" do
-        person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+        person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> } }"
       end
 
       context "with include_graph option set to false" do
         it "should not select graphs, but restrict to graph" do
-          person_criteria.as_query(:return_graph => false).should == "SELECT DISTINCT ?uri WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+          person_criteria.as_query(:return_graph => false).should == "SELECT DISTINCT ?uri WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> } }"
         end
       end
 
@@ -41,7 +41,7 @@ describe Tripod::Criteria do
         before { person_criteria.where("[pattern]") }
 
         it "should return a SELECT query with the extra restriction" do
-          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o . [pattern] } }"
+          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . [pattern] } }"
         end
       end
 
@@ -49,7 +49,7 @@ describe Tripod::Criteria do
         before { person_criteria.graph("http://example.com/anothergraph") }
 
          it "should override the graph in the query" do
-          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/anothergraph> as ?graph) WHERE { GRAPH <http://example.com/anothergraph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }"
+          person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/anothergraph> as ?graph) WHERE { GRAPH <http://example.com/anothergraph> { ?uri a <http://example.com/person> } }"
         end
       end
     end
@@ -66,10 +66,10 @@ describe Tripod::Criteria do
       end
 
       context "and extra restrictions" do
-        before { resource_criteria.where("[pattern]") }
+        before { resource_criteria.where("?uri a <http://type>") }
 
         it "should return a SELECT query with the extra restrictions" do
-          resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } }"
+          resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://type> } }"
         end
       end
 
@@ -84,10 +84,10 @@ describe Tripod::Criteria do
 
     context "with extras" do
 
-      before { resource_criteria.where("[pattern]").extras("LIMIT 10").extras("OFFSET 20") }
+      before { resource_criteria.where("?uri a <http://type>").extras("LIMIT 10").extras("OFFSET 20") }
 
       it "should add the extras on the end" do
-        resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri ?p ?o . [pattern] } } LIMIT 10 OFFSET 20"
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri ?graph WHERE { GRAPH ?graph { ?uri a <http://type> } } LIMIT 10 OFFSET 20"
       end
     end
   end
@@ -191,7 +191,7 @@ describe Tripod::Criteria do
 
     it "should execute the right Sparql" do
       sparql = "SELECT (COUNT(*) as ?tripod_count_var) {
-  SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> . ?uri ?p ?o } }  LIMIT 10 OFFSET 20
+  SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> } }  LIMIT 10 OFFSET 20
 }"
       Tripod::SparqlClient::Query.should_receive(:select).with(sparql).and_call_original
       Person.all.limit(10).offset(20).count
