@@ -69,7 +69,11 @@ module Tripod::SparqlClient
     # @return [ Hash, String ]
     def self.select(query)
       query_response = self.query(query, "application/sparql-results+json")
-      JSON.parse(query_response)["results"]["bindings"]
+      if query_response.length >0 
+        JSON.parse(query_response)["results"]["bindings"]
+      else
+        []
+      end
     end
 
     def self._response_limit_options(response_limit_bytes)

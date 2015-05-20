@@ -256,10 +256,12 @@ module Tripod::Finders
     # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
     def _select_uris_and_graphs(sparql, opts={})
       select_results = Tripod::SparqlClient::Query.select(sparql)
-
+  
       uri_variable = opts[:uri_variable] || 'uri'
       graph_variable = opts[:graph_variable] || 'graph'
 
+      return [] unless select_results.select{|r| r.keys.length > 0 }.any?
+    
       select_results.reduce([]) do |memo, result|
         u = result[uri_variable]['value']
         g = result[graph_variable]['value'] if result[graph_variable]
