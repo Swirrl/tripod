@@ -44,7 +44,12 @@ module Tripod
       sq = Tripod::SparqlQuery.new(self.as_query(opts))
       count_sparql = sq.as_count_query_str
       result = Tripod::SparqlClient::Query.select(count_sparql)
-      result[0]["tripod_count_var"]["value"].to_i
+
+      if result.length > 0
+        result[0]["tripod_count_var"]["value"].to_i
+      else
+        return 0
+      end
     end
 
     # turn this criteria into a query
@@ -70,7 +75,7 @@ module Tripod
         select_query += "GRAPH <#{graph_uri}> { " if graph_uri
       end
 
-      select_query += self.where_clauses.join(" . ")
+      select_query += self.query_where_clauses.join(" . ")
       select_query += " } "
       select_query += "} " if return_graph || graph_uri # close the graph clause
       select_query += self.extra_clauses.join(" ")

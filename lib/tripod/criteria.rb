@@ -42,7 +42,7 @@ module Tripod
     # e.g. my_criteria.where("?uri a <http://my-type>")
     #
     def where(filter)
-      if filter.is_a?(String) # we gotta Sparql snippet
+      if filter.is_a?(String) # we got a Sparql snippet
         where_clauses << filter
       elsif filter.is_a?(Hash)
         filter.each_pair do |key, value|
@@ -54,6 +54,9 @@ module Tripod
       self
     end
 
+    def query_where_clauses
+      where_clauses.empty? ? ['?uri ?p ?o'] : where_clauses
+    end
     # takes a string and adds an extra clause to this criteria.
     # e.g. my_criteria.extras("LIMIT 10 OFFSET 20").extrass
     #

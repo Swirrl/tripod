@@ -146,8 +146,8 @@ describe Tripod::Finders do
   end
 
   describe ".all" do
-    it "should make and return a new criteria for the current class, with a where clause of ?uri ?p ?o already started" do
-      Person.all.should == Tripod::Criteria.new(Person).where("?uri ?p ?o")
+    it "should make and return a new criteria for the current class" do
+      Person.all.should == Tripod::Criteria.new(Person)
     end
   end
 
