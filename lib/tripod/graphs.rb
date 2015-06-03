@@ -7,6 +7,11 @@ module Tripod::Graphs
   def graphs
     select_query = "SELECT DISTINCT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } }"
     result = Tripod::SparqlClient::Query.select(select_query)
-    result.map{|r| r["g"]["value"]}
+
+    if result.length > 0
+       result.select{|r| r.keys.length > 0 }.map{|r| r["g"]["value"] }
+    else
+       []
+    end
   end
 end

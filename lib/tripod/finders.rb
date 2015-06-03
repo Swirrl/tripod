@@ -41,7 +41,7 @@ module Tripod::Finders
         graph_uri ||= self.get_graph_uri
         unless graph_uri
           # do a quick select to see what graph to use.
-          select_query = "SELECT ?g WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
+          select_query = "SELECT * WHERE { GRAPH ?g {<#{uri.to_s}> ?p ?o } } LIMIT 1"
           result = Tripod::SparqlClient::Query.select(select_query)
           if result.length > 0
             graph_uri = result[0]["g"]["value"]
@@ -90,7 +90,7 @@ module Tripod::Finders
     # execute a query to return all objects (restricted by this class's rdf_type if specified)
     # returns a criteria object
     def all
-      where('?uri ?p ?o')
+      Tripod::Criteria.new(self)
     end
 
     def count
@@ -161,9 +161,15 @@ module Tripod::Finders
     def _create_and_hydrate_resources_from_sparql(select_sparql, opts={})
       # TODO: Optimization?: if return_graph option is false, then don't do this next line?
       uris_and_graphs = _select_uris_and_graphs(select_sparql, :uri_variable => opts[:uri_variable], :graph_variable => opts[:graph_variable])
-      construct_query = _construct_query_for_uris_and_graphs(uris_and_graphs)
-      graph = _graph_of_triples_from_construct_or_describe(construct_query)
-      _resources_from_graph(graph, uris_and_graphs)
+
+      #there are no resources if there are no uris and graphs
+      if uris_and_graphs.empty?
+        []
+      else
+        construct_query = _construct_query_for_uris_and_graphs(uris_and_graphs)
+        graph = _graph_of_triples_from_construct_or_describe(construct_query)
+        _resources_from_graph(graph, uris_and_graphs)
+      end
     end
 
     # For a select query, generate a query which DESCRIBES all the results
@@ -250,10 +256,12 @@ module Tripod::Finders
     # @option options [ String ] graph_variable The name of the uri variable in thh query, if not 'graph'
     def _select_uris_and_graphs(sparql, opts={})
       select_results = Tripod::SparqlClient::Query.select(sparql)
-
+  
       uri_variable = opts[:uri_variable] || 'uri'
       graph_variable = opts[:graph_variable] || 'graph'
 
+      return [] unless select_results.select{|r| r.keys.length > 0 }.any?
+    
       select_results.reduce([]) do |memo, result|
         u = result[uri_variable]['value']
         g = result[graph_variable]['value'] if result[graph_variable]

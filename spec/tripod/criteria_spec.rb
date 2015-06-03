@@ -18,13 +18,13 @@ describe Tripod::Criteria do
 
     context "with rdf_type set on the class" do
       it "should initialize the where clauses to include a type restriction" do
-        person_criteria.where_clauses.should == ["?uri a <http://example.com/person>", "?uri ?p ?o"]
+        person_criteria.where_clauses.should == ["?uri a <http://example.com/person>"]
       end
     end
 
     context "with no rdf_type set on the class" do
       it "should initialize the where clauses to ?uri ?p ?o" do
-        resource_criteria.where_clauses.should == ["?uri ?p ?o"]
+        resource_criteria.where_clauses.should == []
       end
     end
   end
@@ -34,7 +34,7 @@ describe Tripod::Criteria do
     context 'given a string' do
       it "should add the sparql snippet to the where clauses" do
         resource_criteria.where("blah")
-        resource_criteria.where_clauses.should == ["?uri ?p ?o", "blah"]
+        resource_criteria.where_clauses.should == ["blah"]
       end
 
       it "should return an instance of Criteria" do
@@ -42,7 +42,7 @@ describe Tripod::Criteria do
       end
 
       it "should return an instance of Criteria with the where clauses added" do
-        resource_criteria.where("blah").where_clauses.should == ["?uri ?p ?o", "blah"]
+        resource_criteria.where("blah").where_clauses.should == ["blah"]
       end
     end
 
@@ -52,7 +52,7 @@ describe Tripod::Criteria do
 
         it 'should construct a sparql snippet with the appropriate predicate, treating the value as a literal' do
           criteria = resource_criteria.where(label: value)
-          criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> \"#{ value }\""
+          criteria.where_clauses[0].should == "?uri <#{ RDF::RDFS.label }> \"#{ value }\""
         end
       end
 
@@ -61,7 +61,7 @@ describe Tripod::Criteria do
 
         it 'should construct a sparql snippet with the appropriate predicate' do
           criteria = resource_criteria.where(label: value)
-          criteria.where_clauses[1].should == "?uri <#{ RDF::RDFS.label }> <#{ value.to_s }>"
+          criteria.where_clauses[0].should == "?uri <#{ RDF::RDFS.label }> <#{ value.to_s }>"
         end
       end
     end
