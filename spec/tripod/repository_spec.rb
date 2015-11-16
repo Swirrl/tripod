@@ -30,7 +30,7 @@ describe Tripod::Repository do
 
         context 'graph_uri set on object' do
           it 'populates the object with triples, restricted to the graph_uri' do
-            Tripod::SparqlClient::Query.should_receive(:query).with(Person.all_triples_query(person.uri, graph_uri: person.graph_uri), 'application/n-triples, text/plain').and_call_original
+            Tripod::SparqlClient::Query.should_receive(:query).with(Person.all_triples_query(person.uri, graph_uri: person.graph_uri), Tripod.ntriples_header_str).and_call_original
             person.hydrate!
             person.repository.should_not be_empty
           end
@@ -38,7 +38,7 @@ describe Tripod::Repository do
 
         context 'graph_uri not set on object' do
           it 'populates the object with triples, not to a graph' do
-            Tripod::SparqlClient::Query.should_receive(:query).with(Person.all_triples_query(person.uri), 'application/n-triples, text/plain').and_call_original
+            Tripod::SparqlClient::Query.should_receive(:query).with(Person.all_triples_query(person.uri), Tripod.ntriples_header_str).and_call_original
             graphless_resource.hydrate!
             graphless_resource.repository.should_not be_empty
           end
