@@ -58,6 +58,11 @@ module Tripod
   mattr_accessor :response_limit_bytes
   @@response_limit_bytes = 5.megabytes
 
+  # this is a default to cope with headers in stardog
+  # override if you wish to remove the text/plain fallback
+  mattr_accessor :ntriples_header_str
+  @@ntriples_header_str = "application/n-triples, text/plain"
+
   mattr_accessor :cache_store
 
   mattr_accessor :logger

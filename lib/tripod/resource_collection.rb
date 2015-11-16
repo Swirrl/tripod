@@ -53,10 +53,10 @@ module Tripod
     def to_nt
       time_serialization('nt') do
         if @criteria
-          @criteria.serialize(:return_graph => @return_graph, :accept_header => "application/n-triples, text/plain")
+          @criteria.serialize(:return_graph => @return_graph, :accept_header => Tripod.ntriples_header_str)
         elsif @sparql_query_str && @resource_class
           # run the query as a describe.
-          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => "application/n-triples, text/plain")
+          @resource_class._raw_describe_select_results(@sparql_query_str, :accept_header => Tripod.ntriples_header_str)
         else
           # for n-triples we can just concatenate them
           nt = ""
