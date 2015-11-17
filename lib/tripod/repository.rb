@@ -55,7 +55,7 @@ module Tripod::Repository
     g
   end
 
-  def retrieve_triples_from_database(accept_header="application/n-triples")
+  def retrieve_triples_from_database(accept_header=Tripod.ntriples_header_str)
     Tripod::SparqlClient::Query.query(self.class.all_triples_query(uri, graph_uri: self.graph_uri), accept_header)
   end
 

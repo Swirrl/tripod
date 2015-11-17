@@ -109,7 +109,7 @@ module Tripod::Finders
         uris_sparql_str = uris.map{ |u| "<#{u.to_s}>" }.join(" ")
 
         # Do a big describe statement, and read the results into an in-memory repo
-        ntriples_string = Tripod::SparqlClient::Query.query("CONSTRUCT { ?s ?p ?o } WHERE { VALUES ?s { #{uris_sparql_str} }.  ?s ?p ?o . }", "application/n-triples")
+        ntriples_string = Tripod::SparqlClient::Query.query("CONSTRUCT { ?s ?p ?o } WHERE { VALUES ?s { #{uris_sparql_str} }.  ?s ?p ?o . }", Tripod.ntriples_header_str)
         graph = _rdf_graph_from_ntriples_string(ntriples_string, graph)
       end
 
@@ -149,7 +149,7 @@ module Tripod::Finders
 
     # given a construct or describe query, return a graph of triples.
     def _graph_of_triples_from_construct_or_describe(construct_query)
-      ntriples_str = Tripod::SparqlClient::Query.query(construct_query, "application/n-triples")
+      ntriples_str = Tripod::SparqlClient::Query.query(construct_query, Tripod.ntriples_header_str)
       _rdf_graph_from_ntriples_string(ntriples_str, graph=nil)
     end
 
@@ -207,7 +207,7 @@ module Tripod::Finders
     # @option options [ String ] uri_variable The name of the uri variable in the query, if not 'uri'
     # @option options [ String ] accept_header The http accept header (default application/n-triples)
     def _raw_describe_select_results(select_sparql, opts={})
-      accept_header = opts[:accept_header] || "application/n-triples"
+      accept_header = opts[:accept_header] || Tripod.ntriples_header_str
       query = _describe_query_for_select(select_sparql, :uri_variable => opts[:uri_variable])
       Tripod::SparqlClient::Query.query(query, accept_header)
     end

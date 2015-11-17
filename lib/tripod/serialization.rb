@@ -15,7 +15,7 @@ module Tripod::Serialization
 
   # Serialises this resource's triples to n-triples
   def to_nt
-    retrieve_triples_from_database(accept_header="application/n-triples")
+    retrieve_triples_from_database(accept_header=Tripod.ntriples_header_str)
   end
 
   # Serialises this resource's triples to JSON-LD
