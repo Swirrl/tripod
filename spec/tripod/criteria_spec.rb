@@ -16,6 +16,10 @@ describe Tripod::Criteria do
       person_criteria.extra_clauses.should == []
     end
 
+    it "should initialize the graph lambdas to a blank array" do
+      person_criteria.graph_lambdas.should == []
+    end
+
     context "with rdf_type set on the class" do
       it "should initialize the where clauses to include a type restriction" do
         person_criteria.where_clauses.should == ["?uri a <http://example.com/person>"]
@@ -132,6 +136,14 @@ describe Tripod::Criteria do
     it "sets the graph_uri for this criteria, as a string" do
       resource_criteria.graph(RDF::URI("http://example.com/foobar"))
       resource_criteria.graph_uri.should == "http://example.com/foobar"
+    end
+
+    context "with a block" do
+
+      it "will convert each criteria in the block to a query" do
+        pending
+      end
+
     end
   end
 

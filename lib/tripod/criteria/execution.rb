@@ -62,22 +62,40 @@ module Tripod
 
       select_query = "SELECT DISTINCT ?uri "
 
-      if return_graph
-        # if we are returing the graph, select it as a variable, and include either the <graph> or ?graph in the where clause
-        if graph_uri
-          select_query += "(<#{graph_uri}> as ?graph) WHERE { GRAPH <#{graph_uri}> { "
+      if graph_lambdas.empty?
+
+        if return_graph
+          # if we are returning the graph, select it as a variable, and include either the <graph> or ?graph in the where clause
+          if graph_uri
+            select_query += "(<#{graph_uri}> as ?graph) WHERE { GRAPH <#{graph_uri}> { "
+          else
+            select_query += "?graph WHERE { GRAPH ?graph { "
+          end
         else
-          select_query += "?graph WHERE { GRAPH ?graph { "
+          select_query += "WHERE { "
+          # if we're not returning the graph, only restrict by the <graph> if there's one set at class level
+          select_query += "GRAPH <#{graph_uri}> { " if graph_uri
         end
+
+        select_query += self.query_where_clauses.join(" . ")
+        select_query += " } "
+        select_query += "} " if return_graph || graph_uri # close the graph clause
+
       else
+        # whip through the graph lambdas and add into the query
+        # we have multiple graphs so the above does not apply
         select_query += "WHERE { "
-        # if we're not returning the graph, only restrict by the <graph> if there's one set at class level
-        select_query += "GRAPH <#{graph_uri}> { " if graph_uri
+
+        graph_lambdas.each do |lambda_item|
+          select_query += "GRAPH ?g { "
+          select_query += lambda_item.call
+          select_query += " } "
+        end
+
+        select_query += self.query_where_clauses.join(" . ")
+        select_query += " } "
       end
 
-      select_query += self.query_where_clauses.join(" . ")
-      select_query += " } "
-      select_query += "} " if return_graph || graph_uri # close the graph clause
       select_query += self.extra_clauses.join(" ")
 
       select_query += [order_clause, limit_clause, offset_clause].join(" ")

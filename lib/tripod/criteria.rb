@@ -18,11 +18,13 @@ module Tripod
     attr_accessor :order_clause
     attr_accessor :offset_clause
     attr_accessor :graph_uri
+    attr_accessor :graph_lambdas
 
     def initialize(resource_class)
       self.resource_class = resource_class
       self.where_clauses = []
       self.extra_clauses = []
+      self.graph_lambdas = []
 
       if resource_class._RDF_TYPE
         self.where("?uri a <#{resource_class._RDF_TYPE.to_s}>")
@@ -84,7 +86,7 @@ module Tripod
       self
     end
 
-    # Restrict htis query to the graph uri passed in
+    # Restrict this query to the graph uri passed in
     #
     # @example .graph(RDF::URI.new('http://graphoid')
     # @example .graph('http://graphoid')
@@ -92,9 +94,21 @@ module Tripod
     # @param [ Stirng, RDF::URI ] The graph uri
     #
     # @return [ Tripod::Criteria ] A criteria object
-    def graph(graph_uri)
-      self.graph_uri = graph_uri.to_s
-      self
+    def graph(graph_uri, &block)
+
+      if block_given?
+        self.graph_lambdas ||= []
+
+        self.graph_lambdas << -> {
+          block.each do |criteria|
+            criteria.as_query(return_graph: false)
+          end.join(" . ")
+        }
+        self
+      else
+        self.graph_uri = graph_uri.to_s
+        self
+      end
     end
   end
 end
