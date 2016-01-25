@@ -141,7 +141,11 @@ describe Tripod::Criteria do
     context "with a block" do
 
       it "will convert each criteria in the block to a query" do
-        pending
+        resource_criteria.graph(nil) do
+          "?uri ?p ?o"
+        end.where("?uri ?p ?g")
+
+        resource_criteria.graph_lambdas.should_not be_empty
       end
 
     end

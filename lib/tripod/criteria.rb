@@ -91,19 +91,14 @@ module Tripod
     # @example .graph(RDF::URI.new('http://graphoid')
     # @example .graph('http://graphoid')
     #
-    # @param [ Stirng, RDF::URI ] The graph uri
+    # @param [ String, RDF::URI ] The graph uri
     #
     # @return [ Tripod::Criteria ] A criteria object
     def graph(graph_uri, &block)
 
       if block_given?
         self.graph_lambdas ||= []
-
-        self.graph_lambdas << -> {
-          block.each do |criteria|
-            criteria.as_query(return_graph: false)
-          end.join(" . ")
-        }
+        self.graph_lambdas << block
         self
       else
         self.graph_uri = graph_uri.to_s
