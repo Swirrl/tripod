@@ -87,11 +87,15 @@ module Tripod
     end
 
     # Restrict this query to the graph uri passed in
+    # You may also pass a block to an unbound graph, ?g
+    # then chain a where clause to the criteria returned to bind ?g
     #
     # @example .graph(RDF::URI.new('http://graphoid')
     # @example .graph('http://graphoid')
+    # @example .graph(nil) { "?s ?p ?o" }.where("?uri ?p ?g")
     #
     # @param [ String, RDF::URI ] The graph uri
+    # @param [ Block ] A string to be executed within an unbound graph, ?g
     #
     # @return [ Tripod::Criteria ] A criteria object
     def graph(graph_uri, &block)

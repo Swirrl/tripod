@@ -36,9 +36,9 @@ describe Tripod::Criteria do
 
       it "should be possible to bind to the ?g paramter on the criteria after supplying a block" do
         resource_criteria.graph(nil) do
-          "?uri ?p ?o"
+          "?s ?p ?o"
         end.where("?uri ?p ?g")
-        resource_criteria.as_query.should == "SELECT DISTINCT ?uri WHERE { GRAPH ?g { ?uri ?p ?o } ?uri ?p ?g }"
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri WHERE { GRAPH ?g { ?s ?p ?o } ?uri ?p ?g }"
       end
     end
 
