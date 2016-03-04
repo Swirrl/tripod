@@ -26,6 +26,22 @@ describe Tripod::Criteria do
 
   describe "#as_query" do
 
+    context "when graph_lambdas exist" do
+      it "should return the contents of the block inside a graph statement with unbound ?g parameter" do
+        resource_criteria.graph(nil) do
+          "?uri ?p ?o"
+        end
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri WHERE { GRAPH ?g { ?uri ?p ?o } ?uri ?p ?o }"
+      end
+
+      it "should be possible to bind to the ?g paramter on the criteria after supplying a block" do
+        resource_criteria.graph(nil) do
+          "?s ?p ?o"
+        end.where("?uri ?p ?g")
+        resource_criteria.as_query.should == "SELECT DISTINCT ?uri WHERE { GRAPH ?g { ?s ?p ?o } ?uri ?p ?g }"
+      end
+    end
+
     context "for a class with an rdf_type and graph" do
       it "should return a SELECT query based with an rdf type restriction" do
         person_criteria.as_query.should == "SELECT DISTINCT ?uri (<http://example.com/graph> as ?graph) WHERE { GRAPH <http://example.com/graph> { ?uri a <http://example.com/person> } }"
