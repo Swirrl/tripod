@@ -11,9 +11,16 @@ module Tripod
     #  :response_limit_bytes = nil
     def self.get_data(request_url, payload, opts={})
 
-      accept = opts[:accept] || "*/*"
+      accept = opts[:accept]
       timeout_in_seconds = opts[:timeout_seconds] || 10
       limit_in_bytes = opts[:response_limit_bytes]
+
+      # set request headers
+      headers = opts[:extra_headers] || {}
+
+      # if explicit accept option is given, set it in the headers (and overwrite any existing value in the extra_headers map)
+      # if none is given accept */*
+      headers['Accept'] = accept || headers['Accept'] || '*/*'
 
       uri = URI(request_url)
 
@@ -27,7 +34,7 @@ module Tripod
       response = StringIO.new
 
       begin
-        http.request_post(uri.request_uri, payload, 'Accept' => accept) do |res|
+        http.request_post(uri.request_uri, payload, headers) do |res|
 
           response_duration = Time.now - request_start_time if Tripod.logger.debug?
 

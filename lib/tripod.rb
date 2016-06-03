@@ -52,6 +52,9 @@ module Tripod
   mattr_accessor :extra_endpoint_params
   @@extra_endpoint_params = {}
 
+  mattr_accessor :extra_endpoint_headers
+  @@extra_endpoint_headers = {}
+
   mattr_accessor :timeout_seconds
   @@timeout_seconds = 30
 
