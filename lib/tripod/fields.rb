@@ -5,10 +5,10 @@ require "tripod/fields/standard"
 module Tripod::Fields
   extend ActiveSupport::Concern
 
-  included do
-    class_attribute :fields
-    self.fields = {}
-  end
+  # included do
+  #   class_attribute :fields
+  #   self.fields = {}
+  # end
 
   module ClassMethods
 

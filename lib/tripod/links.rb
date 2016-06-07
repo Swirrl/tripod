@@ -94,7 +94,7 @@ module Tripod::Links
           klass = Kernel.const_get(link.class_name)
 
           incoming_link = klass.linked_tos[link.incoming_field_name.to_sym]
-          incoming_predicate = klass.fields[incoming_link.field_name].predicate
+          incoming_predicate = klass.get_field(incoming_link.field_name).predicate
 
           # note - this will only find saved ones.
           klass

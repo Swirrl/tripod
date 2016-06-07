@@ -54,8 +54,7 @@ module Tripod::Attributes
   # @param [ String ] value The value to set it to
   # @param [ Field ] field An optional Field object
   def write_attribute(name, value, field=nil)
-    field ||= self.fields[name]
-    raise Tripod::Errors::FieldNotPresent.new unless field
+    field ||= self.class.get_field(name)
 
     if value.kind_of?(Array)
       if field.multivalued
