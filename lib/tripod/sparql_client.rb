@@ -14,13 +14,14 @@ module Tripod::SparqlClient
     # @param [ String ] accept_header The accept header to send with the request
     # @param [ Hash ] any extra params to send with the request
     # @return [ RestClient::Response ]
-    def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default)
+    def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default, extra_headers = {})
 
       non_sparql_params = (Tripod.extra_endpoint_params).merge(extra_params)
       params_hash = {:query => sparql}.merge(non_sparql_params)
       params = self.to_query(params_hash)
       request_url = Tripod.query_endpoint
-      streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds}
+      extra_headers.merge!(Tripod.extra_endpoint_headers)
+      streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds, :extra_headers => extra_headers}
       streaming_opts.merge!(_response_limit_options(response_limit_bytes)) if Tripod.response_limit_bytes
 
       # Hash.to_query from active support core extensions
