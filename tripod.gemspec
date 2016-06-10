@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.name          = "tripod"
   gem.require_paths = ["lib"]
+  gem.license       = 'MIT'
   gem.version       = Tripod::VERSION
 
   gem.required_rubygems_version = ">= 1.3.6"

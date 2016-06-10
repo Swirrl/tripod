@@ -5,9 +5,15 @@ require "tripod/fields/standard"
 module Tripod::Fields
   extend ActiveSupport::Concern
 
-  included do
-    class_attribute :fields
-    self.fields = {}
+  def self.included(base)
+    base.instance_eval do
+      @fields ||= {}
+    end
+    base.extend(ClassMethods)
+  end
+
+  def fields
+    self.class.fields
   end
 
   module ClassMethods
@@ -37,7 +43,7 @@ module Tripod::Fields
     #
     # @return [ Field ] The generated field
     def field(name, predicate, options = {})
-      # TODO: validate the field params/options here..
+      @fields ||= {}
       add_field(name, predicate, options)
     end
 
@@ -48,12 +54,26 @@ module Tripod::Fields
     #
     # @param [ Symbol ] name The name of the field.
     def get_field(name)
-      field = self.fields[name]
+      @fields ||= {}
+      field = fields[name]
       raise Tripod::Errors::FieldNotPresent.new unless field
       field
     end
 
+    # Return all of the fields on a +Resource+ in a manner that
+    # respects Ruby's inheritance rules.  i.e. subclass fields should
+    # override superclass fields with the same
+    def fields
+      tripod_superclasses.map { |c| c.instance_variable_get(:@fields) }.reduce do |acc,class_fields|
+        class_fields.merge(acc)
+      end
+    end
+
     protected
+
+    def tripod_superclasses
+      self.ancestors.select { |a| a.class == Class && a.respond_to?(:fields)}
+    end
 
     # Define a field attribute for the +Resource+.
     #
@@ -66,7 +86,8 @@ module Tripod::Fields
     def add_field(name, predicate, options = {})
       # create a field object and store it in our hash
       field = field_for(name, predicate, options)
-      fields[name] = field
+      @fields ||= {}
+      @fields[name] = field
 
       # set up the accessors for the fields
       create_accessors(name, name, options)
@@ -90,7 +111,7 @@ module Tripod::Fields
     # @param [ Symbol ] meth The name of the accessor.
     # @param [ Hash ] options The options.
     def create_accessors(name, meth, options = {})
-      field = fields[name]
+      field = @fields[name]
 
       create_field_getter(name, meth, field)
       create_field_setter(name, meth, field)
@@ -148,7 +169,7 @@ module Tripod::Fields
       end
     end
 
-     # Include the field methods as a module, so they can be overridden.
+    # Include the field methods as a module, so they can be overridden.
     #
     # @example Include the fields.
     #   Person.generated_methods
