@@ -99,14 +99,13 @@ module Tripod::SparqlClient
     # @return [ true ]
     def self.update(sparql)
       begin
+        headers = Tripod.extra_endpoint_headers.merge({:content_type => 'application/sparql-update'})
         RestClient::Request.execute(
           :method => :post,
           :url => Tripod.update_endpoint,
           :timeout => Tripod.timeout_seconds,
           :payload => { update: sparql }.merge(Tripod.extra_endpoint_params),
-          :headers => {
-            :content_type => 'application/sparql-update'
-          }
+          :headers => headers
         )
         true
       rescue RestClient::BadRequest => e
