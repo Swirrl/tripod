@@ -17,9 +17,9 @@ module Tripod::SparqlClient
     def self.query(sparql, accept_header, extra_params={}, response_limit_bytes = :default, extra_headers = {})
 
       non_sparql_params = (Tripod.extra_endpoint_params).merge(extra_params)
-      params_hash = {:query => sparql}.merge(non_sparql_params)
+      params_hash = {:query => sparql}
       params = self.to_query(params_hash)
-      request_url = Tripod.query_endpoint
+      request_url = URI(Tripod.query_endpoint).tap {|u| u.query = non_sparql_params.to_query}.to_s
       extra_headers.merge!(Tripod.extra_endpoint_headers)
       streaming_opts = {:accept => accept_header, :timeout_seconds => Tripod.timeout_seconds, :extra_headers => extra_headers}
       streaming_opts.merge!(_response_limit_options(response_limit_bytes)) if Tripod.response_limit_bytes
