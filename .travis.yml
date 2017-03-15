@@ -1,0 +1,16 @@
+language: ruby
+cache: bundler
+sudo: required
+services:
+- memcached
+- mongodb
+- elasticsearch
+rvm:
+-2.2
+before_install:
+- sudo chmod +rx ./travis/*
+- sudo chown -R travis ./travis/*
+- ./bootstrap_fuseki.sh
+before_script:
+- ./travis/run_fuseki.sh
+- sleep 30
