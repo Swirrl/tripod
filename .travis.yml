@@ -6,7 +6,7 @@ services:
 - mongodb
 - elasticsearch
 rvm:
--2.2
+- 2.2
 before_install:
 - sudo chmod +rx ./travis/*
 - sudo chown -R travis ./travis/*
