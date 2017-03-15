@@ -10,7 +10,7 @@ rvm:
 before_install:
 - sudo chmod +rx ./travis/*
 - sudo chown -R travis ./travis/*
-- ./bootstrap_fuseki.sh
+- ./travis/bootstrap_fuseki.sh
 before_script:
 - ./travis/run_fuseki.sh
 - sleep 30
