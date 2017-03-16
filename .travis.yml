@@ -16,4 +16,4 @@ before_install:
 before_script:
 - ./travis/run_fuseki.sh
 - sleep 30
-script: bundle exec rspec spec
+script: travis_retry bundle exec rspec spec --fail-fast
