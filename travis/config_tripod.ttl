@@ -1,0 +1,47 @@
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+
+[] rdf:type fuseki:Server ;
+   # Services available.  Only explicitly listed services are configured.
+   #  If there is a service description not linked from this list, it is ignored.
+   fuseki:services (
+     <#tripod-development>
+     <#tripod-test>
+   ) .
+
+[] ja:loadClass "com.hp.hpl.jena.tdb.TDB" .
+tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+tdb:GraphTDB    rdfs:subClassOf  ja:Model .
+
+<#tripod-development>  rdf:type fuseki:Service ;
+    fuseki:name              "tripod-development" ;       # http://host:port/pmddev
+    fuseki:serviceQuery      "sparql" ;    # SPARQL query service  http://host:port/pmddev/sparql?query=...
+    fuseki:serviceUpdate     "update" ;   # SPARQL update servicehttp://host:port/pmddev/update?query=
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    fuseki:dataset           <#dataset-tripod-development> ;
+    .
+
+ <#dataset-tripod-development> rdf:type      tdb:DatasetTDB ;
+     tdb:location "/home/travis/tdb_data/tripod-development" ;  # change to suit your local installation
+     # Query timeout on this dataset (1s, 1000 milliseconds)
+     ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "10000" ] ;
+     tdb:unionDefaultGraph true ;
+     .
+
+<#tripod-test>  rdf:type fuseki:Service ;
+    fuseki:name              "tripod-test" ;       # http://host:port/pmdtest
+    fuseki:serviceQuery      "sparql" ;    # SPARQL query service  http://host:port/pmdtest/sparql?query=...
+    fuseki:serviceUpdate     "update" ;   # SPARQL update servicehttp://host:port/pmdtest/update?query=
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    fuseki:dataset           <#dataset-tripod-test> ;
+    .
+
+ <#dataset-tripod-test> rdf:type      tdb:DatasetTDB ;
+     tdb:location "/home/travis/tdb_data/tripod-test" ;  # change to suit your local installation
+     # Query timeout on this dataset (1s, 1000 milliseconds)
+     ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "10000" ] ;
+     tdb:unionDefaultGraph true ;
+     .

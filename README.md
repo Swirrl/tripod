@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Swirrl/tripod.svg?branch=master)](https://travis-ci.org/Swirrl/tripod)
+
 # Tripod
 
 ActiveModel-style Ruby ORM for RDF Linked Data. Works with SPARQL 1.1 HTTP endpoints.
