@@ -12,8 +12,13 @@ rvm:
 before_install:
 - sudo chmod +rx ./travis/*
 - sudo chown -R travis ./travis/*
-- ./travis/bootstrap_fuseki.sh
+- "./travis/bootstrap_fuseki.sh"
 before_script:
-- ./travis/run_fuseki.sh
+- "./travis/run_fuseki.sh"
 - sleep 30
 script: travis_retry bundle exec rspec spec --fail-fast
+notifications:
+  slack:
+    secure: gLVK3ij0fS3vk61tUq8jnombeoRBcyiL8+K9wzC7Bvqhp19ujWEyCMXxeqEVaVFR0Yc54Jiu+5LxRTx9v0B3VwyPykG7GJGcsGQ/doX5S2kieVexumSf2qh3Uj9kU/o6BYr3zjH6ABP6e7BbBdS3I7G2BZA7IQCx9XkAa8+gUpQ=
+    on_success: change
+    on_failure: always
