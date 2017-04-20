@@ -39,7 +39,12 @@ module Tripod
           response_duration = Time.now - request_start_time if Tripod.logger.debug?
 
           Tripod.logger.debug "TRIPOD: received response code: #{res.code} in: #{response_duration} secs"
-          raise Tripod::Errors::BadSparqlRequest.new(res.body) if res.code.to_s != "200"
+
+          if res.code.to_i == 503
+            raise Tripod::Errors::Timeout.new
+          elsif res.code.to_s != "200"
+            raise Tripod::Errors::BadSparqlRequest.new(res.body)
+          end
 
           stream_start_time = Time.now if Tripod.logger.debug?
 
