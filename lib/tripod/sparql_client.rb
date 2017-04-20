@@ -99,7 +99,7 @@ module Tripod::SparqlClient
     # @return [ true ]
     def self.update(sparql)
       begin
-        headers = Tripod.extra_endpoint_headers.merge({:content_type => 'application/sparql-update'})
+        headers = Tripod.extra_endpoint_headers
         RestClient::Request.execute(
           :method => :post,
           :url => Tripod.update_endpoint,
