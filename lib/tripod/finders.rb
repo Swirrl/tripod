@@ -194,12 +194,30 @@ module Tripod::Finders
 
     # Generate a CONSTRUCT query for the given uri and graph pairs.
     def _construct_query_for_uris_and_graphs(uris_and_graphs)
-      value_pairs = uris_and_graphs.map do |(uri, graph)|
-        u = RDF::URI.new(uri).to_base
-        g = graph ? RDF::URI.new(graph).to_base : 'UNDEF'
-        "(#{u} #{g})"
+      no_graph, with_graph = uris_and_graphs.partition{ |(uri, graph)| graph.blank? }
+
+      uris = no_graph.map{|(uri, _)| RDF::URI.new(uri) }
+      graphs_and_uris = with_graph.reduce({}) do |memo, (u, g)|
+        uri = RDF::URI.new(u)
+        graph = RDF::URI.new(g)
+        memo[graph] ||= []
+        memo[graph] << uri
+        memo
       end
-      query = "CONSTRUCT { ?uri ?p ?o . #{ self.all_triples_construct("?uri") }} WHERE { GRAPH ?g { ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES (?uri ?g) { #{ value_pairs.join(' ') } } } }"
+
+      tripleizer = ->(uris) { "{ ?uri ?p ?o . #{ self.all_triples_where("?uri") } VALUES ?uri { #{ uris.map(&:to_base).join(' ') } } }" }
+
+      uri_triples = uris.map{|uri| tripleizer.call([uri]) }
+      graph_and_uri_triples = graphs_and_uris.map do |(graph, uris)|
+        "{ GRAPH #{ graph.to_base } #{ tripleizer.call(uris) } }"
+      end
+
+      "
+        CONSTRUCT {
+          ?uri ?p ?o .
+          #{ self.all_triples_construct("?uri") }
+        } WHERE { #{ (uri_triples + graph_and_uri_triples).join(' UNION ') } }
+      "
     end
 
     # For a select query, get a raw serialisation of the DESCRIPTION of the resources from the database.
