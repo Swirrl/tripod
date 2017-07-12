@@ -25,6 +25,7 @@ module Tripod
       uri = URI(request_url)
 
       http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true if uri.port.to_s == "443"
       http.read_timeout = timeout_in_seconds
 
       total_bytes = 0
