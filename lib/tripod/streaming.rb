@@ -6,7 +6,7 @@ module Tripod
 
     def self.create_http_client(uri, opts)
       client = Net::HTTP.new(uri.host, uri.port)
-      client.use_ssl = true if uri.port.to_s == "443"
+      client.use_ssl = uri.scheme == 'https'
       client.read_timeout = opts[:timeout_seconds] || 10
       client
     end

@@ -58,10 +58,21 @@ describe Tripod::Streaming do
         end
       end
 
-      context 'https URI with default https port' do
-        let(:client) { Tripod::Streaming.create_http_client(URI('https://localhost:443/sparql/query'), {}) }
+      context 'https URI with default port' do
+        let(:client) { Tripod::Streaming.create_http_client(URI('https://localhost/sparql/query'), {}) }
         it 'should use ssl' do
           expect(client.use_ssl?).to eq(true)
+        end
+      end
+
+      context 'https with non-default port' do
+        let(:client) { Tripod::Streaming.create_http_client(URI('https://localhost:4433/sparql/query'), {}) }
+        it 'should use ssl' do
+          expect(client.use_ssl?).to eq(true)
+        end
+
+        it 'should use specified port' do
+          expect(client.port).to eq(4433)
         end
       end
 
