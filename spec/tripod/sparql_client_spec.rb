@@ -28,7 +28,7 @@ module Tripod::SparqlClient
         @query_endpoint = Tripod.query_endpoint
         Tripod.query_endpoint = "http://localhost:#{port}/sparql/query"
         @server_thread = Thread.new do
-          Timeout::timeout(5) do
+          Timeout::timeout(20) do
             listener = TCPServer.new port
             client = listener.accept
 
