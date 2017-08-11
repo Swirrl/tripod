@@ -45,6 +45,8 @@ module Tripod::SparqlClient
             client.puts
           end
         end
+
+        sleep 1
       end
 
       after do
