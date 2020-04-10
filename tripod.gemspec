@@ -17,7 +17,6 @@ Gem::Specification.new do |gem|
   gem.version       = Tripod::VERSION
 
   gem.required_rubygems_version = ">= 1.3.6"
-  gem.rubyforge_project         = "tripod"
 
   gem.add_dependency "rest-client"
   gem.add_dependency "activemodel", ">= 3.2", "< 4.3.0"
