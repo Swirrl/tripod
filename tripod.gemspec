@@ -20,15 +20,15 @@ Gem::Specification.new do |gem|
   gem.rubyforge_project         = "tripod"
 
   gem.add_dependency "rest-client"
-  gem.add_dependency "activemodel", ">= 3.2", "< 4.3.0"
-  gem.add_dependency "activesupport", ">= 3.2", "< 4.3.0"
+  gem.add_dependency "activemodel", ">= 3.2", "<= 5.3"
+  gem.add_dependency "activesupport", ">= 3.2", "<= 5.3"
   gem.add_dependency "equivalent-xml"
-  gem.add_dependency "rdf", "~> 1.1.0"
-  gem.add_dependency "rdf-rdfxml", "~> 1.1.0"
-  gem.add_dependency "rdf-turtle", "~> 1.1.0"
-  gem.add_dependency "rdf-json", "~> 1.1.0"
-  gem.add_dependency "json-ld", "~> 0.9.1" # use v.0.9 for now, as v1.0 changes what is returned for dumping a resource to include other defined resources.
+  gem.add_dependency "rdf", ">= 3.2.0", "<=3.3.0"
+  gem.add_dependency "rdf-rdfxml", ">= 3.2.0", "<=3.3.0"
+  gem.add_dependency "rdf-turtle", ">= 3.2.0", "<=3.3.0"
+  gem.add_dependency "rdf-json", ">= 3.2.0", "<=3.3.0"
+  gem.add_dependency "json-ld", "~> 3.2.0"
   gem.add_dependency "guid"
   gem.add_dependency "dalli", "~> 2.7.0"
-  gem.add_dependency "connection_pool", "~> 2.0.0"
+  gem.add_dependency "connection_pool", "~> 2.2"
 end
