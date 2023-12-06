@@ -27,7 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rdf-rdfxml", ">= 3.2.0", "<=3.3.0"
   gem.add_dependency "rdf-turtle", ">= 3.2.0", "<=3.3.0"
   gem.add_dependency "rdf-json", ">= 3.2.0", "<=3.3.0"
-  gem.add_dependency "json-ld", "~> 3.2.0"
+  gem.add_dependency "json-ld", "~> 3.3.1"
   gem.add_dependency "guid"
   gem.add_dependency "dalli", "~> 2.7.0"
   gem.add_dependency "connection_pool", "~> 2.2"
