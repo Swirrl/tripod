@@ -3,7 +3,7 @@ module Tripod::Validations
     def validate_each(resource, attribute, value)
       return unless value # nil values get passed over.
       is_valid = value.is_a?(Array) ? value.all?{|v| is_url?(v)} : is_url?(value)
-      resource.errors.add(attribute, :is_url, options) unless is_valid
+      resource.errors.add(attribute, :is_url) unless is_valid
     end
 
     private
