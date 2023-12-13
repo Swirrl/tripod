@@ -37,10 +37,14 @@ describe Tripod::CacheStores, :caching_tests => true do
         @number_of_memcache_get_calls = Tripod.cache_store.stats[0]["localhost:11211"]["cmd_get"]
         @number_of_memcache_set_calls = Tripod.cache_store.stats[0]["localhost:11211"]["cmd_set"]
 
-        100.times do
+        threads = (1 .. 100).map do
           Thread.new do
             Tripod::SparqlClient::Query.query(query, accept_header)
           end
+        end
+
+        threads.each do |t|
+          t.join
         end
       end
 

@@ -4,29 +4,37 @@ require 'net/http'
 module Tripod
   module Streaming
 
+    def self.create_http_client(uri, opts)
+      client = Net::HTTP.new(uri.host, uri.port)
+      client.use_ssl = uri.scheme == 'https'
+      client.read_timeout = opts[:timeout_seconds] || 10
+      client
+    end
+
+    def self.create_request(uri, opts)
+      headers = opts[:extra_headers] || {}
+      a = opts[:accept] || headers['Accept'] || '*/*'
+      headers['Accept'] = a
+
+      req = Net::HTTP::Post.new(uri.request_uri, headers)
+
+      if uri.user
+        req.basic_auth(uri.user, uri.password)
+      end
+      req
+    end
+
     # stream data from a url
     # opts
     #  :accept => "*/*"
     #  :timeout_seconds = 10
     #  :response_limit_bytes = nil
     def self.get_data(request_url, payload, opts={})
-
-      accept = opts[:accept]
-      timeout_in_seconds = opts[:timeout_seconds] || 10
       limit_in_bytes = opts[:response_limit_bytes]
-
-      # set request headers
-      headers = opts[:extra_headers] || {}
-
-      # if explicit accept option is given, set it in the headers (and overwrite any existing value in the extra_headers map)
-      # if none is given accept */*
-      headers['Accept'] = accept || headers['Accept'] || '*/*'
-
       uri = URI(request_url)
 
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.port.to_s == "443"
-      http.read_timeout = timeout_in_seconds
+      http = self.create_http_client(uri, opts)
+      post_request = self.create_request(uri, opts)
 
       total_bytes = 0
 
@@ -35,7 +43,7 @@ module Tripod
       response = StringIO.new
 
       begin
-        http.request_post(uri.request_uri, payload, headers) do |res|
+        http.request(post_request, payload) do |res|
 
           response_duration = Time.now - request_start_time if Tripod.logger.debug?
 
